@@ -60,9 +60,9 @@ PCD_HandleTypeDef hpcd_USB_FS;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_ADC1_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_ADC1_Init(void);
                                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -105,9 +105,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
   MX_USB_PCD_Init();
   MX_TIM1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -356,10 +356,26 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LCD0_Pin|LCD1_Pin|LCD2_Pin|LCD_CS_Pin 
+                          |LCD_RST_Pin|LCD_RS_Pin|LED2_Pin|LCD3_Pin 
+                          |LCD4_Pin|LCD5_Pin|LCD6_Pin|LCD7_Pin 
+                          |LCD_RD_Pin|LCD_WR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : LCD0_Pin LCD1_Pin LCD2_Pin LCD_CS_Pin 
+                           LCD_RST_Pin LCD_RS_Pin LCD3_Pin LCD4_Pin 
+                           LCD5_Pin LCD6_Pin LCD7_Pin LCD_RD_Pin 
+                           LCD_WR_Pin */
+  GPIO_InitStruct.Pin = LCD0_Pin|LCD1_Pin|LCD2_Pin|LCD_CS_Pin 
+                          |LCD_RST_Pin|LCD_RS_Pin|LCD3_Pin|LCD4_Pin 
+                          |LCD5_Pin|LCD6_Pin|LCD7_Pin|LCD_RD_Pin 
+                          |LCD_WR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED2_Pin */
   GPIO_InitStruct.Pin = LED2_Pin;
@@ -378,7 +394,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : BTN1_Pin */
   GPIO_InitStruct.Pin = BTN1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BTN1_GPIO_Port, &GPIO_InitStruct);
 
 }

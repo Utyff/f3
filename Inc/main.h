@@ -49,12 +49,38 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define LCD0_Pin GPIO_PIN_0
+#define LCD0_GPIO_Port GPIOB
+#define LCD1_Pin GPIO_PIN_1
+#define LCD1_GPIO_Port GPIOB
+#define LCD2_Pin GPIO_PIN_2
+#define LCD2_GPIO_Port GPIOB
+#define LCD_CS_Pin GPIO_PIN_10
+#define LCD_CS_GPIO_Port GPIOB
+#define LCD_RST_Pin GPIO_PIN_11
+#define LCD_RST_GPIO_Port GPIOB
+#define LCD_RS_Pin GPIO_PIN_12
+#define LCD_RS_GPIO_Port GPIOB
 #define LED2_Pin GPIO_PIN_15
 #define LED2_GPIO_Port GPIOB
 #define LED1_Pin GPIO_PIN_9
 #define LED1_GPIO_Port GPIOA
 #define BTN1_Pin GPIO_PIN_10
 #define BTN1_GPIO_Port GPIOA
+#define LCD3_Pin GPIO_PIN_3
+#define LCD3_GPIO_Port GPIOB
+#define LCD4_Pin GPIO_PIN_4
+#define LCD4_GPIO_Port GPIOB
+#define LCD5_Pin GPIO_PIN_5
+#define LCD5_GPIO_Port GPIOB
+#define LCD6_Pin GPIO_PIN_6
+#define LCD6_GPIO_Port GPIOB
+#define LCD7_Pin GPIO_PIN_7
+#define LCD7_GPIO_Port GPIOB
+#define LCD_RD_Pin GPIO_PIN_8
+#define LCD_RD_GPIO_Port GPIOB
+#define LCD_WR_Pin GPIO_PIN_9
+#define LCD_WR_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**

@@ -2,7 +2,7 @@
 #define __LCD_H
 
 #include "_main.h"
-#include <lcd_fmc.h>
+#include <lcd_gpio.h>
 
 // set the x coordinate instruction
 #define LCD_SET_X 0x2a

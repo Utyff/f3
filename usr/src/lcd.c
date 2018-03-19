@@ -193,6 +193,7 @@ void LCD_Display_Dir(u8 dir) {
 // Not been tested on other types of driver chip!
 void LCD_Init(void) {
 
+    LCD_Reset();
     delay_ms(50);
     LCD_WriteReg(0x0000, 0x0001);
     delay_ms(50);
@@ -210,6 +211,10 @@ void LCD_Init(void) {
             Error_Handler();
         }
     } else {
+        Error_Handler();
+    }
+
+    if (lcddev.id == 0X9341) {   // 9341
         Error_Handler();
     }
 
