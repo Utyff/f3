@@ -18,7 +18,6 @@ LCD_D8 - PB15
 typedef struct {
     u16 width;
     u16 height;
-    u16 id;
     u8  dir;
     u16 wramcmd;
     u16 setxcmd;
@@ -63,7 +62,8 @@ extern u16 BACK_COLOR;
 #define LCD_WR_CLR   CTL_PORT->BRR=1<<LCD_WR_PIN     //PC7
 //#define LCD_RD_CLR   CTL_PORT->BRR=1<<LCD_RD_PIN     //PC6
 
-#define DATAOUT(x) DATA_PORT->ODR=x;
+#define DATAOUT(x) { DATA_PORT->BSRR = (((~(x))&0xFF)<<16) | (x); }
+//#define DATAOUT(x) DATA_PORT->ODR=x;
 //#define DATAIN   DATA_PORT->IDR;
 
 
@@ -125,21 +125,5 @@ void LCD_WriteRAM(u16 RGB_Code);
 void LCD_SetParam(void);
 
 void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode);
-
-/*
-#if LCD_USE8BIT_MODEL==1//
-	#define LCD_WR_DATA(data){\
-	LCD_RS_SET;\
-	LCD_CS_CLR;\
-	DATAOUT(data);\
-	LCD_WR_CLR;\
-	LCD_WR_SET;\
-	DATAOUT(data<<8);\
-	LCD_WR_CLR;\
-	LCD_WR_SET;\
-	LCD_CS_SET;\
-	}
-#endif
-*/
 
 #endif
