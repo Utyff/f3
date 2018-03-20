@@ -11,7 +11,7 @@ void drawFrame() {
     BACK_COLOR = BLACK;
 
     u32 t0 = DWT_Get_Current_Tick();
-
+/*
     for (y = step; y < MAX_Y; y += step) {
         if (y == 128) POINT_COLOR = GRAY;  // Drawing pen color
         else POINT_COLOR = DARKGRAY;
@@ -29,7 +29,7 @@ void drawFrame() {
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
-    LCD_ShowxNum(130, 227, ticks / 168, 8, 12, 9);
+    LCD_ShowxNum(130, 227, ticks / 168, 8, 12, 9); //*/
 }
 
 void drawScreen() {
@@ -42,5 +42,5 @@ void drawScreen() {
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
-    LCD_ShowxNum(170, 227, ticks / 168, 8, 12, 9);
+//    LCD_ShowxNum(170, 227, ticks / 168, 8, 12, 9);
 }
