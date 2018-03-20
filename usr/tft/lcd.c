@@ -1,12 +1,13 @@
 #include "lcd.h"
 #include "delay.h"
+#include "font.h"
 
 // https://github.com/iwalpola/Adafruit_ILI9341_8bit_STM
 
 _lcd_dev lcddev;
 
 u16 POINT_COLOR = 0x0000, BACK_COLOR = 0xFFFF;
-//u16 DeviceCode;
+
 
 void LCD_Init_CMD();
 
@@ -14,18 +15,11 @@ void LCD_Init_CMD();
 void LCD_WR_REG(u8 data) {
 #if LCD_USE8BIT_MODEL == 1
     LCD_RS_CLR;
-    LCD_CS_CLR;
-    DATAOUT(data << 8);
-    LCD_WR_CLR;
-    LCD_WR_SET;
-    LCD_CS_SET;
-#else
-    LCD_RS_CLR;
-    LCD_CS_CLR;
+//    LCD_CS_CLR;
     DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
-    LCD_CS_SET;
+//    LCD_CS_SET;
 #endif
 }
 
@@ -33,37 +27,27 @@ void LCD_WR_REG(u8 data) {
 void LCD_WR_DATA(u16 data) {
 #if LCD_USE8BIT_MODEL == 1
     LCD_RS_SET;
-    LCD_CS_CLR;
-    DATAOUT(data << 8);
-    LCD_WR_CLR;
-    LCD_WR_SET;
-    LCD_CS_SET;
-
-#else
-    LCD_RS_SET;
-    LCD_CS_CLR;
+//    LCD_CS_CLR;
     DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
-    LCD_CS_SET;
+//    LCD_CS_SET;
 #endif
 }
 
 /*****************************************************************/
 void LCD_DrawPoint_16Bit(u16 color) {
 #if LCD_USE8BIT_MODEL == 1
-    LCD_CS_CLR;
-    LCD_RD_SET;
+//    LCD_CS_CLR;
+//    LCD_RD_SET;
     LCD_RS_SET;
+    DATAOUT(color >> 8);
+    LCD_WR_CLR;
+    LCD_WR_SET;
     DATAOUT(color);
     LCD_WR_CLR;
     LCD_WR_SET;
-    DATAOUT(color << 8);
-    LCD_WR_CLR;
-    LCD_WR_SET;
-    LCD_CS_SET;
-#else
-    LCD_WR_DATA(color);
+//    LCD_CS_SET;
 #endif
 }
 
@@ -79,46 +63,40 @@ void LCD_WriteRAM_Prepare(void) {
 }
 
 /*****************************************************************/
-void LCD_DrawPoint(u16 x, u16 y) {
+void LCD_DrawPoint(u16 x, u16 y, u16 color) {
     LCD_SetCursor(x, y);
 #if LCD_USE8BIT_MODEL == 1
-    LCD_CS_CLR;
-    LCD_RD_SET;
+//    LCD_CS_CLR;
+//    LCD_RD_SET;
     LCD_RS_SET;
-    DATAOUT(POINT_COLOR);
+    DATAOUT(color >> 8);
     LCD_WR_CLR;
     LCD_WR_SET;
-    DATAOUT(POINT_COLOR << 8);
+    DATAOUT(color);
     LCD_WR_CLR;
     LCD_WR_SET;
-    LCD_CS_SET;
-#else
-    LCD_WR_DATA(POINT_COLOR);
+//    LCD_CS_SET;
 #endif
 }
 
 /*****************************************************************/
 void LCD_Clear(u16 Color) {
-    u32 index = 0;
     LCD_SetWindows(0, 0, lcddev.width - 1, lcddev.height - 1);
 #if LCD_USE8BIT_MODEL == 1
     LCD_RS_SET;
-    LCD_CS_CLR;
-    for (index = 0; index < lcddev.width * lcddev.height; index++) {
-        DATAOUT(Color);
+//    LCD_CS_CLR;
+
+    u32 total =  lcddev.width * lcddev.height;
+    for (int i = 0; i < total; i++) {
+        DATAOUT(Color>>8);
         LCD_WR_CLR;
         LCD_WR_SET;
 
-        DATAOUT(Color << 8);
+        DATAOUT(Color);
         LCD_WR_CLR;
         LCD_WR_SET;
     }
-    LCD_CS_SET;
-#else
-    for(index=0;index<lcddev.width*lcddev.height;index++)
-    {
-        LCD_WR_DATA(Color);
-    }
+//    LCD_CS_SET;
 #endif
 }
 
@@ -127,11 +105,11 @@ void LCD_Clear(u16 Color) {
 
 /*****************************************************************/
 void LCD_GPIOInit(void) {
-    GPIO_InitTypeDef GPIO_InitStructure;
+/*    GPIO_InitTypeDef GPIO_InitStructure;
 
-/* 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO, ENABLE);
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable , ENABLE);
-	
+
 	GPIO_InitStructure.GPIO_Pin = 1<<LCD_CS_PIN|1<<LCD_RS_PIN|1<<LCD_WR_PIN|1<<LCD_RD_PIN|1<<LCD_RST_PIN;	   //GPIO_Pin_10
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -149,6 +127,7 @@ void LCD_RESET(void) {
     delay_ms(100);
     LCD_RST_SET;
     delay_ms(50);
+    LCD_CS_CLR;
 }
 
 /*****************************************************************/
@@ -159,7 +138,7 @@ void LCD_Init(void) {
     LCD_Init_CMD();
 
     LCD_SetParam();
-    //LCD_Clear(BLUE);
+    LCD_Clear(BLACK);
 }
 
 
@@ -317,98 +296,68 @@ void LCD_Init_CMD() {
     HAL_Delay(150);
 }
 
-void LCD_Init_CMD2 () {
-    //************* Start Initial Sequence **********//
-    LCD_WR_REG(0xCF);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0xC1);
-    LCD_WR_DATA(0X30);
-    LCD_WR_REG(0xED);
-    LCD_WR_DATA(0x64);
-    LCD_WR_DATA(0x03);
-    LCD_WR_DATA(0X12);
-    LCD_WR_DATA(0X81);
-    LCD_WR_REG(0xE8);
-    LCD_WR_DATA(0x85);
-    LCD_WR_DATA(0x10);
-    LCD_WR_DATA(0x7A);
-    LCD_WR_REG(0xCB);
-    LCD_WR_DATA(0x39);
-    LCD_WR_DATA(0x2C);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x34);
-    LCD_WR_DATA(0x02);
-    LCD_WR_REG(0xF7);
-    LCD_WR_DATA(0x20);
-    LCD_WR_REG(0xEA);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_REG(0xC0);    //Power control
-    LCD_WR_DATA(0x1B);   //VRH[5:0]
-    LCD_WR_REG(0xC1);    //Power control
-    LCD_WR_DATA(0x01);   //SAP[2:0];BT[3:0]
-    LCD_WR_REG(0xC5);    //VCM control
-    LCD_WR_DATA(0x30);     //3F
-    LCD_WR_DATA(0x30);     //3C
-    LCD_WR_REG(0xC7);    //VCM control2
-    LCD_WR_DATA(0XB7);
-    LCD_WR_REG(0x36);    // Memory Access Control
-    LCD_WR_DATA(0x48);
-    LCD_WR_REG(0x3A);
-    LCD_WR_DATA(0x55);
-    LCD_WR_REG(0xB1);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x1A);
-    LCD_WR_REG(0xB6);    // Display Function Control
-    LCD_WR_DATA(0x0A);
-    LCD_WR_DATA(0xA2);
-    LCD_WR_REG(0xF2);    // 3Gamma Function Disable
-    LCD_WR_DATA(0x00);
-    LCD_WR_REG(0x26);    //Gamma curve selected
-    LCD_WR_DATA(0x01);
-    LCD_WR_REG(0xE0);    //Set Gamma
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x2A);
-    LCD_WR_DATA(0x28);
-    LCD_WR_DATA(0x08);
-    LCD_WR_DATA(0x0E);
-    LCD_WR_DATA(0x08);
-    LCD_WR_DATA(0x54);
-    LCD_WR_DATA(0XA9);
-    LCD_WR_DATA(0x43);
-    LCD_WR_DATA(0x0A);
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_REG(0XE1);    //Set Gamma
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x15);
-    LCD_WR_DATA(0x17);
-    LCD_WR_DATA(0x07);
-    LCD_WR_DATA(0x11);
-    LCD_WR_DATA(0x06);
-    LCD_WR_DATA(0x2B);
-    LCD_WR_DATA(0x56);
-    LCD_WR_DATA(0x3C);
-    LCD_WR_DATA(0x05);
-    LCD_WR_DATA(0x10);
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x3F);
-    LCD_WR_DATA(0x3F);
-    LCD_WR_DATA(0x0F);
-    LCD_WR_REG(0x2B);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x01);
-    LCD_WR_DATA(0x3f);
-    LCD_WR_REG(0x2A);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0xef);
-    LCD_WR_REG(0x11); //Exit Sleep
-    delay_ms(120);
-    LCD_WR_REG(0x29); //display on
+// m^n function
+// Return value:m^n-th power.
+u32 LCD_Pow(u8 m, u8 n) {
+    u32 result = 1;
+    while (n--) result *= m;
+    return result;
+}
+
+// Display a character in the specified location
+//x,y: Start coordinates
+//num:characters to be displayed:" "--->"~"
+//size: Font size 12/16/24
+//mode: the superposition mode (1) or non-overlapping mode (0)
+void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode) {
+    u8 temp, t1, t;
+    u16 y0 = y;
+    // get a font character set corresponding to the number of bytes occupied by a dot
+    u8 csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size / 2);
+    // Setup Window
+    num = num - ' ';// values obtained after offset
+    for (t = 0; t < csize; t++) {
+        if (size == 12)temp = asc2_1206[num][t];        // call 1206 font
+        else if (size == 16)temp = asc2_1608[num][t];    // call 1608 font
+        else if (size == 24)temp = asc2_2412[num][t];    // call 2412 font
+        else return;                                // no fonts
+        for (t1 = 0; t1 < 8; t1++) {
+            if (temp & 0x80)LCD_DrawPoint(x, y, POINT_COLOR);
+            else if (mode == 0)LCD_DrawPoint(x, y, BACK_COLOR);
+            temp <<= 1;
+            y++;
+            if (y >= lcddev.height)return;        // over the region
+            if ((y - y0) == size) {
+                y = y0;
+                x++;
+                if (x >= lcddev.width)return;    // over the region
+                break;
+            }
+        }
+    }
+}
+
+// Show figures, the high is 0, or show
+//x,y: the starting point coordinates
+//num: Numerical (0~999999999);
+//len: length (ie the number of digits to be displayed)
+//size: Font Size
+//mode:
+//[7]:0, no padding;1, filled with 0.
+//[6:1]: Reserved
+//[0]:0, non-superimposition display;1, superimposed display.
+void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode) {
+    u8 t, temp;
+    u8 enshow = 0;
+    for (t = 0; t < len; t++) {
+        temp = (num / LCD_Pow(10, len - t - 1)) % 10;
+        if (enshow == 0 && t < (len - 1)) {
+            if (temp == 0) {
+                if (mode & 0X80)LCD_ShowChar(x + (size / (u16)2) * t, y, '0', size, mode & (u8)0X01);
+                else            LCD_ShowChar(x + (size / (u16)2) * t, y, ' ', size, mode & (u8)0X01);
+                continue;
+            } else enshow = 1;
+        }
+        LCD_ShowChar(x + (size / (u16)2) * t, y, temp + (u8)'0', size, mode & (u8)0X01);
+    }
 }

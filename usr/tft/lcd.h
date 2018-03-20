@@ -45,11 +45,11 @@ extern u16 BACK_COLOR;
 #define CTL_PORT  GPIOA
 #define DATA_PORT GPIOB
 
-#define LCD_RST_PIN     5
-#define LCD_CS_PIN      9
-#define LCD_RS_PIN      8
-#define LCD_WR_PIN      7
-#define LCD_RD_PIN      6
+#define LCD_RST_PIN     0
+#define LCD_CS_PIN      1
+#define LCD_RS_PIN      2
+#define LCD_WR_PIN      3
+#define LCD_RD_PIN      4
 
 #define LCD_CS_SET   CTL_PORT->BSRR=1<<LCD_CS_PIN    //PC9
 #define LCD_RS_SET   CTL_PORT->BSRR=1<<LCD_RS_PIN    //PC8
@@ -104,7 +104,7 @@ void LCD_Clear(u16 Color);
 
 void LCD_SetCursor(u16 Xpos, u16 Ypos);
 
-void LCD_DrawPoint(u16 x, u16 y);
+void LCD_DrawPoint(u16 x, u16 y, u16 color);
 
 void LCD_DrawLine(u16 x1, u16 y1, u16 x2, u16 y2);
 
@@ -124,6 +124,8 @@ void LCD_WriteRAM(u16 RGB_Code);
 
 void LCD_SetParam(void);
 
+void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode);
+
 /*
 #if LCD_USE8BIT_MODEL==1//
 	#define LCD_WR_DATA(data){\
@@ -133,15 +135,6 @@ void LCD_SetParam(void);
 	LCD_WR_CLR;\
 	LCD_WR_SET;\
 	DATAOUT(data<<8);\
-	LCD_WR_CLR;\
-	LCD_WR_SET;\
-	LCD_CS_SET;\
-	}
-	#else//
-	#define LCD_WR_DATA(data){\
-	LCD_RS_SET;\
-	LCD_CS_CLR;\
-	DATAOUT(data);\
 	LCD_WR_CLR;\
 	LCD_WR_SET;\
 	LCD_CS_SET;\

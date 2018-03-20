@@ -1,11 +1,10 @@
 #include <_main.h>
 #include <stdlib.h>
 #include <delay.h>
+#include <lcd.h>
 #include <draw.h>
 #include <keys.h>
 #include <DataBuffer.h>
-#include <generator.h>
-#include <adc.h>
 
 
 void CORECheck();
@@ -32,7 +31,8 @@ void mainInitialize() {
     //CORECheck();
     //FPUCheck();
 }
-
+int i=0;
+uint16_t clrs[3] = {BLUE, GREEN, RED};
 void mainCycle() {
 //    drawScreen();
 //    KEYS_scan();
@@ -45,15 +45,17 @@ void mainCycle() {
     if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 #endif
 
-/*    POINT_COLOR = WHITE;
-    LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x0);
-    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x0);
-    LCD_ShowxNum(60, 214, (u32) ii, 5, 12, 0x0);
-    LCD_ShowxNum(90, 214, (u32) time / 10, 5, 12, 0x0);
-    LCD_ShowxNum(120, 214, (u32) firstHalf, 5, 12, 0x0);
-//*/
-    //delay_ms(50);
-    HAL_Delay(100);
+    u32 t0 = DWT_Get_Current_Tick();
+    LCD_Clear(clrs[i++]);
+    t0 = DWT_Elapsed_Tick(t0);
+
+    if(i>2) i=0;
+
+    POINT_COLOR = WHITE;
+    BACK_COLOR = BLACK;
+    LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
+
+    delay_ms(1000);
 }
 
 #ifdef DEBUG_TRACE_SWO
