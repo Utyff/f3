@@ -28,12 +28,13 @@ void mainInitialize() {
     HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
     //KEYS_init();
 
-    //CORECheck();
-    //FPUCheck();
+    CORECheck();
+    FPUCheck();
 }
 
 int i=0;
 uint16_t clrs[3] = {BLUE, GREEN, RED};
+
 void mainCycle() {
 //    drawScreen();
 //    KEYS_scan();
