@@ -139,8 +139,8 @@ void LCD_Init_CMD() {
 
     LCD_WR_REG(0xE8);  //  Driver timing control A
     LCD_WR_DATA8(0x85);
-    LCD_WR_DATA8(0x00); // x10
-    LCD_WR_DATA8(0x78); // x7A
+    LCD_WR_DATA8(0x10); // 00 - x10
+    LCD_WR_DATA8(0x7A); // 78 - x7A
 
     LCD_WR_REG(0xCB);   //  Power Control A
     LCD_WR_DATA8(0x39);
@@ -157,17 +157,17 @@ void LCD_Init_CMD() {
     LCD_WR_DATA8(0x00);
 
     LCD_WR_REG(0xC0);   //  Power Control 1
-    LCD_WR_DATA8(0x10); // 0x1B
+    LCD_WR_DATA8(0x10); // VRH[5:0]  10 - 0x1B     !!!!!!! 3.65 V - 4.20 V
 
     LCD_WR_REG(0xC1);   //  Power Control 2
-    LCD_WR_DATA8(0x10);
+    LCD_WR_DATA8(0x10); // SAP[2:0];BT[3:0]  10 - 01  !!!!!!!
 
     LCD_WR_REG(0xC5);   //  VCOM Control 1
-    LCD_WR_DATA8(0x3E); //30
-    LCD_WR_DATA8(0x28); //30
+    LCD_WR_DATA8(0x30); // 3E - 30  /3F
+    LCD_WR_DATA8(0x30); // 28 - 30  /3C
 
     LCD_WR_REG(0xC7);   //  VCOM Control 2
-    LCD_WR_DATA8(0x86); // B7
+    LCD_WR_DATA8(0xB7); //  86 - B7 (86 - плохое качество)
 
     LCD_WR_REG(0x36);   // Memory Access Control
     LCD_WR_DATA8(0x48);
@@ -177,11 +177,11 @@ void LCD_Init_CMD() {
 
     LCD_WR_REG(0xB1);
     LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x18); // Частота кадров 79 Гц // 1A
+    LCD_WR_DATA8(0x18); // Частота кадров 79 Гц // 18 - 1A  79Hz - 73Hz
 
     LCD_WR_REG(0xB6);   // Display Function Control
-    LCD_WR_DATA8(0x08); // 0A
-    LCD_WR_DATA8(0x82); // A2
+    LCD_WR_DATA8(0x0A); // 08 - 0A
+    LCD_WR_DATA8(0xA2); // 82 - A2
     //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
 
     LCD_WR_REG(0xF2);    //  3Gamma Function
@@ -192,36 +192,36 @@ void LCD_Init_CMD() {
 
     LCD_WR_REG(0xE0);    // Positive Gamma  Correction
     LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x31);
-    LCD_WR_DATA8(0x2B);
-    LCD_WR_DATA8(0x0C);
+    LCD_WR_DATA8(0x2A);
+    LCD_WR_DATA8(0x28);
+    LCD_WR_DATA8(0x08);
     LCD_WR_DATA8(0x0E);
     LCD_WR_DATA8(0x08);
-    LCD_WR_DATA8(0x4E);
-    LCD_WR_DATA8(0xF1);
-    LCD_WR_DATA8(0x37);
-    LCD_WR_DATA8(0x07);
-    LCD_WR_DATA8(0x10);
-    LCD_WR_DATA8(0x03);
-    LCD_WR_DATA8(0x0E);
-    LCD_WR_DATA8(0x09);
+    LCD_WR_DATA8(0x54);
+    LCD_WR_DATA8(0XA9);
+    LCD_WR_DATA8(0x43);
+    LCD_WR_DATA8(0x0A);
+    LCD_WR_DATA8(0x0F);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
     LCD_WR_DATA8(0x00);
 
     LCD_WR_REG(0xE1);     // Negative Gamma  Correction
     LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x0E);
-    LCD_WR_DATA8(0x14);
-    LCD_WR_DATA8(0x03);
-    LCD_WR_DATA8(0x11);
+    LCD_WR_DATA8(0x15);
+    LCD_WR_DATA8(0x17);
     LCD_WR_DATA8(0x07);
-    LCD_WR_DATA8(0x31);
-    LCD_WR_DATA8(0xC1);
-    LCD_WR_DATA8(0x48);
-    LCD_WR_DATA8(0x08);
+    LCD_WR_DATA8(0x11);
+    LCD_WR_DATA8(0x06);
+    LCD_WR_DATA8(0x2B);
+    LCD_WR_DATA8(0x56);
+    LCD_WR_DATA8(0x3C);
+    LCD_WR_DATA8(0x05);
+    LCD_WR_DATA8(0x10);
     LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x0C);
-    LCD_WR_DATA8(0x31);
-    LCD_WR_DATA8(0x36);
+    LCD_WR_DATA8(0x3F);
+    LCD_WR_DATA8(0x3F);
     LCD_WR_DATA8(0x0F);
 
     LCD_WR_REG(0x2B);
@@ -256,8 +256,8 @@ void LCD_Init_sequence() {
 
     LCD_WR_REG(0xE8);  //  Driver timing control A
     LCD_WR_DATA8(0x85);
-    LCD_WR_DATA8(0x10);
-    LCD_WR_DATA8(0x7A);
+    LCD_WR_DATA8(0x10); // 00 - x10
+    LCD_WR_DATA8(0x7A); // 78 - x7A
 
     LCD_WR_REG(0xCB);   //  Power Control A
     LCD_WR_DATA8(0x39);
@@ -274,17 +274,17 @@ void LCD_Init_sequence() {
     LCD_WR_DATA8(0x00);
 
     LCD_WR_REG(0xC0);   //  Power Control 1
-    LCD_WR_DATA8(0x1B);   //VRH[5:0]
+    LCD_WR_DATA8(0x1B); // VRH[5:0]  10 - 0x1B     !!!!!!! 3.65 V - 4.20 V
 
     LCD_WR_REG(0xC1);   //  Power Control 2
-    LCD_WR_DATA8(0x01);   //SAP[2:0];BT[3:0]
+    LCD_WR_DATA8(0x01); // SAP[2:0];BT[3:0]  10 - 01  !!!!!!!
 
     LCD_WR_REG(0xC5);   //  VCOM Control 1
-    LCD_WR_DATA8(0x30);     //3F
-    LCD_WR_DATA8(0x30);     //3C
+    LCD_WR_DATA8(0x30); // 3E - 30  /3F
+    LCD_WR_DATA8(0x30); // 28 - 30  /3C
 
     LCD_WR_REG(0xC7);   //  VCOM Control 2
-    LCD_WR_DATA8(0XB7);
+    LCD_WR_DATA8(0xB7); //  86 - B7 (86 - плохое качество)
 
     LCD_WR_REG(0x36);   // Memory Access Control
     LCD_WR_DATA8(0x48);
@@ -294,11 +294,11 @@ void LCD_Init_sequence() {
 
     LCD_WR_REG(0xB1);
     LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x1A);
+    LCD_WR_DATA8(0x1A); // Частота кадров 79 Гц // 18 - 1A  79Hz - 73Hz
 
     LCD_WR_REG(0xB6);   // Display Function Control
-    LCD_WR_DATA8(0x0A);
-    LCD_WR_DATA8(0xA2);
+    LCD_WR_DATA8(0x0A); // 08 - 0A
+    LCD_WR_DATA8(0xA2); // 82 - A2
     //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
 
     LCD_WR_REG(0xF2);    //  3Gamma Function
