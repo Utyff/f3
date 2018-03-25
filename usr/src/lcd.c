@@ -169,28 +169,26 @@ void LCD_Init_CMD() {
     LCD_WR_REG(0xC7);   //  VCOM Control 2
     LCD_WR_DATA8(0x86); // B7
 
-//    DWT_Delay_us(1);
-//    TFT9341_SetRotation(0);
     LCD_WR_REG(0x36);   // Memory Access Control
-    LCD_WR_DATA(0x48);
+    LCD_WR_DATA8(0x48);
 
-    LCD_WR_REG(0x3A);   //Pixel Format Set
-    LCD_WR_DATA8(0x55); //16bit
+    LCD_WR_REG(0x3A);   //  Pixel Format Set
+    LCD_WR_DATA8(0x55); // 16bit
 
     LCD_WR_REG(0xB1);
     LCD_WR_DATA8(0x00);
     LCD_WR_DATA8(0x18); // Частота кадров 79 Гц // 1A
 
-    LCD_WR_REG(0xB6);   //Display Function Control
+    LCD_WR_REG(0xB6);   // Display Function Control
     LCD_WR_DATA8(0x08); // 0A
     LCD_WR_DATA8(0x82); // A2
-    LCD_WR_DATA8(0x27); //320 строк // отсутсвует
+    //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
 
-    LCD_WR_REG(0xF2);    //Enable 3G (пока не знаю что это за режим)
-    LCD_WR_DATA8(0x00);  //не включаем
+    LCD_WR_REG(0xF2);    //  3Gamma Function
+    LCD_WR_DATA8(0x00);  // Disable
 
-    LCD_WR_REG(0x26);    //Gamma set
-    LCD_WR_DATA8(0x01);  //Gamma Curve (G2.2) (Кривая цветовой гаммы)
+    LCD_WR_REG(0x26);    // Gamma curve selected
+    LCD_WR_DATA8(0x01);  // Gamma Curve (G2.2) (Кривая цветовой гаммы)
 
     LCD_WR_REG(0xE0);    // Positive Gamma  Correction
     LCD_WR_DATA8(0x0F);
@@ -227,135 +225,136 @@ void LCD_Init_CMD() {
     LCD_WR_DATA8(0x0F);
 
     LCD_WR_REG(0x2B);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x01);
-    LCD_WR_DATA(0x3f);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x01);
+    LCD_WR_DATA8(0x3f);
     LCD_WR_REG(0x2A);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0xef);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0xef);
 
-    LCD_WR_REG(0x11);  //Выйдем из спящего режим
-    HAL_Delay(120);
-    LCD_WR_REG(0x29);  //Включение дисплея
+    LCD_WR_REG(0x11); // Exit Sleep
+    delay_ms(120);
+    LCD_WR_REG(0x29); // display on
 }
 
 void LCD_Init_sequence() {
-    LCD_WR_REG(0x01);  //Software Reset
+    LCD_WR_REG(0x01);  //  Software Reset
 
-    LCD_WR_REG(0xCF);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0xC1);
-    LCD_WR_DATA(0X30);
+    LCD_WR_REG(0xCF);  //  Power Control B
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0xC1);
+    LCD_WR_DATA8(0x30);
 
-    LCD_WR_REG(0xED);
-    LCD_WR_DATA(0x64);
-    LCD_WR_DATA(0x03);
-    LCD_WR_DATA(0X12);
-    LCD_WR_DATA(0X81);
+    LCD_WR_REG(0xED);  //  Power on Sequence control
+    LCD_WR_DATA8(0x64);
+    LCD_WR_DATA8(0x03);
+    LCD_WR_DATA8(0x12);
+    LCD_WR_DATA8(0x81);
 
-    LCD_WR_REG(0xE8);
-    LCD_WR_DATA(0x85);
-    LCD_WR_DATA(0x10);
-    LCD_WR_DATA(0x7A);
+    LCD_WR_REG(0xE8);  //  Driver timing control A
+    LCD_WR_DATA8(0x85);
+    LCD_WR_DATA8(0x10);
+    LCD_WR_DATA8(0x7A);
 
-    LCD_WR_REG(0xCB);
-    LCD_WR_DATA(0x39);
-    LCD_WR_DATA(0x2C);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x34);
-    LCD_WR_DATA(0x02);
+    LCD_WR_REG(0xCB);   //  Power Control A
+    LCD_WR_DATA8(0x39);
+    LCD_WR_DATA8(0x2C);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x34);
+    LCD_WR_DATA8(0x02);
 
-    LCD_WR_REG(0xF7);
-    LCD_WR_DATA(0x20);
+    LCD_WR_REG(0xF7);   //  Pump ratio control
+    LCD_WR_DATA8(0x20);
 
-    LCD_WR_REG(0xEA);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
+    LCD_WR_REG(0xEA);   //  Driver timing control B
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
 
-    LCD_WR_REG(0xC0);    //Power control
-    LCD_WR_DATA(0x1B);   //VRH[5:0]
+    LCD_WR_REG(0xC0);   //  Power Control 1
+    LCD_WR_DATA8(0x1B);   //VRH[5:0]
 
-    LCD_WR_REG(0xC1);    //Power control
-    LCD_WR_DATA(0x01);   //SAP[2:0];BT[3:0]
+    LCD_WR_REG(0xC1);   //  Power Control 2
+    LCD_WR_DATA8(0x01);   //SAP[2:0];BT[3:0]
 
-    LCD_WR_REG(0xC5);    //VCM control
-    LCD_WR_DATA(0x30);     //3F
-    LCD_WR_DATA(0x30);     //3C
+    LCD_WR_REG(0xC5);   //  VCOM Control 1
+    LCD_WR_DATA8(0x30);     //3F
+    LCD_WR_DATA8(0x30);     //3C
 
-    LCD_WR_REG(0xC7);    //VCM control2
-    LCD_WR_DATA(0XB7);
+    LCD_WR_REG(0xC7);   //  VCOM Control 2
+    LCD_WR_DATA8(0XB7);
 
-    LCD_WR_REG(0x36);    // Memory Access Control
-    LCD_WR_DATA(0x48);
+    LCD_WR_REG(0x36);   // Memory Access Control
+    LCD_WR_DATA8(0x48);
 
-    LCD_WR_REG(0x3A);
-    LCD_WR_DATA(0x55);
+    LCD_WR_REG(0x3A);   //  Pixel Format Set
+    LCD_WR_DATA8(0x55); // 16bit
 
     LCD_WR_REG(0xB1);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x1A);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x1A);
 
-    LCD_WR_REG(0xB6);    // Display Function Control
-    LCD_WR_DATA(0x0A);
-    LCD_WR_DATA(0xA2);
+    LCD_WR_REG(0xB6);   // Display Function Control
+    LCD_WR_DATA8(0x0A);
+    LCD_WR_DATA8(0xA2);
+    //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
 
-    LCD_WR_REG(0xF2);    // 3Gamma Function Disable
-    LCD_WR_DATA(0x00);
+    LCD_WR_REG(0xF2);    //  3Gamma Function
+    LCD_WR_DATA8(0x00);  // Disable
 
-    LCD_WR_REG(0x26);    //Gamma curve selected
-    LCD_WR_DATA(0x01);
+    LCD_WR_REG(0x26);    // Gamma curve selected
+    LCD_WR_DATA8(0x01);  // Gamma Curve (G2.2) (Кривая цветовой гаммы)
 
-    LCD_WR_REG(0xE0);    //Set Gamma
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x2A);
-    LCD_WR_DATA(0x28);
-    LCD_WR_DATA(0x08);
-    LCD_WR_DATA(0x0E);
-    LCD_WR_DATA(0x08);
-    LCD_WR_DATA(0x54);
-    LCD_WR_DATA(0XA9);
-    LCD_WR_DATA(0x43);
-    LCD_WR_DATA(0x0A);
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
+    LCD_WR_REG(0xE0);    // Positive Gamma  Correction
+    LCD_WR_DATA8(0x0F);
+    LCD_WR_DATA8(0x2A);
+    LCD_WR_DATA8(0x28);
+    LCD_WR_DATA8(0x08);
+    LCD_WR_DATA8(0x0E);
+    LCD_WR_DATA8(0x08);
+    LCD_WR_DATA8(0x54);
+    LCD_WR_DATA8(0XA9);
+    LCD_WR_DATA8(0x43);
+    LCD_WR_DATA8(0x0A);
+    LCD_WR_DATA8(0x0F);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
 
-    LCD_WR_REG(0XE1);    //  Set Gamma
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x15);
-    LCD_WR_DATA(0x17);
-    LCD_WR_DATA(0x07);
-    LCD_WR_DATA(0x11);
-    LCD_WR_DATA(0x06);
-    LCD_WR_DATA(0x2B);
-    LCD_WR_DATA(0x56);
-    LCD_WR_DATA(0x3C);
-    LCD_WR_DATA(0x05);
-    LCD_WR_DATA(0x10);
-    LCD_WR_DATA(0x0F);
-    LCD_WR_DATA(0x3F);
-    LCD_WR_DATA(0x3F);
-    LCD_WR_DATA(0x0F);
+    LCD_WR_REG(0xE1);     // Negative Gamma  Correction
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x15);
+    LCD_WR_DATA8(0x17);
+    LCD_WR_DATA8(0x07);
+    LCD_WR_DATA8(0x11);
+    LCD_WR_DATA8(0x06);
+    LCD_WR_DATA8(0x2B);
+    LCD_WR_DATA8(0x56);
+    LCD_WR_DATA8(0x3C);
+    LCD_WR_DATA8(0x05);
+    LCD_WR_DATA8(0x10);
+    LCD_WR_DATA8(0x0F);
+    LCD_WR_DATA8(0x3F);
+    LCD_WR_DATA8(0x3F);
+    LCD_WR_DATA8(0x0F);
 
     LCD_WR_REG(0x2B);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x01);
-    LCD_WR_DATA(0x3f);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x01);
+    LCD_WR_DATA8(0x3f);
     LCD_WR_REG(0x2A);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0x00);
-    LCD_WR_DATA(0xef);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0x00);
+    LCD_WR_DATA8(0xef);
 
-    LCD_WR_REG(0x11); //Exit Sleep
+    LCD_WR_REG(0x11); // Exit Sleep
     delay_ms(120);
-    LCD_WR_REG(0x29); //display on
+    LCD_WR_REG(0x29); // display on
 }
 
 // m^n function
