@@ -14,10 +14,44 @@ u16 BACK_COLOR = 0xFFFF;  // background color
 _lcd_dev lcddev;
 
 
-void LCD_Init_CMD();
 void LCD_Init_sequence();
 
 
+// Set the cursor position
+//Xpos: abscissa
+//Ypos: ordinate
+void LCD_SetCursor(u16 x, u16 y) {
+    LCD_WR_REG((u8) (LCD_SET_X));
+    LCD_WR_DATA8((u8) (x >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & x));
+    LCD_WR_REG((u8) (LCD_SET_Y));
+    LCD_WR_DATA8((u8) (y >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & y));
+    LCD_WriteRAM_Prepare();
+}
+
+// Set the window, and automatically sets the upper left corner of the window to draw point coordinates (sx,sy).
+//sx,sy: window start coordinate (upper left corner)
+//width,height: width and height of the window, must be greater than 0!!
+// Form size:width*height.
+void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
+    LCD_WR_REG(LCD_SET_X);
+    LCD_WR_DATA8((u8) (sx >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & sx));
+    LCD_WR_DATA8((u8) (ex >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & ex));
+
+    LCD_WR_REG(LCD_SET_Y);
+    LCD_WR_DATA8((u8) (sy >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & sy));
+    LCD_WR_DATA8((u8) (ey >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & ey));
+    LCD_WriteRAM_Prepare();
+}
+
+// Draw points
+//x,y: coordinates
+//POINT_COLOR: the color of this point
 void LCD_DrawPoint(u16 x, u16 y) {
     if (x >= MAX_X || y >= MAX_Y)
         return;
@@ -26,6 +60,9 @@ void LCD_DrawPoint(u16 x, u16 y) {
     LCD_WR_DATA(POINT_COLOR);
 }
 
+// Draw the point fast
+//x,y: coordinates
+//color: color
 void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
     if (x >= MAX_X || y >= MAX_Y)
         return;
@@ -52,20 +89,9 @@ void LCD_Clear(u16 Color) {
 #define GPIO_Pin_All 0xFF
 
 void LCD_GPIOInit(void) {
-/*    GPIO_InitTypeDef GPIO_InitStructure;
-
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC|RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO, ENABLE);
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable , ENABLE);
-
-	GPIO_InitStructure.GPIO_Pin = 1<<LCD_CS_PIN|1<<LCD_RS_PIN|1<<LCD_WR_PIN|1<<LCD_RD_PIN|1<<LCD_RST_PIN;	   //GPIO_Pin_10
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOC, &GPIO_InitStructure); //GPIOC  */
     GPIO_SetBits(CTL_PORT, 1 << LCD_CS_PIN | 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN | 1 << LCD_RST_PIN);
-
-/*	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-	GPIO_Init(GPIOB, &GPIO_InitStructure); //GPIOB */
     GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
+    LCD_CS_CLR;
 }
 
 void LCD_SetParam();
@@ -74,37 +100,12 @@ void LCD_Init(void) {
     LCD_GPIOInit();
     LCD_RESET();
 
-    LCD_Init_CMD();
-    //LCD_Init_sequence();
+    LCD_Init_sequence();
 
     LCD_SetParam();
     LCD_Clear(BLACK);
 }
 
-
-void LCD_Set_Window(u16 xStar, u16 yStar, u16 xEnd, u16 yEnd) {
-    LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8((u8) (xStar >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & xStar));
-    LCD_WR_DATA8((u8) (xEnd >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & xEnd));
-    LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8((u8) (yStar >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & yStar));
-    LCD_WR_DATA8((u8) (yEnd >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & yEnd));
-    LCD_WriteRAM_Prepare();
-}
-
-void LCD_SetCursor(u16 x, u16 y) {
-    LCD_WR_REG((u8) (LCD_SET_X));
-    LCD_WR_DATA8((u8) (x >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & x));
-    LCD_WR_REG((u8) (LCD_SET_Y));
-    LCD_WR_DATA8((u8) (y >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & y));
-    LCD_WriteRAM_Prepare();
-}
 
 void LCD_SetParam(void) {
 #if USE_HORIZONTAL == 1
@@ -123,7 +124,7 @@ void LCD_SetParam(void) {
 }
 
 
-void LCD_Init_CMD() {
+void LCD_Init_sequence() {
     LCD_WR_REG(0x01);  //  Software Reset
 
     LCD_WR_REG(0xCF);  //  Power Control B
@@ -178,123 +179,6 @@ void LCD_Init_CMD() {
     LCD_WR_REG(0xB1);
     LCD_WR_DATA8(0x00);
     LCD_WR_DATA8(0x18); // Частота кадров 79 Гц // 18 - 1A  79Hz - 73Hz
-
-    LCD_WR_REG(0xB6);   // Display Function Control
-    LCD_WR_DATA8(0x0A); // 08 - 0A
-    LCD_WR_DATA8(0xA2); // 82 - A2
-    //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
-
-    LCD_WR_REG(0xF2);    //  3Gamma Function
-    LCD_WR_DATA8(0x00);  // Disable
-
-    LCD_WR_REG(0x26);    // Gamma curve selected
-    LCD_WR_DATA8(0x01);  // Gamma Curve (G2.2) (Кривая цветовой гаммы)
-
-    LCD_WR_REG(0xE0);    // Positive Gamma  Correction
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x2A);
-    LCD_WR_DATA8(0x28);
-    LCD_WR_DATA8(0x08);
-    LCD_WR_DATA8(0x0E);
-    LCD_WR_DATA8(0x08);
-    LCD_WR_DATA8(0x54);
-    LCD_WR_DATA8(0XA9);
-    LCD_WR_DATA8(0x43);
-    LCD_WR_DATA8(0x0A);
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-
-    LCD_WR_REG(0xE1);     // Negative Gamma  Correction
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x15);
-    LCD_WR_DATA8(0x17);
-    LCD_WR_DATA8(0x07);
-    LCD_WR_DATA8(0x11);
-    LCD_WR_DATA8(0x06);
-    LCD_WR_DATA8(0x2B);
-    LCD_WR_DATA8(0x56);
-    LCD_WR_DATA8(0x3C);
-    LCD_WR_DATA8(0x05);
-    LCD_WR_DATA8(0x10);
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x3F);
-    LCD_WR_DATA8(0x3F);
-    LCD_WR_DATA8(0x0F);
-
-    LCD_WR_REG(0x2B);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x01);
-    LCD_WR_DATA8(0x3f);
-    LCD_WR_REG(0x2A);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0xef);
-
-    LCD_WR_REG(0x11); // Exit Sleep
-    delay_ms(120);
-    LCD_WR_REG(0x29); // display on
-}
-
-void LCD_Init_sequence() {
-    LCD_WR_REG(0x01);  //  Software Reset
-
-    LCD_WR_REG(0xCF);  //  Power Control B
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0xC1);
-    LCD_WR_DATA8(0x30);
-
-    LCD_WR_REG(0xED);  //  Power on Sequence control
-    LCD_WR_DATA8(0x64);
-    LCD_WR_DATA8(0x03);
-    LCD_WR_DATA8(0x12);
-    LCD_WR_DATA8(0x81);
-
-    LCD_WR_REG(0xE8);  //  Driver timing control A
-    LCD_WR_DATA8(0x85);
-    LCD_WR_DATA8(0x10); // 00 - x10
-    LCD_WR_DATA8(0x7A); // 78 - x7A
-
-    LCD_WR_REG(0xCB);   //  Power Control A
-    LCD_WR_DATA8(0x39);
-    LCD_WR_DATA8(0x2C);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x34);
-    LCD_WR_DATA8(0x02);
-
-    LCD_WR_REG(0xF7);   //  Pump ratio control
-    LCD_WR_DATA8(0x20);
-
-    LCD_WR_REG(0xEA);   //  Driver timing control B
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-
-    LCD_WR_REG(0xC0);   //  Power Control 1
-    LCD_WR_DATA8(0x1B); // VRH[5:0]  10 - 0x1B     !!!!!!! 3.65 V - 4.20 V
-
-    LCD_WR_REG(0xC1);   //  Power Control 2
-    LCD_WR_DATA8(0x01); // SAP[2:0];BT[3:0]  10 - 01  !!!!!!!
-
-    LCD_WR_REG(0xC5);   //  VCOM Control 1
-    LCD_WR_DATA8(0x30); // 3E - 30  /3F
-    LCD_WR_DATA8(0x30); // 28 - 30  /3C
-
-    LCD_WR_REG(0xC7);   //  VCOM Control 2
-    LCD_WR_DATA8(0xB7); //  86 - B7 (86 - плохое качество)
-
-    LCD_WR_REG(0x36);   // Memory Access Control
-    LCD_WR_DATA8(0x48);
-
-    LCD_WR_REG(0x3A);   //  Pixel Format Set
-    LCD_WR_DATA8(0x55); // 16bit
-
-    LCD_WR_REG(0xB1);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x1A); // Частота кадров 79 Гц // 18 - 1A  79Hz - 73Hz
 
     LCD_WR_REG(0xB6);   // Display Function Control
     LCD_WR_DATA8(0x0A); // 08 - 0A

@@ -99,7 +99,6 @@ __STATIC_INLINE void LCD_RESET(void) {
     LCD_RST_SET;
     delay_ms(50);
 #endif
-    LCD_CS_CLR;
 }
 
 /*
