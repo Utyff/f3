@@ -39,6 +39,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
+extern DMA_HandleTypeDef hdma_adc1;
+
 extern void _Error_Handler(char *, int);
 /* USER CODE BEGIN 0 */
 
@@ -81,25 +83,42 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
-  if(hadc->Instance==ADC2)
+  if(hadc->Instance==ADC1)
   {
-  /* USER CODE BEGIN ADC2_MspInit 0 */
+  /* USER CODE BEGIN ADC1_MspInit 0 */
 
-  /* USER CODE END ADC2_MspInit 0 */
+  /* USER CODE END ADC1_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_ADC12_CLK_ENABLE();
   
-    /**ADC2 GPIO Configuration    
-    PA5     ------> ADC2_IN2 
+    /**ADC1 GPIO Configuration    
+    PA0     ------> ADC1_IN1 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN ADC2_MspInit 1 */
+    /* ADC1 DMA Init */
+    /* ADC1 Init */
+    hdma_adc1.Instance = DMA1_Channel1;
+    hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_adc1.Init.Mode = DMA_CIRCULAR;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
+    if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
 
-  /* USER CODE END ADC2_MspInit 1 */
+    __HAL_LINKDMA(hadc,DMA_Handle,hdma_adc1);
+
+  /* USER CODE BEGIN ADC1_MspInit 1 */
+
+  /* USER CODE END ADC1_MspInit 1 */
   }
 
 }
@@ -107,22 +126,24 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 {
 
-  if(hadc->Instance==ADC2)
+  if(hadc->Instance==ADC1)
   {
-  /* USER CODE BEGIN ADC2_MspDeInit 0 */
+  /* USER CODE BEGIN ADC1_MspDeInit 0 */
 
-  /* USER CODE END ADC2_MspDeInit 0 */
+  /* USER CODE END ADC1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_ADC12_CLK_DISABLE();
   
-    /**ADC2 GPIO Configuration    
-    PA5     ------> ADC2_IN2 
+    /**ADC1 GPIO Configuration    
+    PA0     ------> ADC1_IN1 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0);
 
-  /* USER CODE BEGIN ADC2_MspDeInit 1 */
+    /* ADC1 DMA DeInit */
+    HAL_DMA_DeInit(hadc->DMA_Handle);
+  /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
-  /* USER CODE END ADC2_MspDeInit 1 */
+  /* USER CODE END ADC1_MspDeInit 1 */
   }
 
 }
@@ -247,6 +268,60 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_encoder)
   /* USER CODE BEGIN TIM8_MspDeInit 1 */
 
   /* USER CODE END TIM8_MspDeInit 1 */
+  }
+
+}
+
+void HAL_UART_MspInit(UART_HandleTypeDef* huart)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(huart->Instance==USART1)
+  {
+  /* USER CODE BEGIN USART1_MspInit 0 */
+
+  /* USER CODE END USART1_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_USART1_CLK_ENABLE();
+  
+    /**USART1 GPIO Configuration    
+    PA9     ------> USART1_TX
+    PA10     ------> USART1_RX 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USER CODE BEGIN USART1_MspInit 1 */
+
+  /* USER CODE END USART1_MspInit 1 */
+  }
+
+}
+
+void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
+{
+
+  if(huart->Instance==USART1)
+  {
+  /* USER CODE BEGIN USART1_MspDeInit 0 */
+
+  /* USER CODE END USART1_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_USART1_CLK_DISABLE();
+  
+    /**USART1 GPIO Configuration    
+    PA9     ------> USART1_TX
+    PA10     ------> USART1_RX 
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_10);
+
+  /* USER CODE BEGIN USART1_MspDeInit 1 */
+
+  /* USER CODE END USART1_MspDeInit 1 */
   }
 
 }

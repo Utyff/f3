@@ -76,12 +76,12 @@ void drawGraph() {
 
     POINT_COLOR = BLUE;
     prev = graph[0];
-/*    for (u16 i = 1; i < MAX_X; i++) {
+    for (u16 i = 1; i < MAX_X; i++) {
         //LCD_DrawLine(i - (u16) 1, prev, i, graph[i]);
         LCD_Fill(i , prev, i, graph[i], POINT_COLOR);
         prev = graph[i];
     }
-    LCD_Set_Window(0,0,MAX_X-1,MAX_Y-1); //*/
+    LCD_Set_Window(0,0,MAX_X-1,MAX_Y-1);
 
     DrawGraphTick = DWT_Elapsed_Tick(t0);
 //  LCD_ShowxNum(150,227, DrawGraphTick/168,  10,12, 9);

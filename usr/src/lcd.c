@@ -1,37 +1,47 @@
 #include "lcd.h"
-#include "delay.h"
 #include "font.h"
+#include "delay.h"
 
-// https://github.com/iwalpola/Adafruit_ILI9341_8bit_STM
+/**
+ * 2.4 Inch /2.8 inch/3.5 inch/4.3 inch TFT LCD driver
+ * Support driver IC models: ILI9341
+ */
 
+u16 POINT_COLOR = 0x0000; // Drawing pen color
+u16 BACK_COLOR = 0xFFFF;  // background color
+
+// Management LCD important parameters
 _lcd_dev lcddev;
-
-u16 POINT_COLOR = 0x0000, BACK_COLOR = 0xFFFF;
 
 
 void LCD_Init_CMD();
 
 
-
 void LCD_DrawPoint(u16 x, u16 y) {
+    if (x >= MAX_X || y >= MAX_Y)
+        return;
+
     LCD_SetCursor(x, y);
     LCD_WR_DATA(POINT_COLOR);
 }
 
 void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
+    if (x >= MAX_X || y >= MAX_Y)
+        return;
+
     LCD_SetCursor(x, y);
     LCD_WR_DATA(color);
 }
 
 
 void LCD_Clear(u16 Color) {
-    LCD_Set_Window(0, 0, lcddev.width - (u16)1, lcddev.height - (u16)1);
+    LCD_Set_Window(0, 0, lcddev.width - (u16) 1, lcddev.height - (u16) 1);
 #ifdef LCD_USE8BIT_MODEL
     LCD_RS_SET;
 
-    u32 total =  lcddev.width * lcddev.height;
+    u32 total = lcddev.width * lcddev.height;
     for (int i = 0; i < total; i++) {
-        LCD_WR_DATA8_SHORT(Color>>8);
+        LCD_WR_DATA8_SHORT(Color >> 8);
         LCD_WR_DATA8_SHORT(Color);
     }
 #endif
@@ -81,25 +91,25 @@ void LCD_Init(void) {
 
 void LCD_Set_Window(u16 xStar, u16 yStar, u16 xEnd, u16 yEnd) {
     LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8((u8)(xStar >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & xStar));
-    LCD_WR_DATA8((u8)(xEnd >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & xEnd));
+    LCD_WR_DATA8((u8) (xStar >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & xStar));
+    LCD_WR_DATA8((u8) (xEnd >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & xEnd));
     LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8((u8)(yStar >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & yStar));
-    LCD_WR_DATA8((u8)(yEnd >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & yEnd));
+    LCD_WR_DATA8((u8) (yStar >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & yStar));
+    LCD_WR_DATA8((u8) (yEnd >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & yEnd));
     LCD_WriteRAM_Prepare();
 }
 
 void LCD_SetCursor(u16 x, u16 y) {
-    LCD_WR_REG((u8)(LCD_SET_X));
-    LCD_WR_DATA8((u8)(x >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & x));
-    LCD_WR_REG((u8)(LCD_SET_Y));
-    LCD_WR_DATA8((u8)(y >> 8));
-    LCD_WR_DATA8((u8)(0x00FF & y));
+    LCD_WR_REG((u8) (LCD_SET_X));
+    LCD_WR_DATA8((u8) (x >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & x));
+    LCD_WR_REG((u8) (LCD_SET_Y));
+    LCD_WR_DATA8((u8) (y >> 8));
+    LCD_WR_DATA8((u8) (0x00FF & y));
     LCD_WriteRAM_Prepare();
 }
 
@@ -118,7 +128,7 @@ void LCD_SetParam(void) {
     LCD_WR_REG(0x36);
     LCD_WR_DATA8(0xC9);
 #endif
-}	
+}
 
 
 void LCD_Init_CMD() {
@@ -285,11 +295,11 @@ void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode) {
         temp = (num / LCD_Pow(10, len - t - 1)) % 10;
         if (enshow == 0 && t < (len - 1)) {
             if (temp == 0) {
-                if (mode & 0X80)LCD_ShowChar(x + (size / (u16)2) * t, y, '0', size, mode & (u8)0X01);
-                else            LCD_ShowChar(x + (size / (u16)2) * t, y, ' ', size, mode & (u8)0X01);
+                if (mode & 0X80)LCD_ShowChar(x + (size / (u16) 2) * t, y, '0', size, mode & (u8) 0X01);
+                else LCD_ShowChar(x + (size / (u16) 2) * t, y, ' ', size, mode & (u8) 0X01);
                 continue;
             } else enshow = 1;
         }
-        LCD_ShowChar(x + (size / (u16)2) * t, y, temp + (u8)'0', size, mode & (u8)0X01);
+        LCD_ShowChar(x + (size / (u16) 2) * t, y, temp + (u8) '0', size, mode & (u8) 0X01);
     }
 }

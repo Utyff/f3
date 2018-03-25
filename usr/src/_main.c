@@ -19,18 +19,19 @@ void mainInitialize() {
     DWT_Init();
     LCD_Init();
 
-    //HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
     //ADC_setParams();
 
-    //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     //GEN_setParams();
 
-    //HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
     //KEYS_init();
 
     //CORECheck();
     //FPUCheck();
 }
+
 int i=0;
 uint16_t clrs[3] = {BLUE, GREEN, RED};
 void mainCycle() {
@@ -55,7 +56,7 @@ void mainCycle() {
     BACK_COLOR = BLACK;
     LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
 
-    delay_ms(1000);
+    delay_ms(500);
 }
 
 #ifdef DEBUG_TRACE_SWO
