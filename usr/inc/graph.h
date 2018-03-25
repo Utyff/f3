@@ -5,9 +5,6 @@
 #include "lcd.h"
 
 
-#define MAX_X 320
-#define MAX_Y 240
-
 extern float scaleX;
 extern uint8_t graph[];
 
