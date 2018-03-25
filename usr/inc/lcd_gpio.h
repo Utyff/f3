@@ -36,13 +36,19 @@ LCD_D8 - PB15
 #define LCD_WR_PIN      3
 #define LCD_RD_PIN      4
 
+#ifdef  LCD_RST_Pin
 #define LCD_RST_SET  CTL_PORT->BSRR=1<<LCD_RST_PIN
+#define LCD_RST_CLR  CTL_PORT->BRR=1<<LCD_RST_PIN
+#else
+#define LCD_RST_SET
+#define LCD_RST_CLR
+#endif
+
 #define LCD_CS_SET   CTL_PORT->BSRR=1<<LCD_CS_PIN  // disable LCD bus
 #define LCD_RS_SET   CTL_PORT->BSRR=1<<LCD_RS_PIN  // select data
 #define LCD_WR_SET   CTL_PORT->BSRR=1<<LCD_WR_PIN
 #define LCD_RD_SET   CTL_PORT->BSRR=1<<LCD_RD_PIN
 
-#define LCD_RST_CLR  CTL_PORT->BRR=1<<LCD_RST_PIN
 #define LCD_CS_CLR   CTL_PORT->BRR=1<<LCD_CS_PIN  // enable LCD bus
 #define LCD_RS_CLR   CTL_PORT->BRR=1<<LCD_RS_PIN  // select register
 #define LCD_WR_CLR   CTL_PORT->BRR=1<<LCD_WR_PIN
@@ -85,6 +91,17 @@ __STATIC_INLINE void LCD_WR_DATA(u16 data) {
     LCD_WR_SET;
 #endif
 }
+
+__STATIC_INLINE void LCD_RESET(void) {
+#ifdef  LCD_RST_Pin
+    LCD_RST_CLR;
+    delay_ms(100);
+    LCD_RST_SET;
+    delay_ms(50);
+#endif
+    LCD_CS_CLR;
+}
+
 /*
 __STATIC_INLINE u8 LCD_RD_DATA8(void) {
 #ifdef LCD_READ_SUPPORT
