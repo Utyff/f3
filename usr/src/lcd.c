@@ -194,16 +194,24 @@ void LCD_Display_Dir(u8 dir) {
 #define GPIO_Pin_All 0xFF
 
 void LCD_GPIOInit(void) {
-    GPIO_SetBits(CTL_PORT, 1 << LCD_CS_PIN | 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN | 1 << LCD_RST_PIN);
-    GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
-    LCD_CS_CLR;
+    // deactivate WR and RD signals
+    GPIO_SetBits(CTL_PORT, 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN );
+//    GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
+
+    LCD_CS_CLR; // Chip-select always active
+
+#ifdef  LCD_RST_Pin
+    LCD_RST_CLR;
+    delay_ms(100);
+    LCD_RST_SET;
+    delay_ms(50);
+#endif
 }
 
 void LCD_SetParam();
 
 void LCD_Init(void) {
     LCD_GPIOInit();
-    LCD_RESET();
 
     LCD_Init_sequence();
 
@@ -360,8 +368,7 @@ void LCD_Clear(u16 color) {
 
     u32 totalPoints = lcddev.width * lcddev.height;  // get the total number of points
     for (u32 i = 0; i < totalPoints; i++) {
-        LCD_WR_DATA8_SHORT(color >> 8);
-        LCD_WR_DATA8_SHORT(color);
+        LCD_WR_DATA_SHORT(color);
     }
 #endif
 
@@ -371,7 +378,7 @@ void LCD_Clear(u16 color) {
 }
 
 // Fill a single color in the designated area
-//(sx,sy),(ex,ey): filled rectangle coordinates diagonal , area size:(ex-sx+1)*(ey-sy+1)
+//(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
 //color: To fill color
 void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color) {
     u16 tmp;
@@ -391,15 +398,15 @@ void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color) {
 
 // In the designated area to fill the specified color block
 //(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
-//color: To fill color
+//bmp: pointer to bmp array
 void LCD_drawBMP(u16 sx, u16 sy, u16 ex, u16 ey, const u16 *bmp) {
     u16 height, width;
     u16 i, j;
     width = ex - sx + (u16) 1;            // get filled width
     height = ey - sy + (u16) 1;           // height
     for (i = 0; i < height; i++) {
-        LCD_SetCursor(sx, sy + i);  // set the cursor position
-        LCD_WriteRAM_Prepare();     // start writing GRAM
+        LCD_SetCursor(sx, sy + i);    // set the cursor position
+        LCD_WriteRAM_Prepare();       // start writing GRAM
         for (j = 0; j < width; j++) { // write data
             LCD_WR_DATA(bmp[i * width + j]);
         }

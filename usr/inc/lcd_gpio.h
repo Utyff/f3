@@ -54,11 +54,14 @@ LCD_D8 - PB15
 #define LCD_WR_CLR   CTL_PORT->BRR=1<<LCD_WR_PIN
 #define LCD_RD_CLR   CTL_PORT->BRR=1<<LCD_RD_PIN
 
-// Data must be 8bit
+// !!! Data must be 8bit !!! The highest bits must be 0.
 #define DATAOUT(x) { DATA_PORT->BSRR = ((~(x))<<16) | (x); }
 //#define DATAOUT(x) DATA_PORT->ODR=x;
 //#define DATAIN   DATA_PORT->IDR;
 
+// TODO  change all u8 to u16 and add 0xFF mask when it need. For high performance.
+#define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
+#define LCD_WR_DATA_SHORT(data)  { LCD_WR_DATA8_SHORT(color >> 8);  LCD_WR_DATA8_SHORT(color); }  // TODO  add mask 0xFF
 
 __STATIC_INLINE void LCD_WR_REG(u8 data) {
 #ifdef LCD_USE8BIT_MODEL
@@ -68,8 +71,6 @@ __STATIC_INLINE void LCD_WR_REG(u8 data) {
     LCD_WR_SET;
 #endif
 }
-
-#define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
 
 __STATIC_INLINE void LCD_WR_DATA8(u8 data) {
 #ifdef LCD_USE8BIT_MODEL
@@ -86,18 +87,9 @@ __STATIC_INLINE void LCD_WR_DATA(u16 data) {
     DATAOUT(data >> 8);
     LCD_WR_CLR;
     LCD_WR_SET;
-    DATAOUT(data);
+    DATAOUT(data); // TODO  add mask 0xFF
     LCD_WR_CLR;
     LCD_WR_SET;
-#endif
-}
-
-__STATIC_INLINE void LCD_RESET(void) {
-#ifdef  LCD_RST_Pin
-    LCD_RST_CLR;
-    delay_ms(100);
-    LCD_RST_SET;
-    delay_ms(50);
 #endif
 }
 
