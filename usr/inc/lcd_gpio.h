@@ -109,6 +109,14 @@ __STATIC_INLINE u8 LCD_RD_DATA8(void) {
     LCD_RD_CLR;
 #endif
 }
-
 */
+
+// Write register
+//LCD_Reg: Register Address
+//LCD_RegValue: data to be written
+__STATIC_INLINE void LCD_WriteReg(vu8 LCD_Reg, vu8 LCD_RegValue) {
+    LCD_WR_REG(LCD_Reg);         // Write to write register number
+    LCD_WR_DATA8(LCD_RegValue);  // write data
+}
+
 #endif //_LCD_GPIO_H
