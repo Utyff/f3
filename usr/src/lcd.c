@@ -1,3 +1,4 @@
+#include <lcd.h>
 #include "lcd.h"
 #include "font.h"
 #include "delay.h"
@@ -35,16 +36,16 @@ void LCD_SetCursor(u16 x, u16 y) {
 // Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
     LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8((u8) (sx >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & sx));
-    LCD_WR_DATA8((u8) (ex >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & ex));
+    LCD_WR_DATA8(sx >> 8);
+    LCD_WR_DATA8((u16)0x00FF & sx);
+    LCD_WR_DATA8(ex >> 8);
+    LCD_WR_DATA8((u16)0x00FF & ex);
 
     LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8((u8) (sy >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & sy));
-    LCD_WR_DATA8((u8) (ey >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & ey));
+    LCD_WR_DATA8(sy >> 8);
+    LCD_WR_DATA8((u16)0x00FF & sy);
+    LCD_WR_DATA8(ey >> 8);
+    LCD_WR_DATA8((u16)0x00FF & ey);
 }
 
 // Set up automatic scanning direction of the LCD
@@ -360,8 +361,8 @@ void LCD_Clear(u16 color) {
     // get start time
     u32 t0 = DWT_Get_Current_Tick();
 
-    LCD_SetCursor(0, 0);     // set the cursor position
-    LCD_WriteRAM_Prepare();  // start writing GRAM
+    LCD_Set_Window(0, 0, MAX_X-1, MAX_Y-1); // set the cursor position
+    LCD_WriteRAM_Prepare();                 // start writing GRAM
 
 #ifdef LCD_USE8BIT_MODEL
     LCD_RS_SET;

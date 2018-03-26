@@ -59,11 +59,10 @@ LCD_D8 - PB15
 //#define DATAOUT(x) DATA_PORT->ODR=x;
 //#define DATAIN   DATA_PORT->IDR;
 
-// TODO  change all u8 to u16 and add 0xFF mask when it need. For high performance.
 #define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
-#define LCD_WR_DATA_SHORT(data)  { LCD_WR_DATA8_SHORT(color >> 8);  LCD_WR_DATA8_SHORT(color); }  // TODO  add mask 0xFF
+#define LCD_WR_DATA_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
 
-__STATIC_INLINE void LCD_WR_REG(u8 data) {
+__STATIC_INLINE void LCD_WR_REG(u16 data) {
 #ifdef LCD_USE8BIT_MODEL
     LCD_RS_CLR;
     DATAOUT(data);
@@ -72,7 +71,7 @@ __STATIC_INLINE void LCD_WR_REG(u8 data) {
 #endif
 }
 
-__STATIC_INLINE void LCD_WR_DATA8(u8 data) {
+__STATIC_INLINE void LCD_WR_DATA8(u16 data) {
 #ifdef LCD_USE8BIT_MODEL
     LCD_RS_SET;
     DATAOUT(data);
@@ -87,7 +86,7 @@ __STATIC_INLINE void LCD_WR_DATA(u16 data) {
     DATAOUT(data >> 8);
     LCD_WR_CLR;
     LCD_WR_SET;
-    DATAOUT(data); // TODO  add mask 0xFF
+    DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
 #endif
@@ -106,7 +105,7 @@ __STATIC_INLINE u8 LCD_RD_DATA8(void) {
 // Write register
 //LCD_Reg: Register Address
 //LCD_RegValue: data to be written
-__STATIC_INLINE void LCD_WriteReg(vu8 LCD_Reg, vu8 LCD_RegValue) {
+__STATIC_INLINE void LCD_WriteReg(vu16 LCD_Reg, vu16 LCD_RegValue) {
     LCD_WR_REG(LCD_Reg);         // Write to write register number
     LCD_WR_DATA8(LCD_RegValue);  // write data
 }
