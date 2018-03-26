@@ -1,5 +1,5 @@
+#include <lcd_gpio.h>
 #include <lcd.h>
-#include "lcd.h"
 #include "font.h"
 #include "delay.h"
 
@@ -17,17 +17,21 @@ _lcd_dev lcddev;
 
 void LCD_Init_sequence();
 
+// Start writing GRAM
+__STATIC_INLINE void LCD_WriteRAM_Prepare(void) {
+    LCD_WR_REG(LCD_WR_RAM_CMD);
+}
 
 // Set the cursor position
 //Xpos: abscissa
 //Ypos: ordinate
 void LCD_SetCursor(u16 x, u16 y) {
-    LCD_WR_REG((u8) (LCD_SET_X));
-    LCD_WR_DATA8((u8) (x >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & x));
-    LCD_WR_REG((u8) (LCD_SET_Y));
-    LCD_WR_DATA8((u8) (y >> 8));
-    LCD_WR_DATA8((u8) (0x00FF & y));
+    LCD_WR_REG(LCD_SET_X);
+    LCD_WR_DATA8(x >> 8);
+    LCD_WR_DATA8(x & (u16) 0XFF);
+    LCD_WR_REG(LCD_SET_Y);
+    LCD_WR_DATA8(y >> 8);
+    LCD_WR_DATA8(y & (u16) 0XFF);
 }
 
 // Set the window, and automatically sets the upper left corner of the window to draw point coordinates (sx,sy).
@@ -37,15 +41,15 @@ void LCD_SetCursor(u16 x, u16 y) {
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
     LCD_WR_REG(LCD_SET_X);
     LCD_WR_DATA8(sx >> 8);
-    LCD_WR_DATA8((u16)0x00FF & sx);
+    LCD_WR_DATA8(sx & (u16) 0XFF);
     LCD_WR_DATA8(ex >> 8);
-    LCD_WR_DATA8((u16)0x00FF & ex);
+    LCD_WR_DATA8(ex & (u16) 0XFF);
 
     LCD_WR_REG(LCD_SET_Y);
     LCD_WR_DATA8(sy >> 8);
-    LCD_WR_DATA8((u16)0x00FF & sy);
+    LCD_WR_DATA8(sy & (u16) 0XFF);
     LCD_WR_DATA8(ey >> 8);
-    LCD_WR_DATA8((u16)0x00FF & ey);
+    LCD_WR_DATA8(ey & (u16) 0XFF);
 }
 
 // Set up automatic scanning direction of the LCD
@@ -196,7 +200,7 @@ void LCD_Display_Dir(u8 dir) {
 
 void LCD_GPIOInit(void) {
     // deactivate WR and RD signals
-    GPIO_SetBits(CTL_PORT, 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN );
+    GPIO_SetBits(CTL_PORT, 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN);
 //    GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
 
     LCD_CS_CLR; // Chip-select always active
@@ -361,7 +365,7 @@ void LCD_Clear(u16 color) {
     // get start time
     u32 t0 = DWT_Get_Current_Tick();
 
-    LCD_Set_Window(0, 0, MAX_X-1, MAX_Y-1); // set the cursor position
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
     LCD_WriteRAM_Prepare();                 // start writing GRAM
 
 #ifdef LCD_USE8BIT_MODEL

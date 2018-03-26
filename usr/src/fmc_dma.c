@@ -26,7 +26,7 @@ void clearScreen_dma(uint16_t color) {
 void copy2Screen_dma()
 {
     LCD_SetCursor(0, 0);         // set the cursor position
-    LCD_WriteRAM_Prepare();      // start writing GRAM
+//    LCD_WriteRAM_Prepare();      // start writing GRAM
 
     // copy first half of screen
 /*    HAL_DMA_Start(&hdma_memtomem_dma2_stream1, (uint32_t)screenBuffer, LCD->LCD_RAM, SCREEN_DOTS/2);
