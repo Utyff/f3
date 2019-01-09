@@ -4,7 +4,7 @@
 #include "delay.h"
 
 /**
- * 2.4 Inch /2.8 inch/3.5 inch/4.3 inch TFT LCD driver
+ * TFT LCD driver
  * Support driver IC models: ILI9341
  */
 
@@ -553,7 +553,6 @@ void LCD_ShowNum(u16 x, u16 y, u32 num, u8 len, u8 size) {
                 LCD_ShowChar(x + (size / 2) * t, y, ' ', size, 0);
                 continue;
             } else enshow = 1;
-
         }
         LCD_ShowChar(x + (size / 2) * t, y, temp + '0', size, 0);
     }
