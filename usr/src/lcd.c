@@ -18,7 +18,7 @@ _lcd_dev lcddev;
 void LCD_Init_sequence();
 
 // Start writing GRAM
-__STATIC_INLINE void LCD_WriteRAM_Prepare(void) {
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteRAM_Prepare(void) {
     LCD_WR_REG(LCD_WR_RAM_CMD);
 }
 
@@ -163,7 +163,7 @@ void LCD_DrawPoint(u16 x, u16 y) {
 
     LCD_SetCursor(x, y);       // Set the cursor position
     LCD_WriteRAM_Prepare();    // Start writing GRAM
-    LCD_WR_DATA(POINT_COLOR);
+    LCD_WR_DATA16(POINT_COLOR);
 }
 
 // Draw the point fast
@@ -175,7 +175,7 @@ void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
 
     LCD_SetCursor(x, y);
     LCD_WriteRAM_Prepare();    // Start writing GRAM
-    LCD_WR_DATA(color);
+    LCD_WR_DATA16(color);
 }
 
 
@@ -362,24 +362,14 @@ void LCD_Init_sequence() {
 // Clear screen function
 //color: To clear the screen fill color
 void LCD_Clear(u16 color) {
-    // get start time
-    u32 t0 = DWT_Get_Current_Tick();
-
     LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
     LCD_WriteRAM_Prepare();                 // start writing GRAM
 
-#ifdef LCD_USE8BIT_MODEL
     LCD_RS_SET;
-
     u32 totalPoints = lcddev.width * lcddev.height;  // get the total number of points
     for (u32 i = 0; i < totalPoints; i++) {
-        LCD_WR_DATA_SHORT(color);
+        LCD_WR_DATA16_SHORT(color);
     }
-#endif
-
-    u32 LCDClearTick = DWT_Elapsed_Tick(t0);
-    POINT_COLOR = YELLOW;
-    LCD_ShowxNum(100, 227, LCDClearTick / 168, 8, 12, 9);
 }
 
 // Fill a single color in the designated area
@@ -396,8 +386,9 @@ void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color) {
 
     LCD_Set_Window(sx, sy, ex, ey);          // set the cursor position
     LCD_WriteRAM_Prepare();                  // start writing GRAM
+    LCD_RS_SET;
     for (int j = 0; j < totalPoints; j++) {  // display colors
-        LCD_WR_DATA(color);
+        LCD_WR_DATA16_SHORT(color);
     }
 }
 
@@ -412,8 +403,9 @@ void LCD_drawBMP(u16 sx, u16 sy, u16 ex, u16 ey, const u16 *bmp) {
     for (i = 0; i < height; i++) {
         LCD_SetCursor(sx, sy + i);    // set the cursor position
         LCD_WriteRAM_Prepare();       // start writing GRAM
+        LCD_RS_SET;
         for (j = 0; j < width; j++) { // write data
-            LCD_WR_DATA(bmp[i * width + j]);
+            LCD_WR_DATA16_SHORT(bmp[i * width + j]);
         }
     }
 }

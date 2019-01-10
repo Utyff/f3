@@ -11,7 +11,6 @@ void CORECheck();
 
 void FPUCheck();
 
-extern int ii;
 extern float time;
 
 

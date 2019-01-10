@@ -29,7 +29,7 @@ void drawFrame() {
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
-    LCD_ShowxNum(130, 227, ticks / 168, 8, 12, 9);
+    LCD_ShowxNum(130, 227, ticks / DWT_IN_MICROSEC, 8, 12, 9);
 }
 
 void drawScreen() {
@@ -42,5 +42,5 @@ void drawScreen() {
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
-    LCD_ShowxNum(170, 227, ticks / 168, 8, 12, 9);
+    LCD_ShowxNum(170, 227, ticks / DWT_IN_MICROSEC, 8, 12, 9);
 }

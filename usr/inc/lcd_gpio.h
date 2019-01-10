@@ -16,8 +16,6 @@ LCD_D8 - PB15
 **************************************************************************************************/
 
 #define USE_HORIZONTAL          1
-#define LCD_USE8BIT_MODEL
-//#define LCD_READ_SUPPORT
 
 #if USE_HORIZONTAL == 1
 #define LCD_W 320
@@ -55,33 +53,32 @@ LCD_D8 - PB15
 #define LCD_RD_CLR   CTL_PORT->BRR=1<<LCD_RD_PIN
 
 // !!! Data must be 8bit !!! The highest bits must be 0.
-#define DATAOUT(x) { DATA_PORT->BSRR = ((~(x))<<16) | (x); }
+//#define DATAOUT(x) { DATA_PORT->BSRR = ((~(x))<<16) | (x); }
 //#define DATAOUT(x) DATA_PORT->ODR=x;
 //#define DATAIN   DATA_PORT->IDR;
+__attribute__( ( always_inline ) ) __STATIC_INLINE void DATAOUT(u8 data) {
+    DATA_PORT->BSRR = ((~(data))<<16) | (data);
+}
 
+// write without control RS
 #define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
-#define LCD_WR_DATA_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
+#define LCD_WR_DATA16_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
 
-__STATIC_INLINE void LCD_WR_REG(u16 data) {
-#ifdef LCD_USE8BIT_MODEL
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_REG(u8 data) {
     LCD_RS_CLR;
     DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
-#endif
 }
 
-__STATIC_INLINE void LCD_WR_DATA8(u16 data) {
-#ifdef LCD_USE8BIT_MODEL
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_DATA8(u8 data) {
     LCD_RS_SET;
     DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
-#endif
 }
 
-__STATIC_INLINE void LCD_WR_DATA(u16 data) {
-#ifdef LCD_USE8BIT_MODEL
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_DATA16(u16 data) {
     LCD_RS_SET;
     DATAOUT(data >> 8);
     LCD_WR_CLR;
@@ -89,7 +86,6 @@ __STATIC_INLINE void LCD_WR_DATA(u16 data) {
     DATAOUT(data);
     LCD_WR_CLR;
     LCD_WR_SET;
-#endif
 }
 
 /*
@@ -105,7 +101,7 @@ __STATIC_INLINE u8 LCD_RD_DATA8(void) {
 // Write register
 //LCD_Reg: Register Address
 //LCD_RegValue: data to be written
-__STATIC_INLINE void LCD_WriteReg(vu16 LCD_Reg, vu16 LCD_RegValue) {
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteReg(vu16 LCD_Reg, vu16 LCD_RegValue) {
     LCD_WR_REG(LCD_Reg);         // Write to write register number
     LCD_WR_DATA8(LCD_RegValue);  // write data
 }

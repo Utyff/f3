@@ -102,6 +102,7 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+  SystemCoreClock = 72000000;
 
   /* USER CODE BEGIN SysInit */
 
