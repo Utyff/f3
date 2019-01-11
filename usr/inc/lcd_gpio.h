@@ -52,40 +52,41 @@ LCD_D8 - PB15
 #define LCD_WR_CLR   CTL_PORT->BRR=1<<LCD_WR_PIN
 #define LCD_RD_CLR   CTL_PORT->BRR=1<<LCD_RD_PIN
 
+#define DATAOUT(x) { *(volatile uint8_t *)&DATA_PORT->ODR = (x); }
 // !!! Data must be 8bit !!! The highest bits must be 0.
 //#define DATAOUT(x) { DATA_PORT->BSRR = ((~(x))<<16) | (x); }
 //#define DATAOUT(x) DATA_PORT->ODR=x;
 //#define DATAIN   DATA_PORT->IDR;
-__attribute__( ( always_inline ) ) __STATIC_INLINE void DATAOUT(u8 data) {
-    DATA_PORT->BSRR = ((~(data))<<16) | (data);
-}
+//__attribute__( ( always_inline ) ) __STATIC_INLINE void DATAOUT(u8 data) {
+//    DATA_PORT->BSRR = ((~(data))<<16) | (data);
+//}
 
 // write without control RS
 #define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
 #define LCD_WR_DATA16_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
 
-__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_REG(u8 data) {
-    LCD_RS_CLR;
-    DATAOUT(data);
-    LCD_WR_CLR;
-    LCD_WR_SET;
+#define LCD_WR_REG(data) { \
+    LCD_RS_CLR; \
+    DATAOUT(data); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
 }
 
-__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_DATA8(u8 data) {
-    LCD_RS_SET;
-    DATAOUT(data);
-    LCD_WR_CLR;
-    LCD_WR_SET;
+#define LCD_WR_DATA8(data) { \
+    LCD_RS_SET; \
+    DATAOUT(data); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
 }
 
-__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WR_DATA16(u16 data) {
-    LCD_RS_SET;
-    DATAOUT(data >> 8);
-    LCD_WR_CLR;
-    LCD_WR_SET;
-    DATAOUT(data);
-    LCD_WR_CLR;
-    LCD_WR_SET;
+#define LCD_WR_DATA16(data) { \
+    LCD_RS_SET; \
+    DATAOUT(data >> 8); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
+    DATAOUT(data); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
 }
 
 /*

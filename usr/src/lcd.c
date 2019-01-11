@@ -367,9 +367,16 @@ void LCD_Clear(u16 color) {
 
     LCD_RS_SET;
     u32 totalPoints = lcddev.width * lcddev.height;  // get the total number of points
+
+    u32 t0 = DWT_Get_Current_Tick();
     for (u32 i = 0; i < totalPoints; i++) {
         LCD_WR_DATA16_SHORT(color);
     }
+    t0 = DWT_Elapsed_Tick(t0);
+
+    POINT_COLOR = WHITE;
+    BACK_COLOR = BLACK;
+    LCD_ShowxNum(100, 227, t0 / DWT_IN_MICROSEC, 8, 12, 8); // LCD_Clear - 45935 us
 }
 
 // Fill a single color in the designated area

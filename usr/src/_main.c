@@ -31,11 +31,8 @@ void mainInitialize() {
     FPUCheck();
 }
 
-int i=0;
-uint16_t clrs[3] = {BLUE, GREEN, RED};
-
 void mainCycle() {
-//    drawScreen();
+    drawScreen();
 //    KEYS_scan();
 
     if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
@@ -46,17 +43,11 @@ void mainCycle() {
     if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 #endif
 
-    u32 t0 = DWT_Get_Current_Tick();
-    LCD_Clear(clrs[i++]);
-    t0 = DWT_Elapsed_Tick(t0);
-
-    if(i>2) i=0;
-
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
-    LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
+//    LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
 
-    delay_ms(500);
+    delay_ms(50);
 }
 
 #ifdef DEBUG_TRACE_SWO
