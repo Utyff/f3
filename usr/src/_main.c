@@ -11,8 +11,6 @@ void CORECheck();
 
 void FPUCheck();
 
-extern float time;
-
 
 void mainInitialize() {
     DWT_Init();
@@ -25,7 +23,7 @@ void mainInitialize() {
     //GEN_setParams();
 
     HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
-    //KEYS_init();
+    KEYS_init();
 
     CORECheck();
     FPUCheck();
@@ -33,7 +31,7 @@ void mainInitialize() {
 
 void mainCycle() {
     drawScreen();
-//    KEYS_scan();
+    KEYS_scan();
 
     if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 #ifdef LED2_Pin
@@ -46,6 +44,11 @@ void mainCycle() {
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
 //    LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
+    LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x01);
+    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x01);
+    LCD_ShowxNum(60, 214, (u32) enc_step, 5, 12, 0x01);
+//    LCD_ShowxNum(90, 214, (u32) time / 10, 5, 12, 0x01);
+    LCD_ShowxNum(120, 214, (u32) firstHalf, 5, 12, 0x01);
 
     delay_ms(50);
 }
