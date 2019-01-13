@@ -54,12 +54,13 @@ void buildGraph1ch() {
     j = -1;
     i = triggerStart1ch(samples);
     for (; i < BUF_SIZE / 2; i++) {
+        uint8_t val = (uint8_t) (samples[i] * 0.94f);
         if ((int) x != j) {
             j = (int) x;
             if (j >= MAX_X) break;
-            graph[j] = samples[i];
+            graph[j] = val;
         } else {
-            graph[j] = (graph[j] + samples[i]) >> 1; // arithmetical mean
+            graph[j] = (graph[j] + val) >> 1; // arithmetical mean
         }
         x += scaleX;
     }
@@ -78,10 +79,10 @@ void drawGraph() {
     prev = graph[0];
     for (u16 i = 1; i < MAX_X; i++) {
         //LCD_DrawLine(i - (u16) 1, prev, i, graph[i]);
-        LCD_Fill(i , prev, i, graph[i], POINT_COLOR);
+        LCD_Fill(i, prev, i, graph[i], POINT_COLOR);
         prev = graph[i];
     }
-    LCD_Set_Window(0,0,MAX_X-1,MAX_Y-1);
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
 
     DrawGraphTick = DWT_Elapsed_Tick(t0);
 //  LCD_ShowxNum(150,227, DrawGraphTick/168,  10,12, 9);

@@ -4,6 +4,7 @@
 #include <lcd.h>
 #include <draw.h>
 #include <keys.h>
+#include <adc.h>
 #include <DataBuffer.h>
 
 
@@ -16,8 +17,8 @@ void mainInitialize() {
     DWT_Init();
     LCD_Init();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
-    //ADC_setParams();
+//    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
+    ADC_setParams();
 
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     //GEN_setParams();
