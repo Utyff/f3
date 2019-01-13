@@ -379,6 +379,43 @@ void LCD_Clear(u16 color) {
     LCD_ShowxNum(100, 227, t0 / DWT_IN_MICROSEC, 8, 12, 8); // LCD_Clear - 45935 us
 }
 
+void LCD_Clear8(u8 color) {
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
+    LCD_WriteRAM_Prepare();                 // start writing GRAM
+
+    LCD_RS_SET;
+    u32 totalPoints = (u32) (lcddev.width * lcddev.height / 8);  // get the total number of points. 2 points in cycle
+
+    DATAOUT(color);
+    u32 t0 = DWT_Get_Current_Tick();
+    for (u32 i = 0; i < totalPoints; i++) {
+        LCD_WR_CLR; LCD_WR_SET; // 1 point - 2 pulses
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+        LCD_WR_CLR; LCD_WR_SET;
+    }
+    t0 = DWT_Elapsed_Tick(t0);
+
+    POINT_COLOR = WHITE;
+    BACK_COLOR = BLACK;
+    LCD_ShowxNum(100, 227, t0 / DWT_IN_MICROSEC, 8, 12, 8); // LCD_Clear - 45935 us
+}
+
 // Fill a single color in the designated area
 //(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
 //color: To fill color

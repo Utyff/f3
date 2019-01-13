@@ -72,6 +72,7 @@ extern "C" {
 
 void LCD_Init(void);                                                        // Initialize
 void LCD_Clear(u16 Color);                                                    // Clear the screen
+void LCD_Clear8(u8 Color);                                                    // Clear the screen
 void LCD_SetCursor(u16 Xpos, u16 Ypos);                                        // Set the cursor
 void LCD_DrawPoint(u16 x, u16 y);                                            // Draw the points
 void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color);                                // Quickly draw points
