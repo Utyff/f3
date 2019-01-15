@@ -1,11 +1,11 @@
 #include <_main.h>
 #include <stdlib.h>
 #include <delay.h>
-#include <lcd.h>
 #include <draw.h>
 #include <keys.h>
-#include <adc.h>
 #include <DataBuffer.h>
+#include <generator.h>
+#include <adc.h>
 
 
 void CORECheck();
@@ -17,11 +17,11 @@ void mainInitialize() {
     DWT_Init();
     LCD_Init();
 
-//    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
+    //HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
     ADC_setParams();
 
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    //GEN_setParams();
+    //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    GEN_setParams();
 
     HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
     KEYS_init();
@@ -44,7 +44,6 @@ void mainCycle() {
 
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
-//    LCD_ShowxNum(100, 227, t0 / 72, 8, 12, 8); // LCD_Clear - 45935 us
     LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x01);
     LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x01);
     LCD_ShowxNum(60, 214, (u32) enc_step, 5, 12, 0x01);

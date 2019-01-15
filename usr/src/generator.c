@@ -1,6 +1,13 @@
 #include <_main.h>
 #include "generator.h"
 
+/* F3
+ * TIM1 Configuration
+ * CLK  72 mHz
+ * TIM1 CLK 144
+ * PRE           72 - 1 => 2 MHz
+ * COUNT PERIOD  100 - 1 => 20 KHz
+ */
 /* F7
  * TIM1 Configuration
  * CLK  216 mHz
@@ -24,18 +31,19 @@ typedef struct GEN_param GEN_PARAM;
 
 #define GEN_Parameters_Size 6
 const GEN_PARAM GEN_Parameters[GEN_Parameters_Size] = {
-        {107, 19,  100000},
-        {107, 24,  80000},
-        {99,  35,  60000},
-        {107, 49,  40000},
-        {107, 99,  20000},
-        {107, 199, 10000}
+        {71, 19,  100000},
+        {71, 24,  80000},
+        {49, 47,  60000},
+        {71, 49,  40000},
+        {71, 99,  20000},
+        {71, 199, 10000}
 };
 
 int currentGenParam = 4;
 int currentGenScale = 1;
 
-uint32_t tim1Prescaler = 107;
+// start params - 20000 Hz
+uint32_t tim1Prescaler = 71;
 uint32_t tim1Period = 99;
 uint32_t tim1Pulse = 30;
 

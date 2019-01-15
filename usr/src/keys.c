@@ -1,6 +1,8 @@
 #include <_main.h>
 #include <keys.h>
+#include <adc.h>
 #include <string.h>
+#include <generator.h>
 
 #define DEBOUNCING_CNT 0
 #define MAX_ENCODER    255 // max encoder value
@@ -58,12 +60,12 @@ void KEYS_scan() {
     DBG_Trace(buf);
 
     // choose type of encoder action
-/*    int8_t action = button1Count % (int8_t) 3;
-    if (action == 0) {
-        ADC_step(step);
-    } else if (action == 1) {
-        GEN_step(step);
-    } else {
+    int8_t mode = button1Count % (int8_t) 3;
+    if (mode == 0) {
+        ADC_step(enc_step);
+    } else if (mode == 1) {
+        GEN_step(enc_step);
+    }/* else {
         DAC_NextGeneratorSignal();
     } //*/
 }
