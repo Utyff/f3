@@ -3,7 +3,7 @@
 
 #include "lcd.h"
 
-#define BUF_SIZE 2048
+#define BUF_SIZE 4096
 extern u8 samplesBuffer[BUF_SIZE];
 
 extern u8 firstHalf; // first or second half of buffer writing

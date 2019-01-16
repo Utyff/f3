@@ -13,11 +13,14 @@ struct ADC_param {
 };
 typedef struct ADC_param ADC_PARAM;
 
-#define ADC_Parameters_Size  3
+#define ADC_Parameters_Size  6
 const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
-        {ADC_CLOCK_ASYNC_DIV1, ADC_SAMPLETIME_1CYCLE_5,   0.0f,  0.0f},
-        {ADC_CLOCK_ASYNC_DIV1, ADC_SAMPLETIME_2CYCLES_5,  0.0f,  0.0f},
-        {ADC_CLOCK_ASYNC_DIV1, ADC_SAMPLETIME_4CYCLES_5,  0.0f,  0.0f}
+        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_2CYCLES_5,  1.0f,  1.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_2CYCLES_5,  2.0f,  2.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_2CYCLES_5,  4.0f,  4.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_4CYCLES_5,  6.0f,  6.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_4CYCLES_5,  8.0f,  8.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_4CYCLES_5,  10.0f, 10.0f}
 };
 
 uint32_t ADC_Prescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
@@ -36,6 +39,7 @@ uint32_t ADCElapsedTick;       // the last time buffer fill
  */
 void ADC_setParams() {
 
+  HAL_ADC_DeInit(&hadc1);
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
@@ -111,18 +115,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     ADCStartTick = DWT_Get_Current_Tick();
 }
 
+uint16_t paramNum = 2;
+
 void ADC_step_up() {
-    if (ScreenTime_adj < 9)
-        ScreenTime_adj++;
-    else if (ScreenTime < sizeof(ScreenTimes) / sizeof(ScreenTimes[0]) - 2) // last value forbidden to assign
-        ScreenTime_adj = 0, ScreenTime++;
+//    if (ScreenTime_adj < 9)
+//        ScreenTime_adj++;
+//    else if (ScreenTime < sizeof(ScreenTimes) / sizeof(ScreenTimes[0]) - 2) // last value forbidden to assign
+//        ScreenTime_adj = 0, ScreenTime++;
+    if (paramNum < ADC_Parameters_Size - 1) paramNum++;
 }
 
 void ADC_step_down() {
-    if (ScreenTime_adj > 0)
-        ScreenTime_adj--;
-    else if (ScreenTime > 0)
-        ScreenTime_adj = 9, ScreenTime--;
+//    if (ScreenTime_adj > 0)
+//        ScreenTime_adj--;
+//    else if (ScreenTime > 0)
+//        ScreenTime_adj = 9, ScreenTime--;
+    if (paramNum > 0) paramNum--;
 }
 
 float ADC_getTime() {
@@ -138,12 +146,12 @@ float time;
 int ii;
 
 void ADC_step(int16_t step) {
-/*    if (step == 0) return;
+    if (step == 0) return;
     if (step > 0) ADC_step_up();
     else ADC_step_down();
     sStep = step;
 
-    time = ADC_getTime(); // get screen sweep time
+/*    time = ADC_getTime(); // get screen sweep time
 
     // looking last parameters set with ScreenTime less than required time
     int i = 1;
@@ -160,6 +168,8 @@ void ADC_step(int16_t step) {
     // set X scale
     scaleX = ADC_Parameters[i].ScreenTime / time;
 //*/
+    ADC_Prescaler = ADC_Parameters[paramNum].ADC_Prescaler;
+    ADC_SampleTime = ADC_Parameters[paramNum].ADC_SampleTime;
     ADC_setParams();
 }
 
