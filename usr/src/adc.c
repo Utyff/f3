@@ -15,15 +15,16 @@ typedef struct ADC_param ADC_PARAM;
 
 #define ADC_Parameters_Size  6
 const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
-        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_1CYCLE_5,  1.0f,  1.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_1CYCLE_5,  2.0f,  2.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_1CYCLE_5,  4.0f,  4.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_2CYCLES_5,  6.0f,  6.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_4CYCLES_5,  8.0f,  8.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_7CYCLES_5,  10.0f, 10.0f}
+        {RCC_CFGR2_ADCPRE12_DIV1, ADC_SAMPLETIME_1CYCLE_5,  1.0f,  1.0f},
+        {RCC_CFGR2_ADCPRE12_DIV2, ADC_SAMPLETIME_2CYCLES_5,  2.0f,  2.0f},
+        {RCC_CFGR2_ADCPRE12_DIV4, ADC_SAMPLETIME_4CYCLES_5,  4.0f,  4.0f},
+        {RCC_CFGR2_ADCPRE12_DIV6, ADC_SAMPLETIME_7CYCLES_5,  6.0f,  6.0f},
+        {RCC_CFGR2_ADCPRE12_DIV8, ADC_SAMPLETIME_19CYCLES_5,  8.0f,  8.0f},
+        {RCC_CFGR2_ADCPRE12_DIV10, ADC_SAMPLETIME_61CYCLES_5,  10.0f, 10.0f}
 };
 
-uint32_t ADC_Prescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+uint32_t RCCADC12_Pres = RCC_CFGR2_ADCPRE12_DIV1;
+uint32_t ADC_Prescaler = RCC_CFGR2_ADCPRE12_DIV1;
 uint32_t ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5;
 
 uint16_t ScreenTime = 0;      // index in ScreenTimes
@@ -40,13 +41,15 @@ uint32_t ADCElapsedTick;       // the last time buffer fill
 void ADC_setParams() {
 
   HAL_ADC_DeInit(&hadc1);
+  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12, (uint32_t)(RCCADC12_Pres));
+
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /**Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_Prescaler;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc1.Init.Resolution = ADC_RESOLUTION_8B;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
@@ -169,8 +172,9 @@ void ADC_step(int16_t step) {
     // set X scale
     scaleX = ADC_Parameters[i].ScreenTime / time;
 //*/
+    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
     ADC_Prescaler = ADC_Parameters[paramNum].ADC_Prescaler;
-    ADC_SampleTime = ADC_Parameters[paramNum].ADC_SampleTime;
+    ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5; // ADC_Parameters[paramNum].ADC_SampleTime;
     ADC_setParams();
 }
 
