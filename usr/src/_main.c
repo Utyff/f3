@@ -46,13 +46,13 @@ void mainCycle() {
 
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
-    LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x01);
-    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x01);
-    LCD_ShowxNum(60, 214, (u32) enc_step, 5, 12, 0x01);
-    LCD_ShowxNum(90, 214, (u32) paramNum, 5, 12, 0x01);
-    LCD_ShowxNum(120, 214, (u32) firstHalf, 5, 12, 0x01);
-    LCD_ShowxNum(150, 214, (u32) ADCHalfElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x01);
-    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x01);
+//    LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x0);
+    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x0);
+//    LCD_ShowxNum(60, 214, (u32) enc_step, 5, 12, 0x0);
+    LCD_ShowxNum(90, 214, (u32) paramNum, 5, 12, 0x0);
+//    LCD_ShowxNum(120, 214, (u32) firstHalf, 5, 12, 0x0);
+    LCD_ShowxNum(150, 214, (u32) ADCHalfElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
+    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
 
     delay_ms(50);
 }

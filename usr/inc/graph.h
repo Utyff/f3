@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 void drawGraph();
+void eraseGraph();
 
 #ifdef __cplusplus
 }

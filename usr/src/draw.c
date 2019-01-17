@@ -6,7 +6,8 @@
 void drawFrame() {
     u16 x, y, step = 16;
 
-    LCD_Clear8(BLACK);
+//    LCD_Clear8(BLACK);
+    eraseGraph();
 
     u32 t0 = DWT_Get_Current_Tick();
 
@@ -27,7 +28,7 @@ void drawFrame() {
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
     BACK_COLOR = BLACK;
-    LCD_ShowxNum(130, 227, ticks / DWT_IN_MICROSEC, 8, 12, 9);
+    LCD_ShowxNum(130, 227, ticks / DWT_IN_MICROSEC, 6, 12, 8);
 }
 
 void drawScreen() {
@@ -40,5 +41,5 @@ void drawScreen() {
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
     POINT_COLOR = YELLOW;
-    LCD_ShowxNum(170, 227, ticks / DWT_IN_MICROSEC, 8, 12, 9);
+    LCD_ShowxNum(170, 227, ticks / DWT_IN_MICROSEC, 6, 12, 8);
 }
