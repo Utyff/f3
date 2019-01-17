@@ -1,6 +1,7 @@
 #include <graph.h>
 #include <dwt.h>
 #include <DataBuffer.h>
+#include <adc.h>
 
 
 /**
@@ -47,8 +48,10 @@ void buildGraph1ch() {
     int i, j;
     float x;
 
+    if (samplesReady == 0) return;
+
     u8 *samples = samplesBuffer;
-    if (firstHalf != 0) samples += BUF_SIZE / 2;
+//    if (firstHalf != 0) samples += BUF_SIZE / 2;
 
     x = 0;
     j = -1;
@@ -65,6 +68,11 @@ void buildGraph1ch() {
         x += scaleX;
     }
     BuildGraphTick = DWT_Elapsed_Tick(t0);
+
+    // start next samples
+    ADC_setParams();
+//    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
+    samplesReady = 0;
 }
 
 uint32_t DrawGraphTick;

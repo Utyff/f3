@@ -60,7 +60,7 @@ void KEYS_scan() {
     DBG_Trace(buf);
 
     // choose type of encoder action
-    int8_t mode = button1Count % (int8_t) 3;
+    int8_t mode = button1Count & (int8_t) 1;
     if (mode == 0) {
         ADC_step(enc_step);
     } else if (mode == 1) {

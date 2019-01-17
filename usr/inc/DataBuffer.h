@@ -7,5 +7,6 @@
 extern u8 samplesBuffer[BUF_SIZE];
 
 extern u8 firstHalf; // first or second half of buffer writing
+extern u8 samplesReady;
 
 #endif //_DATABUFFER_H

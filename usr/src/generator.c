@@ -93,7 +93,7 @@ void GEN_setFreq() {
  *
  */
 void GEN_setParams() {
-    TIM_OC_InitTypeDef sConfigOC;
+    TIM_OC_InitTypeDef sConfigOC = {0};
 
     htim1.Instance = TIM1;
     htim1.Init.Prescaler = tim1Prescaler;
@@ -101,9 +101,14 @@ void GEN_setParams() {
     htim1.Init.Period = tim1Period;
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
-    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
         Error_Handler();
+
+  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
     sConfigOC.Pulse = tim1Pulse;

@@ -15,16 +15,16 @@ typedef struct ADC_param ADC_PARAM;
 
 #define ADC_Parameters_Size  6
 const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
-        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_2CYCLES_5,  1.0f,  1.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_2CYCLES_5,  2.0f,  2.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_2CYCLES_5,  4.0f,  4.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_4CYCLES_5,  6.0f,  6.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_4CYCLES_5,  8.0f,  8.0f},
-        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_4CYCLES_5,  10.0f, 10.0f}
+        {ADC_CLOCK_SYNC_PCLK_DIV1, ADC_SAMPLETIME_1CYCLE_5,  1.0f,  1.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV2, ADC_SAMPLETIME_1CYCLE_5,  2.0f,  2.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_1CYCLE_5,  4.0f,  4.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_2CYCLES_5,  6.0f,  6.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_4CYCLES_5,  8.0f,  8.0f},
+        {ADC_CLOCK_SYNC_PCLK_DIV4, ADC_SAMPLETIME_7CYCLES_5,  10.0f, 10.0f}
 };
 
 uint32_t ADC_Prescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-uint32_t ADC_SampleTime = ADC_SAMPLETIME_2CYCLES_5;
+uint32_t ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5;
 
 uint16_t ScreenTime = 0;      // index in ScreenTimes
 uint16_t ScreenTime_adj = 0;  // 0-9 shift in ScreenTime
@@ -111,6 +111,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     cpltCount++;
     firstHalf = 1;
+    samplesReady = 1;
     ADCElapsedTick = DWT_Elapsed_Tick(ADCStartTick);
     ADCStartTick = DWT_Get_Current_Tick();
 }
