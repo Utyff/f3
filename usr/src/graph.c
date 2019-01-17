@@ -70,9 +70,9 @@ void buildGraph1ch() {
     BuildGraphTick = DWT_Elapsed_Tick(t0);
 
     // start next samples
+    samplesReady = 0;
     ADC_setParams();
 //    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
-    samplesReady = 0;
 }
 
 uint32_t DrawGraphTick;
