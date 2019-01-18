@@ -13,23 +13,71 @@ struct ADC_param {
 };
 typedef struct ADC_param ADC_PARAM;
 
-#define ADC_Parameters_Size  6
+#define ADC_Parameters_Size 54
 const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
-        {RCC_CFGR2_ADCPRE12_DIV1, ADC_SAMPLETIME_1CYCLE_5,  1.0f,  1.0f},
-        {RCC_CFGR2_ADCPRE12_DIV2, ADC_SAMPLETIME_2CYCLES_5,  2.0f,  2.0f},
-        {RCC_CFGR2_ADCPRE12_DIV4, ADC_SAMPLETIME_4CYCLES_5,  4.0f,  4.0f},
-        {RCC_CFGR2_ADCPRE12_DIV6, ADC_SAMPLETIME_7CYCLES_5,  6.0f,  6.0f},
-        {RCC_CFGR2_ADCPRE12_DIV8, ADC_SAMPLETIME_19CYCLES_5,  8.0f,  8.0f},
-        {RCC_CFGR2_ADCPRE12_DIV10, ADC_SAMPLETIME_61CYCLES_5,  10.0f, 10.0f}
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_1CYCLE_5, 	0.13, 	42.22},
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_2CYCLES_5, 	0.15, 	46.67},
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_4CYCLES_5, 	0.17, 	55.56},
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_7CYCLES_5, 	0.22, 	68.89},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_1CYCLE_5, 	0.26, 	84.44},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_2CYCLES_5, 	0.29, 	93.33},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_4CYCLES_5, 	0.35, 	111.11},
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_19CYCLES_5, 	0.38, 	122.22},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_7CYCLES_5, 	0.43, 	137.78},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_1CYCLE_5, 	0.53, 	168.89},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_2CYCLES_5, 	0.58, 	186.67},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_4CYCLES_5, 	0.69, 	222.22},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_19CYCLES_5, 	0.76, 	244.44},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_1CYCLE_5, 	0.79, 	253.33},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_7CYCLES_5, 	0.86, 	275.56},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_2CYCLES_5, 	0.88, 	280.00},
+        {RCC_CFGR2_ADCPRE12_DIV1, 	ADC_SAMPLETIME_61CYCLES_5, 	0.97, 	308.89},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_4CYCLES_5, 	1.04, 	333.33},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_1CYCLE_5, 	1.06, 	337.78},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_2CYCLES_5, 	1.17, 	373.33},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_7CYCLES_5, 	1.29, 	413.33},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_1CYCLE_5, 	1.32, 	422.22},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_4CYCLES_5, 	1.39, 	444.44},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_2CYCLES_5, 	1.46, 	466.67},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_19CYCLES_5, 	1.53, 	488.89},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_1CYCLE_5, 	1.58, 	506.67},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_7CYCLES_5, 	1.72, 	551.11},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_4CYCLES_5, 	1.74, 	555.56},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_2CYCLES_5, 	1.75, 	560.00},
+        {RCC_CFGR2_ADCPRE12_DIV2, 	ADC_SAMPLETIME_61CYCLES_5, 	1.93, 	617.78},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_4CYCLES_5, 	2.08, 	666.67},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_1CYCLE_5, 	2.11, 	675.56},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_7CYCLES_5, 	2.15, 	688.89},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_19CYCLES_5, 	2.29, 	733.33},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_2CYCLES_5, 	2.33, 	746.67},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_7CYCLES_5, 	2.58, 	826.67},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_4CYCLES_5, 	2.78, 	888.89},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_19CYCLES_5, 	3.06, 	977.78},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_7CYCLES_5, 	3.44, 	1102.22},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_19CYCLES_5, 	3.82, 	1222.22},
+        {RCC_CFGR2_ADCPRE12_DIV4, 	ADC_SAMPLETIME_61CYCLES_5, 	3.86, 	1235.56},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_1CYCLE_5, 	4.22, 	1351.11},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_19CYCLES_5, 	4.58, 	1466.67},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_2CYCLES_5, 	4.67, 	1493.33},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_4CYCLES_5, 	5.56, 	1777.78},
+        {RCC_CFGR2_ADCPRE12_DIV6, 	ADC_SAMPLETIME_61CYCLES_5, 	5.79, 	1853.33},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_19CYCLES_5, 	6.11, 	1955.56},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_7CYCLES_5, 	6.89, 	2204.44},
+        {RCC_CFGR2_ADCPRE12_DIV8, 	ADC_SAMPLETIME_61CYCLES_5, 	7.72, 	2471.11},
+        {RCC_CFGR2_ADCPRE12_DIV10, 	ADC_SAMPLETIME_61CYCLES_5, 	9.65, 	3088.89},
+        {RCC_CFGR2_ADCPRE12_DIV12, 	ADC_SAMPLETIME_61CYCLES_5, 	11.58, 	3706.67},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_19CYCLES_5, 	12.22, 	3911.11},
+        {RCC_CFGR2_ADCPRE12_DIV16, 	ADC_SAMPLETIME_61CYCLES_5, 	15.44, 	4942.22},
+        {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_61CYCLES_5, 	30.89, 	9884.44}
 };
 
 uint32_t RCCADC12_Pres = RCC_CFGR2_ADCPRE12_DIV1;
-uint32_t ADC_Prescaler = RCC_CFGR2_ADCPRE12_DIV1;
+uint32_t ADC_Prescaler = ADC_CLOCK_ASYNC_DIV1;
 uint32_t ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5;
 
 uint16_t ScreenTime = 0;      // index in ScreenTimes
 uint16_t ScreenTime_adj = 0;  // 0-9 shift in ScreenTime
-const float ScreenTimes[] = {100, 200, 500, 1000, 2000, 5000, 10000, 20000};  // sweep screen, microseconds
+const float ScreenTimes[] = {50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000};  // sweep screen, microseconds
 
 uint32_t ADCStartTick;         // time when start ADC buffer fill
 uint32_t ADCHalfElapsedTick;   // the last time half buffer fill
@@ -122,19 +170,19 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 uint16_t paramNum = 2;
 
 void ADC_step_up() {
-//    if (ScreenTime_adj < 9)
-//        ScreenTime_adj++;
-//    else if (ScreenTime < sizeof(ScreenTimes) / sizeof(ScreenTimes[0]) - 2) // last value forbidden to assign
-//        ScreenTime_adj = 0, ScreenTime++;
-    if (paramNum < ADC_Parameters_Size - 1) paramNum++;
+    if (ScreenTime_adj < 9)
+        ScreenTime_adj++;
+    else if (ScreenTime < sizeof(ScreenTimes) / sizeof(ScreenTimes[0]) - 2) // last value forbidden to assign
+        ScreenTime_adj = 0, ScreenTime++;
+//    if (paramNum < ADC_Parameters_Size - 1) paramNum++;
 }
 
 void ADC_step_down() {
-//    if (ScreenTime_adj > 0)
-//        ScreenTime_adj--;
-//    else if (ScreenTime > 0)
-//        ScreenTime_adj = 9, ScreenTime--;
-    if (paramNum > 0) paramNum--;
+    if (ScreenTime_adj > 0)
+        ScreenTime_adj--;
+    else if (ScreenTime > 0)
+        ScreenTime_adj = 9, ScreenTime--;
+//    if (paramNum > 0) paramNum--;
 }
 
 float ADC_getTime() {
@@ -155,7 +203,7 @@ void ADC_step(int16_t step) {
     else ADC_step_down();
     sStep = step;
 
-/*    time = ADC_getTime(); // get screen sweep time
+    time = ADC_getTime(); // get screen sweep time
 
     // looking last parameters set with ScreenTime less than required time
     int i = 1;
@@ -166,15 +214,15 @@ void ADC_step(int16_t step) {
 
     i--;
     ii = i;
-    ADC_Prescaler = ADC_Parameters[i].ADC_Prescaler;
+    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
+//    ADC_Prescaler = ADC_Parameters[i].ADC_Prescaler;
     ADC_SampleTime = ADC_Parameters[i].ADC_SampleTime;
 
     // set X scale
     scaleX = ADC_Parameters[i].ScreenTime / time;
-//*/
-    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
-    ADC_Prescaler = ADC_Parameters[paramNum].ADC_Prescaler;
-    ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5; // ADC_Parameters[paramNum].ADC_SampleTime;
+//    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
+//    ADC_Prescaler = ADC_Parameters[paramNum].ADC_Prescaler;
+//    ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5; // ADC_Parameters[paramNum].ADC_SampleTime;
     ADC_setParams();
 }
 
