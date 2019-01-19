@@ -71,8 +71,7 @@ const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
         {RCC_CFGR2_ADCPRE12_DIV32, 	ADC_SAMPLETIME_61CYCLES_5, 	30.89, 	9884.44}
 };
 
-uint32_t RCCADC12_Pres = RCC_CFGR2_ADCPRE12_DIV1;
-uint32_t ADC_Prescaler = ADC_CLOCK_ASYNC_DIV1;
+uint32_t ADC_Prescaler = RCC_CFGR2_ADCPRE12_DIV1;
 uint32_t ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5;
 
 uint16_t ScreenTime = 0;      // index in ScreenTimes
@@ -89,7 +88,7 @@ uint32_t ADCElapsedTick;       // the last time buffer fill
 void ADC_setParams() {
 
   HAL_ADC_DeInit(&hadc1);
-  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12, (uint32_t)(RCCADC12_Pres));
+  MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12, ADC_Prescaler);
 
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
@@ -139,19 +138,19 @@ void ADC_setParams() {
     ADCStartTick = DWT_Get_Current_Tick();
 }
 
-uint32_t halfCount =0;
-uint32_t cpltCount =0;
+uint32_t halfCount = 0;
+uint32_t cpltCount = 0;
 /**
   * @brief  Conversion complete callback in non-blocking mode
   * @param  hadc: ADC handle
   * @retval None
   */
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
-{
-    halfCount++;
-    firstHalf = 0;
-    ADCHalfElapsedTick = DWT_Elapsed_Tick(ADCStartTick);
-}
+//void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+//{
+//    halfCount++;
+//    firstHalf = 0;
+//    ADCHalfElapsedTick = DWT_Elapsed_Tick(ADCStartTick);
+//}
 
 /**
   * @brief  Conversion DMA half-transfer callback in non-blocking mode
@@ -161,20 +160,19 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
     cpltCount++;
-    firstHalf = 1;
+//    firstHalf = 1;
     samplesReady = 1;
     ADCElapsedTick = DWT_Elapsed_Tick(ADCStartTick);
     ADCStartTick = DWT_Get_Current_Tick();
 }
 
-uint16_t paramNum = 2;
+//uint16_t paramNum = 2;
 
 void ADC_step_up() {
     if (ScreenTime_adj < 9)
         ScreenTime_adj++;
     else if (ScreenTime < sizeof(ScreenTimes) / sizeof(ScreenTimes[0]) - 2) // last value forbidden to assign
         ScreenTime_adj = 0, ScreenTime++;
-//    if (paramNum < ADC_Parameters_Size - 1) paramNum++;
 }
 
 void ADC_step_down() {
@@ -182,7 +180,6 @@ void ADC_step_down() {
         ScreenTime_adj--;
     else if (ScreenTime > 0)
         ScreenTime_adj = 9, ScreenTime--;
-//    if (paramNum > 0) paramNum--;
 }
 
 float ADC_getTime() {
@@ -193,7 +190,6 @@ float ADC_getTime() {
     return time;
 }
 
-s16 sStep;
 float time;
 int ii;
 
@@ -201,7 +197,6 @@ void ADC_step(int16_t step) {
     if (step == 0) return;
     if (step > 0) ADC_step_up();
     else ADC_step_down();
-    sStep = step;
 
     time = ADC_getTime(); // get screen sweep time
 
@@ -214,15 +209,11 @@ void ADC_step(int16_t step) {
 
     i--;
     ii = i;
-    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
-//    ADC_Prescaler = ADC_Parameters[i].ADC_Prescaler;
+    ADC_Prescaler = ADC_Parameters[i].ADC_Prescaler;
     ADC_SampleTime = ADC_Parameters[i].ADC_SampleTime;
 
     // set X scale
     scaleX = ADC_Parameters[i].ScreenTime / time;
-//    RCCADC12_Pres = ADC_Parameters[paramNum].ADC_Prescaler;
-//    ADC_Prescaler = ADC_Parameters[paramNum].ADC_Prescaler;
-//    ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5; // ADC_Parameters[paramNum].ADC_SampleTime;
     ADC_setParams();
 }
 
