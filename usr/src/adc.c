@@ -72,7 +72,7 @@ const ADC_PARAM ADC_Parameters[ADC_Parameters_Size] = {
 };
 
 uint32_t ADC_Prescaler = RCC_CFGR2_ADCPRE12_DIV1;
-uint32_t ADC_SampleTime = ADC_SAMPLETIME_1CYCLE_5;
+uint32_t ADC_SampleTime = ADC_SAMPLETIME_2CYCLES_5;
 
 uint16_t ScreenTime = 0;      // index in ScreenTimes
 uint16_t ScreenTime_adj = 0;  // 0-9 shift in ScreenTime
@@ -165,8 +165,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
     ADCElapsedTick = DWT_Elapsed_Tick(ADCStartTick);
     ADCStartTick = DWT_Get_Current_Tick();
 }
-
-//uint16_t paramNum = 2;
 
 void ADC_step_up() {
     if (ScreenTime_adj < 9)
