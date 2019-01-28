@@ -10,6 +10,7 @@
 
 uint8_t graph[MAX_X];
 float scaleX = 1;  // no more then 1
+u8 trgLvl = 12;
 
 /**
  * Looking for trigger event position in 1 channel samples array
@@ -17,7 +18,7 @@ float scaleX = 1;  // no more then 1
  */
 int triggerStart1ch(u8 const *samples) {
     int i;
-    u8 trgLvl = 128;
+
     u8 trgRdy = 0;
 
     for (i = 0; i < BUF_SIZE / 2; i++) {

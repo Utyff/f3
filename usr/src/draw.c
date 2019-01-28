@@ -13,16 +13,16 @@ void drawFrame() {
 
     POINT_COLOR = DARKGRAY;
     for (y = step; y < MAX_Y; y += step) {
-        for(x = step; x < MAX_X; x += step) {
-            LCD_DrawPoint(x,y);
+        for (x = step; x < MAX_X; x += step) {
+            LCD_DrawPoint(x, y);
         }
     }
 
     POINT_COLOR = GRAY;  // Drawing pen color
-    LCD_Fill(0, 128, MAX_X-1, 128, POINT_COLOR);
-    LCD_Fill(160, 0, 160, MAX_Y-1, POINT_COLOR);
+    LCD_Fill(0, 128, MAX_X - 1, 128, POINT_COLOR);
+    LCD_Fill(160, 0, 160, MAX_Y - 1, POINT_COLOR);
 
-    LCD_Set_Window(0,0,MAX_X-1,MAX_Y-1);
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
 
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);
