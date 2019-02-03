@@ -181,14 +181,14 @@ void ADC_step_down() {
 }
 
 float ADC_getTime() {
-    float time = ScreenTimes[ScreenTime];
+    float tm = ScreenTimes[ScreenTime];
     // next time always exist because last forbidden to assign
-    float adj = (ScreenTimes[ScreenTime + 1] - time) * ScreenTime_adj / 10;
-    time += adj;
-    return time;
+    float adj = (ScreenTimes[ScreenTime + 1] - tm) * ScreenTime_adj / 10;
+    tm += adj;
+    return tm;
 }
 
-float time;
+float screenTime;
 int ii;
 
 void ADC_step(int16_t step) {
@@ -196,11 +196,11 @@ void ADC_step(int16_t step) {
     if (step > 0) ADC_step_up();
     else ADC_step_down();
 
-    time = ADC_getTime(); // get screen sweep time
+    screenTime = ADC_getTime(); // get screen sweep time
 
     // looking last parameters set with ScreenTime less than required time
     int i = 1;
-    while (ADC_Parameters[i].ScreenTime < time) {
+    while (ADC_Parameters[i].ScreenTime < screenTime) {
         i++;
         if (i >= ADC_Parameters_Size) break;
     }
@@ -211,7 +211,7 @@ void ADC_step(int16_t step) {
     ADC_SampleTime = ADC_Parameters[i].ADC_SampleTime;
 
     // set X scale
-    scaleX = ADC_Parameters[i].ScreenTime / time;
+    scaleX = ADC_Parameters[i].ScreenTime / screenTime;
     ADC_setParams();
 }
 
