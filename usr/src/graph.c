@@ -10,6 +10,7 @@
 
 uint8_t graph[MAX_X];
 float scaleX = 1;  // no more then 1
+float scaleY = 0.94f;
 u8 trgLvl = 12;
 
 /**
@@ -21,7 +22,7 @@ int triggerStart1ch(u8 const *samples) {
 
     u8 trgRdy = 0;
 
-    for (i = 0; i < BUF_SIZE / 2; i++) {
+    for (i = 0; i < BUF_SIZE; i++) {
         if (trgRdy == 0) {
             if (samples[i] < trgLvl)
                 trgRdy = 1;
@@ -34,9 +35,6 @@ int triggerStart1ch(u8 const *samples) {
     return 0;
 }
 
-
-// start position in buffer
-// number of samples to display
 
 uint32_t BuildGraphTick;
 
@@ -57,8 +55,8 @@ void buildGraph1ch() {
     x = 0;
     j = -1;
     i = triggerStart1ch(samples);
-    for (; i < BUF_SIZE / 2; i++) {
-        uint8_t val = (uint8_t) (samples[i] * 0.94f);
+    for (; i < BUF_SIZE; i++) {
+        register uint8_t val = (uint8_t) (samples[i] * scaleY);
         if ((int) x != j) {
             j = (int) x;
             if (j >= MAX_X) break;
