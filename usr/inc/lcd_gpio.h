@@ -65,22 +65,32 @@ LCD_D8 - PB15
 #define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
 #define LCD_WR_DATA16_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
 
-#define LCD_WR_REG(data) { \
+//#define LCD_WR_REG(data) { \
+//    LCD_RS_CLR; \
+//    DATAOUT(data); \
+//    LCD_WR_CLR; \
+//    LCD_WR_SET; \
+//}
+
+#define LCD_WR_REG16(data) { \
     LCD_RS_CLR; \
+    DATAOUT(data >> 8); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
     DATAOUT(data); \
     LCD_WR_CLR; \
     LCD_WR_SET; \
+    LCD_RS_SET; \
 }
 
-#define LCD_WR_DATA8(data) { \
-    LCD_RS_SET; \
-    DATAOUT(data); \
-    LCD_WR_CLR; \
-    LCD_WR_SET; \
-}
+//#define LCD_WR_DATA8(data) { \
+//    LCD_RS_SET; \
+//    DATAOUT(data); \
+//    LCD_WR_CLR; \
+//    LCD_WR_SET; \
+//}
 
 #define LCD_WR_DATA16(data) { \
-    LCD_RS_SET; \
     DATAOUT(data >> 8); \
     LCD_WR_CLR; \
     LCD_WR_SET; \
@@ -102,9 +112,9 @@ __STATIC_INLINE u8 LCD_RD_DATA8(void) {
 // Write register
 //LCD_Reg: Register Address
 //LCD_RegValue: data to be written
-__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteReg(vu16 LCD_Reg, vu16 LCD_RegValue) {
-    LCD_WR_REG(LCD_Reg);         // Write to write register number
-    LCD_WR_DATA8(LCD_RegValue);  // write data
+__attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteReg16(vu16 LCD_Reg, vu16 LCD_RegValue) {
+    LCD_WR_REG16(LCD_Reg);        // Write register number
+    LCD_WR_DATA16(LCD_RegValue);  // write data
 }
 
 #endif //_LCD_GPIO_H

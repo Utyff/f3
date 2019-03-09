@@ -4,21 +4,26 @@
 #include "_main.h"
 
 // set the x coordinate instruction
-#define LCD_SET_X 0x2a
+//#define LCD_SET_X 0x2a
+#define LCD_SET_X 0x200
+#define LCD_END_X 0x210
 // Set the y coordinate instruction
-#define LCD_SET_Y 0x2b
+//#define LCD_SET_Y 0x2b
+#define LCD_SET_Y 0x201
+#define LCD_END_Y 0x211
 // begin to write the GRAM command
-#define LCD_WR_RAM_CMD 0x2c
+//#define LCD_WR_RAM_CMD 0x2c
+#define LCD_WR_RAM_CMD 0x202 // st7793
 
-#define MAX_X 320
+#define MAX_X 400
 #define MAX_Y 240
 
 // LCD important parameter set
 typedef struct {
-    u16 width;            //LCD width
-    u16 height;            //LCD height
-    u16 id;                //LCD ID
-    u8 dir;            // horizontal screen or vertical screen control: 0, vertical screen; 1, horizontal screen.
+    u16 width;     //LCD width
+    u16 height;    //LCD height
+    u16 id;        //LCD ID
+    u8 dir;        // horizontal screen or vertical screen control: 0, vertical screen; 1, horizontal screen.
 } _lcd_dev;
 
 // LCD parameters
@@ -85,8 +90,6 @@ void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode);                      
 void LCD_ShowNum(u16 x, u16 y, u32 num, u8 len, u8 size);                        // display a number
 void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode);                // display numbers
 void LCD_ShowString(u16 x, u16 y, u16 width, u16 height, u8 size, const char *p, u8 mode);    // display a string,12/16 font
-void LCD_Scan_Dir(u8 dir);                           // Set the screen scan direction
-void LCD_Display_Dir(u8 dir);                        // set the screen display direction
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey); // Set the window
 
 #ifdef __cplusplus

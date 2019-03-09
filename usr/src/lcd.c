@@ -19,19 +19,21 @@ void LCD_Init_sequence();
 
 // Start writing GRAM
 __attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteRAM_Prepare(void) {
-    LCD_WR_REG(LCD_WR_RAM_CMD);
+#pragma GCC diagnostic ignored "-Woverflow"
+    LCD_WR_REG16(LCD_WR_RAM_CMD);
+#pragma GCC diagnostic warning "-Woverflow"
 }
 
 // Set the cursor position
 //Xpos: abscissa
 //Ypos: ordinate
 void LCD_SetCursor(u16 x, u16 y) {
-    LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8(x >> 8);
-    LCD_WR_DATA8(x & (u16) 0XFF);
-    LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8(y >> 8);
-    LCD_WR_DATA8(y & (u16) 0XFF);
+#pragma GCC diagnostic ignored "-Woverflow"
+    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_DATA16(x);
+    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_DATA16(y);
+#pragma GCC diagnostic warning "-Woverflow"
 }
 
 // Set the window, and automatically sets the upper left corner of the window to draw point coordinates (sx,sy).
@@ -39,119 +41,17 @@ void LCD_SetCursor(u16 x, u16 y) {
 //width,height: width and height of the window, must be greater than 0!!
 // Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
-    LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8(sx >> 8);
-    LCD_WR_DATA8(sx & (u16) 0XFF);
-    LCD_WR_DATA8(ex >> 8);
-    LCD_WR_DATA8(ex & (u16) 0XFF);
+#pragma GCC diagnostic ignored "-Woverflow"
+    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_DATA16(sx);
+    LCD_WR_REG16(LCD_END_X);
+    LCD_WR_DATA16(ex);
 
-    LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8(sy >> 8);
-    LCD_WR_DATA8(sy & (u16) 0XFF);
-    LCD_WR_DATA8(ey >> 8);
-    LCD_WR_DATA8(ey & (u16) 0XFF);
-}
-
-// Set up automatic scanning direction of the LCD
-// NOTE: Additional functions may be affected (especially in 9341/6804 these two wonderful) this function set,
-// So, generally set L2R_U2D can, if you set the scan mode to another may result in the display is not normal.
-//dir:0~7, representatives of eight directions (specifically defined lcd.h)
-void LCD_Scan_Dir(u8 dir) {
-    u16 regval = 0;
-    u16 temp;
-    u16 xsize, ysize;
-
-    if (lcddev.dir == 1)// horizontal screen, without changing the scanning direction of 6804!
-    {
-        switch (dir)// direction change
-        {
-            case 0:
-                dir = 6;
-                break;
-            case 1:
-                dir = 7;
-                break;
-            case 2:
-                dir = 4;
-                break;
-            case 3:
-                dir = 5;
-                break;
-            case 4:
-                dir = 1;
-                break;
-            case 5:
-                dir = 0;
-                break;
-            case 6:
-                dir = 3;
-                break;
-            case 7:
-                dir = 2;
-                break;
-        }
-    }
-
-    switch (dir) {
-        case L2R_U2D:// from left to right, top to bottom
-            regval |= (0 << 7) | (0 << 6) | (0 << 5);
-            break;
-        case L2R_D2U:// from left to right, from bottom to top
-            regval |= (1 << 7) | (0 << 6) | (0 << 5);
-            break;
-        case R2L_U2D:// from right to left, top to bottom
-            regval |= (0 << 7) | (1 << 6) | (0 << 5);
-            break;
-        case R2L_D2U:// from right to left, from bottom to top
-            regval |= (1 << 7) | (1 << 6) | (0 << 5);
-            break;
-        case U2D_L2R:// top to bottom, left to right
-            regval |= (0 << 7) | (0 << 6) | (1 << 5);
-            break;
-        case U2D_R2L:// top to bottom, right to left
-            regval |= (0 << 7) | (1 << 6) | (1 << 5);
-            break;
-        case D2U_L2R:// from bottom to top, from left to right
-            regval |= (1 << 7) | (0 << 6) | (1 << 5);
-            break;
-        case D2U_R2L:// from bottom to top, right to left
-            regval |= (1 << 7) | (1 << 6) | (1 << 5);
-            break;
-    }
-
-    regval |= 0X08; // RGB to BGR
-    // dirreg = 0X36;
-    LCD_WriteReg(0X36, regval);
-
-    if ((regval & 0X20) || lcddev.dir == 1) {
-        if (lcddev.width < lcddev.height) // swap X,Y
-        {
-            temp = lcddev.width;
-            lcddev.width = lcddev.height;
-            lcddev.height = temp;
-        }
-    } else {
-        if (lcddev.width > lcddev.height) // swap X,Y
-        {
-            temp = lcddev.width;
-            lcddev.width = lcddev.height;
-            lcddev.height = temp;
-        }
-    }
-
-    xsize = lcddev.width;
-    ysize = lcddev.height;
-
-    LCD_WR_REG(LCD_SET_X);
-    LCD_WR_DATA8(0);
-    LCD_WR_DATA8(0);
-    LCD_WR_DATA8((xsize - (u16) 1) >> 8);
-    LCD_WR_DATA8((xsize - (u16) 1) & (u16) 0XFF);
-    LCD_WR_REG(LCD_SET_Y);
-    LCD_WR_DATA8(0);
-    LCD_WR_DATA8(0);
-    LCD_WR_DATA8((ysize - (u16) 1) >> 8);
-    LCD_WR_DATA8((ysize - (u16) 1) & (u16) 0XFF);
+    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_DATA16(sy);
+    LCD_WR_REG16(LCD_END_Y);
+    LCD_WR_DATA16(ey);
+#pragma GCC diagnostic warning "-Woverflow"
 }
 
 // Draw points
@@ -178,22 +78,6 @@ void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
     LCD_WR_DATA16(color);
 }
 
-
-// Set the LCD display direction
-//dir:0, vertical screen; 1, horizontal screen
-void LCD_Display_Dir(u8 dir) {
-    if (dir == 0) {         // Vertical screen
-        lcddev.dir = 0;
-        lcddev.width = 240;
-        lcddev.height = 320;
-    } else {                 // Horizontal screen
-        lcddev.dir = 1;
-        lcddev.width = 320;
-        lcddev.height = 240;
-    }
-
-    LCD_Scan_Dir(DFT_SCAN_DIR);    // Default scan direction
-}
 
 #define GPIO_SetBits(port, pins) port->BSRR = pins
 #define GPIO_Pin_All 0xFF
@@ -228,10 +112,10 @@ void LCD_Init(void) {
 void LCD_SetParam(void) {
 #if USE_HORIZONTAL == 1
     lcddev.dir = 1;
-    lcddev.width = 320;
-    lcddev.height = 240;
-    LCD_WR_REG(0x36);
-    LCD_WR_DATA8(0x6C); // 0x48
+    lcddev.width = MAX_X;
+    lcddev.height = MAX_Y;
+//    LCD_WR_REG16(0x003);
+//    LCD_WR_DATA16(0x1034);
 #else
     lcddev.dir=0;
     lcddev.width=240;
@@ -243,120 +127,53 @@ void LCD_SetParam(void) {
 
 
 void LCD_Init_sequence() {
-    LCD_WR_REG(0x01);  //  Software Reset
-
-    LCD_WR_REG(0xCF);  //  Power Control B
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0xC1);
-    LCD_WR_DATA8(0x30);
-
-    LCD_WR_REG(0xED);  //  Power on Sequence control
-    LCD_WR_DATA8(0x64);
-    LCD_WR_DATA8(0x03);
-    LCD_WR_DATA8(0x12);
-    LCD_WR_DATA8(0x81);
-
-    LCD_WR_REG(0xE8);  //  Driver timing control A
-    LCD_WR_DATA8(0x85);
-    LCD_WR_DATA8(0x10); // 00 - x10
-    LCD_WR_DATA8(0x7A); // 78 - x7A
-
-    LCD_WR_REG(0xCB);   //  Power Control A
-    LCD_WR_DATA8(0x39);
-    LCD_WR_DATA8(0x2C);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x34);
-    LCD_WR_DATA8(0x02);
-
-    LCD_WR_REG(0xF7);   //  Pump ratio control
-    LCD_WR_DATA8(0x20);
-
-    LCD_WR_REG(0xEA);   //  Driver timing control B
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-
-    LCD_WR_REG(0xC0);   //  Power Control 1
-    LCD_WR_DATA8(0x10); // VRH[5:0]  10 - 0x1B     !!!!!!! 3.65 V - 4.20 V
-
-    LCD_WR_REG(0xC1);   //  Power Control 2
-    LCD_WR_DATA8(0x10); // SAP[2:0];BT[3:0]  10 - 01  !!!!!!!
-
-    LCD_WR_REG(0xC5);   //  VCOM Control 1
-    LCD_WR_DATA8(0x30); // 3E - 30  /3F
-    LCD_WR_DATA8(0x30); // 28 - 30  /3C
-
-    LCD_WR_REG(0xC7);   //  VCOM Control 2
-    LCD_WR_DATA8(0xB7); //  86 - B7 (86 - плохое качество)
-
-    LCD_WR_REG(0x36);   // Memory Access Control
-    LCD_WR_DATA8(0x48);
-
-    LCD_WR_REG(0x3A);   //  Pixel Format Set
-    LCD_WR_DATA8(0x55); // 16bit
-
-    LCD_WR_REG(0xB1);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x18); // Частота кадров 79 Гц // 18 - 1A  79Hz - 73Hz
-
-    LCD_WR_REG(0xB6);   // Display Function Control
-    LCD_WR_DATA8(0x0A); // 08 - 0A
-    LCD_WR_DATA8(0xA2); // 82 - A2
-    //LCD_WR_DATA8(0x27); //320 строк // отсутсвует
-
-    LCD_WR_REG(0xF2);    //  3Gamma Function
-    LCD_WR_DATA8(0x00);  // Disable
-
-    LCD_WR_REG(0x26);    // Gamma curve selected
-    LCD_WR_DATA8(0x01);  // Gamma Curve (G2.2) (Кривая цветовой гаммы)
-
-    LCD_WR_REG(0xE0);    // Positive Gamma  Correction
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x2A);
-    LCD_WR_DATA8(0x28);
-    LCD_WR_DATA8(0x08);
-    LCD_WR_DATA8(0x0E);
-    LCD_WR_DATA8(0x08);
-    LCD_WR_DATA8(0x54);
-    LCD_WR_DATA8(0XA9);
-    LCD_WR_DATA8(0x43);
-    LCD_WR_DATA8(0x0A);
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-
-    LCD_WR_REG(0xE1);     // Negative Gamma  Correction
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x15);
-    LCD_WR_DATA8(0x17);
-    LCD_WR_DATA8(0x07);
-    LCD_WR_DATA8(0x11);
-    LCD_WR_DATA8(0x06);
-    LCD_WR_DATA8(0x2B);
-    LCD_WR_DATA8(0x56);
-    LCD_WR_DATA8(0x3C);
-    LCD_WR_DATA8(0x05);
-    LCD_WR_DATA8(0x10);
-    LCD_WR_DATA8(0x0F);
-    LCD_WR_DATA8(0x3F);
-    LCD_WR_DATA8(0x3F);
-    LCD_WR_DATA8(0x0F);
-
-    LCD_WR_REG(0x2B);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x01);
-    LCD_WR_DATA8(0x3f);
-    LCD_WR_REG(0x2A);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0x00);
-    LCD_WR_DATA8(0xef);
-
-    LCD_WR_REG(0x11); // Exit Sleep
-    delay_ms(120);
-    LCD_WR_REG(0x29); // display on
+#pragma GCC diagnostic ignored "-Woverflow"
+    //st7793
+    LCD_WR_REG16(0x0001);LCD_WR_DATA16(0x0100);
+    LCD_WR_REG16(0x0003);LCD_WR_DATA16(0x1030); //9030
+    LCD_WR_REG16(0x0008);LCD_WR_DATA16(0x0808);
+    LCD_WR_REG16(0x0090);LCD_WR_DATA16(0x8000);
+    LCD_WR_REG16(0x0400);LCD_WR_DATA16(0x6200);
+    LCD_WR_REG16(0x0401);LCD_WR_DATA16(0x0001);
+    //-----------------------------------End Display Control setting-----------------------------------------//
+    //-------------------------------- Power Control Registers Initial --------------------------------------//
+    LCD_WR_REG16(0x00ff);LCD_WR_DATA16(0x0001);
+    LCD_WR_REG16(0x0102);LCD_WR_DATA16(0x01b0);
+    LCD_WR_REG16(0x0710);LCD_WR_DATA16(0x0016);
+    LCD_WR_REG16(0x0712);LCD_WR_DATA16(0x000f);
+    LCD_WR_REG16(0x0752);LCD_WR_DATA16(0x002f);
+    LCD_WR_REG16(0x0724);LCD_WR_DATA16(0x001a);
+    LCD_WR_REG16(0x0754);LCD_WR_DATA16(0x002a);
+    //---------------------------------End Power Control Registers Initial -------------------------------//
+    DWT_Delay_ms(100);
+    //----------------------------------Display Windows 240 X 400----------------------------------------//
+    LCD_WR_REG16(0x0210);LCD_WR_DATA16(0x0000);
+    LCD_WR_REG16(0x0211);LCD_WR_DATA16(0x00ef);
+    LCD_WR_REG16(0x0212);LCD_WR_DATA16(0x0000);
+    LCD_WR_REG16(0x0213);LCD_WR_DATA16(0x018f);
+    //----------------------------------End Display Windows 240 X 400----------------------------------//
+    DWT_Delay_ms(10);
+    //-------------------------------------Gamma Cluster Setting-------------------------------------------//
+    LCD_WR_REG16(0x0380);LCD_WR_DATA16(0x0000);
+    LCD_WR_REG16(0x0381);LCD_WR_DATA16(0x5f10);
+    LCD_WR_REG16(0x0382);LCD_WR_DATA16(0x0b02);
+    LCD_WR_REG16(0x0383);LCD_WR_DATA16(0x0614);
+    LCD_WR_REG16(0x0384);LCD_WR_DATA16(0x0111);
+    LCD_WR_REG16(0x0385);LCD_WR_DATA16(0x0000);
+    LCD_WR_REG16(0x0386);LCD_WR_DATA16(0xa90b);
+    LCD_WR_REG16(0x0387);LCD_WR_DATA16(0x0606);
+    LCD_WR_REG16(0x0388);LCD_WR_DATA16(0x0612);
+    LCD_WR_REG16(0x0389);LCD_WR_DATA16(0x0111);
+    //---------------------------------------End Gamma Setting---------------------------------------------//
+    //---------------------------------------Vcom Setting---------------------------------------------//
+    LCD_WR_REG16(0x0702);LCD_WR_DATA16(0x003b);
+    LCD_WR_REG16(0x00ff);LCD_WR_DATA16(0x0000);
+    //---------------------------------------End Vcom Setting---------------------------------------------//
+    LCD_WR_REG16(0x0007);LCD_WR_DATA16(0x0100);
+    DWT_Delay_ms(200); //Delay 200ms
+    LCD_WR_REG16(0x0200);LCD_WR_DATA16(0x0000);
+    LCD_WR_REG16(0x0201);LCD_WR_DATA16(0x0000);
+#pragma GCC diagnostic warning "-Woverflow"
 }
 
 // Clear screen function
