@@ -42,15 +42,20 @@ void LCD_SetCursor(u16 x, u16 y) {
 // Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
 #pragma GCC diagnostic ignored "-Woverflow"
-    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_REG16(LCD_START_X);
     LCD_WR_DATA16(sx);
     LCD_WR_REG16(LCD_END_X);
     LCD_WR_DATA16(ex);
 
-    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_REG16(LCD_START_Y);
     LCD_WR_DATA16(sy);
     LCD_WR_REG16(LCD_END_Y);
     LCD_WR_DATA16(ey);
+
+    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_DATA16(sx);
+    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_DATA16(sy);
 #pragma GCC diagnostic warning "-Woverflow"
 }
 

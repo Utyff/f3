@@ -6,11 +6,13 @@
 // set the x coordinate instruction
 //#define LCD_SET_X 0x2a
 #define LCD_SET_X 0x200
-#define LCD_END_X 0x210
+#define LCD_START_X 0x210
+#define LCD_END_X 0x211
 // Set the y coordinate instruction
 //#define LCD_SET_Y 0x2b
 #define LCD_SET_Y 0x201
-#define LCD_END_Y 0x211
+#define LCD_START_Y 0x212
+#define LCD_END_Y 0x213
 // begin to write the GRAM command
 //#define LCD_WR_RAM_CMD 0x2c
 #define LCD_WR_RAM_CMD 0x202 // st7793
