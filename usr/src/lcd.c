@@ -5,7 +5,7 @@
 
 /**
  * TFT LCD driver
- * Support driver IC models: ILI9341
+ * Support driver IC models: ST7793
  */
 
 u16 POINT_COLOR = 0x0000; // Drawing pen color
@@ -28,6 +28,8 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteRAM_Prepare(voi
 //Xpos: abscissa
 //Ypos: ordinate
 void LCD_SetCursor(u16 x, u16 y) {
+    if (x >= MAX_X || y >= MAX_Y)
+        return;
 #pragma GCC diagnostic ignored "-Woverflow"
     LCD_WR_REG16(LCD_SET_V);
     LCD_WR_DATA16(x);
@@ -41,6 +43,8 @@ void LCD_SetCursor(u16 x, u16 y) {
 //width,height: width and height of the window, must be greater than 0!!
 // Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
+    if (sx >= MAX_X || sy >= MAX_Y || ex >= MAX_X || ey >= MAX_Y)
+        return;
 #pragma GCC diagnostic ignored "-Woverflow"
     LCD_WR_REG16(LCD_START_V);
     LCD_WR_DATA16(sx);
