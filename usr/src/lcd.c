@@ -29,9 +29,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteRAM_Prepare(voi
 //Ypos: ordinate
 void LCD_SetCursor(u16 x, u16 y) {
 #pragma GCC diagnostic ignored "-Woverflow"
-    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_REG16(LCD_SET_V);
     LCD_WR_DATA16(x);
-    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_REG16(LCD_SET_H);
     LCD_WR_DATA16(y);
 #pragma GCC diagnostic warning "-Woverflow"
 }
@@ -42,19 +42,19 @@ void LCD_SetCursor(u16 x, u16 y) {
 // Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
 #pragma GCC diagnostic ignored "-Woverflow"
-    LCD_WR_REG16(LCD_START_X);
+    LCD_WR_REG16(LCD_START_V);
     LCD_WR_DATA16(sx);
-    LCD_WR_REG16(LCD_END_X);
+    LCD_WR_REG16(LCD_END_V);
     LCD_WR_DATA16(ex);
 
-    LCD_WR_REG16(LCD_START_Y);
+    LCD_WR_REG16(LCD_START_H);
     LCD_WR_DATA16(sy);
-    LCD_WR_REG16(LCD_END_Y);
+    LCD_WR_REG16(LCD_END_H);
     LCD_WR_DATA16(ey);
 
-    LCD_WR_REG16(LCD_SET_X);
+    LCD_WR_REG16(LCD_SET_V);
     LCD_WR_DATA16(sx);
-    LCD_WR_REG16(LCD_SET_Y);
+    LCD_WR_REG16(LCD_SET_H);
     LCD_WR_DATA16(sy);
 #pragma GCC diagnostic warning "-Woverflow"
 }
@@ -134,7 +134,7 @@ void LCD_SetParam(void) {
 void LCD_Init_sequence() {
 #pragma GCC diagnostic ignored "-Woverflow"
     //st7793
-    LCD_WR_REG16(0x0001);LCD_WR_DATA16(0x0100); // Driver Output Control, draw direction.
+    LCD_WR_REG16(0x0001);LCD_WR_DATA16(0x0000); // Driver Output Control, draw direction.
     LCD_WR_REG16(0x0003);LCD_WR_DATA16(0x1030); // 9030
     LCD_WR_REG16(0x0008);LCD_WR_DATA16(0x0808);
     LCD_WR_REG16(0x0090);LCD_WR_DATA16(0x8000);

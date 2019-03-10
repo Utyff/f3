@@ -3,16 +3,17 @@
 
 #include "_main.h"
 
+// st7793 has only vertical orientation
 // set the x coordinate instruction
 //#define LCD_SET_X 0x2a
-#define LCD_SET_X 0x200
-#define LCD_START_X 0x210
-#define LCD_END_X 0x211
+#define LCD_SET_H 0x200
+#define LCD_START_H 0x210
+#define LCD_END_H 0x211
 // Set the y coordinate instruction
 //#define LCD_SET_Y 0x2b
-#define LCD_SET_Y 0x201
-#define LCD_START_Y 0x212
-#define LCD_END_Y 0x213
+#define LCD_SET_V 0x201
+#define LCD_START_V 0x212
+#define LCD_END_V 0x213
 // begin to write the GRAM command
 //#define LCD_WR_RAM_CMD 0x2c
 #define LCD_WR_RAM_CMD 0x202 // st7793
