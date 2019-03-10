@@ -83,12 +83,12 @@ LCD_D8 - PB15
     LCD_RS_SET; \
 }
 
-//#define LCD_WR_DATA8(data) { \
-//    LCD_RS_SET; \
-//    DATAOUT(data); \
-//    LCD_WR_CLR; \
-//    LCD_WR_SET; \
-//}
+#define LCD_WR_DATA8(data) { \
+    LCD_RS_SET; \
+    DATAOUT(data); \
+    LCD_WR_CLR; \
+    LCD_WR_SET; \
+}
 
 #define LCD_WR_DATA16(data) { \
     DATAOUT(data >> 8); \

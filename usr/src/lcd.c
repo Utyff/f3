@@ -134,12 +134,12 @@ void LCD_SetParam(void) {
 void LCD_Init_sequence() {
 #pragma GCC diagnostic ignored "-Woverflow"
     //st7793
-    LCD_WR_REG16(0x0001);LCD_WR_DATA16(0x0100);
-    LCD_WR_REG16(0x0003);LCD_WR_DATA16(0x1030); //9030
+    LCD_WR_REG16(0x0001);LCD_WR_DATA16(0x0100); // Driver Output Control, draw direction.
+    LCD_WR_REG16(0x0003);LCD_WR_DATA16(0x1030); // 9030
     LCD_WR_REG16(0x0008);LCD_WR_DATA16(0x0808);
     LCD_WR_REG16(0x0090);LCD_WR_DATA16(0x8000);
-    LCD_WR_REG16(0x0400);LCD_WR_DATA16(0x6200);
-    LCD_WR_REG16(0x0401);LCD_WR_DATA16(0x0001);
+    LCD_WR_REG16(0x0400);LCD_WR_DATA16(0x6200); // Base Image Number of Line. Set GS: (1<<15) |
+    LCD_WR_REG16(0x0401);LCD_WR_DATA16(0x0001); // Base Image Display Control
     //-----------------------------------End Display Control setting-----------------------------------------//
     //-------------------------------- Power Control Registers Initial --------------------------------------//
     LCD_WR_REG16(0x00ff);LCD_WR_DATA16(0x0001);
