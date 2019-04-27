@@ -2,7 +2,7 @@
 #define __MAIN2_H
 
 #ifdef STM32F303xC
-#include "stm32f3xx_hal.h"
+#include <stm32f3xx.h>
 #endif
 #ifdef STM32F407xx
 #include "stm32f4xx_hal.h"
@@ -28,13 +28,6 @@ typedef __IO uint32_t vu32;
 typedef __IO uint16_t vu16;
 typedef __IO uint8_t vu8;
 
-//extern ADC_HandleTypeDef hadc1;
-extern DMA_HandleTypeDef hdma_adc1;
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim8;
-//extern SRAM_HandleTypeDef hsram1;
-extern UART_HandleTypeDef huart1;
-extern DMA_HandleTypeDef hdma_memtomem_dma2_stream1;
 
 void mainInitialize();
 
