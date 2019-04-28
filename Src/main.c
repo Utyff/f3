@@ -11,24 +11,35 @@ void SystemClock_Config(void);
   * @retval int
   */
 int main(void) {
-    /* Configure the system clock */
+    // Configure the system clock
     SystemClock_Config();
     DWT_Init();
 
-    /* Initialize all configured peripherals */
-    RCC->AHBENR |= RCC_AHBENR_GPIOCEN ;
+    // Initialize LED GPIO
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER13)) | (GPIO_MODER_MODER13_0);
+    GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER15)) | (GPIO_MODER_MODER15_0);
+
+    // Initialize TIM1
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    //RCC->CFGR3 &= ~RCC_CFGR3_TIM1SW_PLL; // set as default
+
+    // Set the Prescaler value
+    TIM2->PSC = 7199; // 72MHz / 7200 = 10 KHz
+    // Set the Autoreload value
+    TIM2->ARR = 4999;  // 10 KHz / 5000 = 2Hz
+    TIM2->DIER |= TIM_DIER_UIE; // interrupt on update
+    TIM2->CR1 |= TIM_CR1_CEN;
+    NVIC_EnableIRQ(TIM2_IRQn);
 
 //  mainInitialize();
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
-    /* Infinite loop */
+    // Infinite loop
     while (1) {
-        GPIOC->ODR |= GPIO_ODR_13;
-        delay_ms(300);
-        GPIOC->ODR &= ~GPIO_ODR_13;
+        GPIOC->ODR ^= GPIO_ODR_13;
         delay_ms(300);
 //    mainCycle();
     }
@@ -59,6 +70,13 @@ void SystemClock_Config(void) {
 //    RCC_HSICmd(DISABLE);//Disable HSI
 }
 
+uint32_t tim2count = 0;
+
+void TIM2_IRQHandler() {
+    tim2count++;
+    TIM2->SR = (uint16_t) ~TIM_SR_UIF;
+    GPIOC->ODR ^= GPIO_ODR_15;
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
