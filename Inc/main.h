@@ -80,12 +80,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED1_Pin GPIO_PIN_13
+#define LED1_Pin 13u
 #define LED1_GPIO_Port GPIOC
+#define LED2_Pin 15u
+#define LED2_GPIO_Port GPIOC
 #define BTN1_Pin GPIO_PIN_14
 #define BTN1_GPIO_Port GPIOC
-#define LED2_Pin GPIO_PIN_15
-#define LED2_GPIO_Port GPIOC
 #define LCD_CS_Pin GPIO_PIN_1
 #define LCD_CS_GPIO_Port GPIOA
 #define LCD_RS_Pin GPIO_PIN_2

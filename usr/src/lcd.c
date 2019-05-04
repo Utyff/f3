@@ -199,10 +199,25 @@ void LCD_Display_Dir(u8 dir) {
 #define GPIO_Pin_All 0xFF
 
 void LCD_GPIOInit(void) {
+    // Initialize data and controls conGPIO
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN;
+    // control bits 1-4 OUT mode & very high speed
+    GPIOA->OSPEEDR |= 0b1111111100u;
+    GPIOA->MODER = (GPIOA->MODER & ~0b1111111100u) | 0b0101010100u;
+    // data bits 0-7 OUT mode & very high speed
+    GPIOB->OSPEEDR |= 0b1111111111111111u;
+    GPIOB->MODER = (GPIOB->MODER & ~0b1111111111111111u) | 0b0101010101010101u;
+
+    LCD_CS_CLR; // Chip-select always active
+    LCD_CS_SET; // Chip-select always active
+    LCD_CS_CLR; // Chip-select always active
+
     // deactivate WR and RD signals
-    GPIO_SetBits(CTL_PORT, 1 << LCD_RS_PIN | 1 << LCD_WR_PIN | 1 << LCD_RD_PIN);
+    GPIO_SetBits(CTL_PORT, 1u << LCD_RS_PIN | 1u << LCD_WR_PIN | 1u << LCD_RD_PIN);
 //    GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
 
+    LCD_CS_CLR; // Chip-select always active
+    LCD_CS_SET; // Chip-select always active
     LCD_CS_CLR; // Chip-select always active
 
 #ifdef  LCD_RST_Pin

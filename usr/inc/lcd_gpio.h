@@ -28,11 +28,11 @@ LCD_D8 - PB15
 #define CTL_PORT  GPIOA
 #define DATA_PORT GPIOB
 
-#define LCD_RST_PIN     0
-#define LCD_CS_PIN      1
-#define LCD_RS_PIN      2
-#define LCD_WR_PIN      3
-#define LCD_RD_PIN      4
+//#define LCD_RST_PIN     0
+#define LCD_CS_PIN      1u
+#define LCD_RS_PIN      2u
+#define LCD_WR_PIN      3u
+#define LCD_RD_PIN      4u
 
 #ifdef  LCD_RST_Pin
 #define LCD_RST_SET  CTL_PORT->BSRR=1<<LCD_RST_PIN

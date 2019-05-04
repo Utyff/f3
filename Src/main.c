@@ -13,10 +13,12 @@ void SystemClock_Config(void);
 int main(void) {
     // Configure the system clock
     SystemClock_Config();
-    DWT_Init();
+
+    mainInitialize();
 
     // Initialize LED GPIO
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    // OUT mode
     GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER13)) | (GPIO_MODER_MODER13_0);
     GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER15)) | (GPIO_MODER_MODER15_0);
 
@@ -32,8 +34,6 @@ int main(void) {
     TIM2->CR1 |= TIM_CR1_CEN;
     NVIC_EnableIRQ(TIM2_IRQn);
 
-//  mainInitialize();
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
@@ -41,7 +41,7 @@ int main(void) {
     while (1) {
         GPIOC->ODR ^= GPIO_ODR_13;
         delay_ms(300);
-//    mainCycle();
+        mainCycle();
     }
 #pragma clang diagnostic pop
 }
