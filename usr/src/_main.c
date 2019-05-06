@@ -39,7 +39,7 @@ void mainCycle() {
 //    KEYS_scan();
 
 //    if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-    if ((random() & 7) < 3) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
+    if ((random() & 7) < 2) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
 #ifdef LED2_Pin
 //    if ((random() & 7) < 3) LED2_GPIO_Port->ODR ^= 1u << LED2_Pin;
 #endif
