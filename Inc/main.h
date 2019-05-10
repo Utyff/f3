@@ -84,7 +84,7 @@ void Error_Handler(void);
 #define LED1_GPIO_Port GPIOC
 #define LED2_Pin 15u
 #define LED2_GPIO_Port GPIOC
-#define BTN1_Pin GPIO_PIN_14
+#define BTN1_Pin 14u
 #define BTN1_GPIO_Port GPIOC
 #define LCD_CS_Pin GPIO_PIN_1
 #define LCD_CS_GPIO_Port GPIOA

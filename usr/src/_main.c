@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <delay.h>
 #include <draw.h>
-//#include <keys.h>
+#include <keys.h>
 #include <DataBuffer.h>
 //#include <generator.h>
 //#include <adc.h>
@@ -28,7 +28,7 @@ void mainInitialize() {
 //    GEN_setParams();
 
 //    HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
-//    KEYS_init();
+    KEYS_init();
 
     CORECheck();
     FPUCheck();
@@ -49,7 +49,7 @@ void mainCycle() {
 
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
-//    LCD_ShowxNum(0, 214, TIM8->CNT, 5, 12, 0x0);
+    LCD_ShowxNum(0, 227, TIM8->CNT, 5, 12, 0x0);
     LCD_ShowChar(22, 214, 'b', 12, 0x0);
 //    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x0);
 //    LCD_ShowxNum(60, 214, (u32) ii, 5, 12, 0x0);

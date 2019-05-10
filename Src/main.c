@@ -3,12 +3,6 @@
 #include <_main.h>
 #include <delay.h>
 
-#define TIM_CHANNEL_1   (0x0000U)
-#define TIM_CHANNEL_2   (0x0004U)
-#define TIM_CHANNEL_3   (0x0008U)
-#define TIM_CHANNEL_4   (0x000CU)
-#define TIM_CHANNEL_5   (0x0010U)
-#define TIM_CHANNEL_6   (0x0014U)
 
 void SystemClock_Config(void);
 
