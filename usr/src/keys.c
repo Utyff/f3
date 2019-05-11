@@ -19,6 +19,12 @@ int16_t enc_step;
 
 void KEYS_init() {
     ENC_init();
+
+    // enable GPIOC
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    // BTN1, PC14 IN mode - 00
+//    GPIOC->MODER &= ~GPIO_MODER_MODER14;
+    GPIOC->MODER &= ~0x3U << (BTN1_Pin*2);
 }
 
 int16_t ENC_Get() {
@@ -39,9 +45,10 @@ int16_t ENC_Get() {
 /**
  * Check buttons and run actions
  */
+uint16_t new_state;
 void KEYS_scan() {
-/*    uint16_t new_state = (uint16_t) (0x1 & ~((BTN1_GPIO_Port->IDR & (1u << BTN1_Pin)) >> 14)); // 14 pin number
-    uint16_t action = (btns_state << 8) | new_state;
+    new_state = (uint16_t) (0x1u & ~((BTN1_GPIO_Port->IDR & (1u << BTN1_Pin)) >> 14u)); // get BTN1
+    uint16_t action = (btns_state << 8u) | new_state; // action code = last btn state + new btn state
     btns_state = new_state;
     switch (action) {
         // BTN1 up
@@ -50,7 +57,7 @@ void KEYS_scan() {
             break;
         default:
             break;
-    } //*/
+    }
 
     // if encoder has step - do it
     enc_step = ENC_Get();
@@ -60,7 +67,7 @@ void KEYS_scan() {
     DBG_Trace(buf);
 
     // choose type of encoder action
-    int8_t mode = button1Count & (int8_t) 1;
+    int8_t mode = button1Count & (int8_t) 1u;
     if (mode == 0) {
 //        ADC_step(enc_step);
     } else if (mode == 1) {

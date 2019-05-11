@@ -27,11 +27,11 @@ void TIM1_init() {
     TIM1->DIER |= TIM_DIER_UIE | TIM_DIER_CC1IE; // interrupt on update
 
     // Configure the Channel 1 in PWM mode
-    /* Disable the Channel 1: Reset the CC1E Bit */
+    // Disable the Channel 1: Reset the CC1E Bit
     TIM1->CCER &= ~TIM_CCER_CC1E;
-    /* Select the Output Compare Mode */
+    // Select the Output Compare Mode
     TIM1->CCMR1 |= ((uint32_t)TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
-    /* Set the Capture Compare Register value */
+    // Set the Capture Compare Register value
     TIM1->CCR1 = 4000;
     // Set the Preload enable bit for channel1
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
@@ -41,7 +41,7 @@ void TIM1_init() {
     TIM1->CCER |= TIM_CCER_CC1E;
     // Enable the main output
     TIM1->BDTR|=TIM_BDTR_MOE;
-    /* Enable the Peripheral */
+    // Enable the Peripheral
     TIM1->CR1 |= TIM_CR1_CEN;
 
     NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);

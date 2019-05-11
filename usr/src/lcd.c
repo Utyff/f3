@@ -89,23 +89,22 @@ void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
 
 
 #define GPIO_SetBits(port, pins) port->BSRR = pins
-#define GPIO_Pin_All 0xFF
 
 void LCD_GPIOInit(void) {
-    // Initialize data and controls conGPIO
+    // Initialize data and controls GPIO
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN;
-    // control bits 1-4 OUT mode & very high speed
+    // control bits PA1-4 OUT mode & very high speed
     GPIOA->OSPEEDR |= 0b1111111100u;
     GPIOA->MODER = (GPIOA->MODER & ~0b1111111100u) | 0b0101010100u;
-    // data bits 0-7 OUT mode & very high speed
+    // data bits PB0-7 OUT mode & very high speed
     GPIOB->OSPEEDR |= 0b1111111111111111u;
     GPIOB->MODER = (GPIOB->MODER & ~0b1111111111111111u) | 0b0101010101010101u;
 
     // deactivate WR and RD signals
     GPIO_SetBits(CTL_PORT, 1u << LCD_RS_PIN | 1u << LCD_WR_PIN | 1u << LCD_RD_PIN);
-//    GPIO_SetBits(DATA_PORT, GPIO_Pin_All);
-
     LCD_CS_CLR; // Chip-select always active
+
+    DWT_Delay_us(5);
 
 #ifdef  LCD_RST_Pin
     LCD_RST_CLR;

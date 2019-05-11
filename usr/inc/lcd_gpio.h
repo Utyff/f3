@@ -4,18 +4,18 @@
 #include "_main.h"
 
 /**************************************************************************************************
-LCD_RST - PC5 changed !!!
-LCD_RD - PC6
-LCD_WR - PC7
-LCD_RS - PC8
-LCD_CS - PC9
+LCD_RST -
+LCD_RD - PA4
+LCD_WR - PA3
+LCD_RS - PA2
+LCD_CS - PA1
 
-LCD_D0 - PB8
+LCD_D0 - PB0
 ...
-LCD_D8 - PB15
+LCD_D7 - PB7
 **************************************************************************************************/
 
-#define USE_HORIZONTAL          1
+#define USE_HORIZONTAL 1
 
 #if USE_HORIZONTAL == 1
 #define LCD_W 320
@@ -74,7 +74,7 @@ LCD_D8 - PB15
 
 #define LCD_WR_REG16(data) { \
     LCD_RS_CLR; \
-    DATAOUT(data >> 8); \
+    DATAOUT(data >> 8u); \
     LCD_WR_CLR; \
     LCD_WR_SET; \
     DATAOUT(data); \
@@ -91,7 +91,7 @@ LCD_D8 - PB15
 }
 
 #define LCD_WR_DATA16(data) { \
-    DATAOUT(data >> 8); \
+    DATAOUT(data >> 8u); \
     LCD_WR_CLR; \
     LCD_WR_SET; \
     DATAOUT(data); \

@@ -36,9 +36,8 @@ void mainInitialize() {
 
 void mainCycle() {
     drawScreen();
-//    KEYS_scan();
+    KEYS_scan();
 
-//    if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
     if ((random() & 7) < 2) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
 #ifdef LED2_Pin
 //    if ((random() & 7) < 3) LED2_GPIO_Port->ODR ^= 1u << LED2_Pin;
@@ -51,10 +50,12 @@ void mainCycle() {
     BACK_COLOR = BLACK;
     LCD_ShowxNum(0, 227, TIM8->CNT, 5, 12, 0x0);
     LCD_ShowChar(22, 214, 'b', 12, 0x0);
-//    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x0);
+    LCD_ShowxNum(30, 214, (u32) button1Count, 5, 12, 0x0);
 //    LCD_ShowxNum(60, 214, (u32) ii, 5, 12, 0x0);
+    LCD_ShowxNum(60, 214, (u32) btns_state, 5, 12, 0x0);
     LCD_ShowChar(112, 214, 't', 12, 0x0);
 //    LCD_ShowxNum(120, 214, (u32) screenTime, 5, 12, 0x0);
+    LCD_ShowxNum(120, 214, (u32) new_state, 5, 12, 0x0);
     LCD_ShowChar(172, 214, 'g', 12, 0x0);
 //    LCD_ShowxNum(180, 214, (u32) tim1Freq/100, 5, 12, 0x0);
 //    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);

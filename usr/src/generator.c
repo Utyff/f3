@@ -80,7 +80,7 @@ void GEN_step(int16_t step) {
     tim1Prescaler = GEN_Parameters[currentGenParam].TIM_Prescaler;
     tim1Period = GEN_Parameters[currentGenParam].TIM_Period * currentGenScale;
     tim1Pulse = tim1Period * 30 / 100;
-    GEN_setParams();
+//    GEN_setParams();
 
 //    sprintf(msg, "Timer param: %u, scale: %u, presc: %u, period: %u, freq: %u\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
     DBG_Trace(msg);

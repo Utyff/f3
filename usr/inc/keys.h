@@ -13,6 +13,7 @@ extern uint8_t button1Count;
 extern uint8_t button2Count;
 extern uint8_t button3Count;
 extern uint16_t btns_state;
+extern uint16_t new_state;
 extern int16_t enc_step;
 
 void KEYS_init();
