@@ -23,8 +23,10 @@ void KEYS_init() {
     // enable GPIOC
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     // BTN1, PC14 IN mode - 00
-//    GPIOC->MODER &= ~GPIO_MODER_MODER14;
-    GPIOC->MODER &= ~0x3U << (BTN1_Pin*2);
+    GPIOC->MODER &= ~GPIO_MODER_MODER14;
+//    GPIOC->MODER &= ~0x3U << (BTN1_Pin*2);
+    // Pull up PC14
+    GPIOC->PUPDR = GPIO_PUPDR_PUPDR14_0;
 }
 
 int16_t ENC_Get() {
@@ -46,6 +48,7 @@ int16_t ENC_Get() {
  * Check buttons and run actions
  */
 uint16_t new_state;
+int16_t enc_count=1000;
 void KEYS_scan() {
     new_state = (uint16_t) (0x1u & ~((BTN1_GPIO_Port->IDR & (1u << BTN1_Pin)) >> 14u)); // get BTN1
     uint16_t action = (btns_state << 8u) | new_state; // action code = last btn state + new btn state
@@ -61,6 +64,7 @@ void KEYS_scan() {
 
     // if encoder has step - do it
     enc_step = ENC_Get();
+    enc_count += enc_step;
     if (enc_step == 0) return;
     char buf[64];
 //    sprintf(buf, "step: %hi\n", enc_step);
@@ -91,10 +95,14 @@ void ENC_init() {
     GPIOA->AFR[1] = (GPIOA->AFR[1] & ~(GPIO_AFRH_AFRH0)) | (2u << (7 * 4u));
     // Select AF mode (10) on PA15
     GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER15)) | (GPIO_MODER_MODER15_1);
+    // Pull up PA15
+    GPIOA->PUPDR = GPIO_PUPDR_PUPDR15_0;
     // AF10 for TIM8CH2 signals for PB8
     GPIOB->AFR[1] = (GPIOB->AFR[1] & ~(GPIO_AFRH_AFRH0)) | (10u << (0 * 4u));
     // Select AF mode (10) on PB8
     GPIOB->MODER = (GPIOB->MODER & ~(GPIO_MODER_MODER8)) | (GPIO_MODER_MODER8_1);
+    // Pull up PB8
+    GPIOB->PUPDR = GPIO_PUPDR_PUPDR8_0;
 
     // TIM8 on
     RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
