@@ -6,7 +6,7 @@
 #include <keys.h>
 #include <DataBuffer.h>
 //#include <generator.h>
-//#include <adc.h>
+#include <adc.h>
 
 
 void CORECheck();
@@ -22,7 +22,7 @@ void mainInitialize() {
     LCD_Init();
 
     //HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
-//    ADC_setParams();
+    ADC_init();
 
     //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 //    GEN_setParams();
