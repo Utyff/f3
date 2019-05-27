@@ -8,9 +8,11 @@ extern "C" {
 #endif
 
 // DWT tics in one microsecond
+// for 72MHz:   72 000 000 / 1 000 000 = 72
 // for 168MHz: 168 000 000 / 1 000 000 = 168
 // for 216MHz: 216 000 000 / 1 000 000 = 216
-#define DWT_IN_MICROSEC (SystemCoreClock/1000000)
+#define SYSTEM_CORE_CLOCK 72000000
+#define DWT_IN_MICROSEC (SYSTEM_CORE_CLOCK/1000000)
 
 extern int SMALL_DELLAY;
 

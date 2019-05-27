@@ -72,5 +72,5 @@ void SysTick_Handler(void) {
 /**
   * @brief This function handles DMA1 channel1 global interrupt.
   */
-void DMA1_Channel1_IRQHandler(void) {
-}
+//void DMA1_Channel1_IRQHandler(void) {
+//}

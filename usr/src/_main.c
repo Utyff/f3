@@ -34,6 +34,8 @@ void mainInitialize() {
     FPUCheck();
 }
 
+uint8_t prevBnt1=0;
+
 void mainCycle() {
     drawScreen();
     KEYS_scan();
@@ -61,6 +63,10 @@ void mainCycle() {
 //    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
 
     delay_ms(50);
+    if( prevBnt1!=button1Count) {
+        ADC_takeSamples();
+        prevBnt1 = button1Count;
+    }
 }
 
 #ifdef DEBUG_TRACE_SWO
