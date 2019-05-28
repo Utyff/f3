@@ -15,7 +15,7 @@ uint32_t dataPoints12[MAX_SAMPLES];
 uint32_t dataPoints34[MAX_SAMPLES];
 
 
-void ADC_set() {
+void ADC_init2() {
     // enable the ADC voltage regulator
     ADC1->CR &= ~ADC_CR_ADVREGEN_1;
     ADC2->CR &= ~ADC_CR_ADVREGEN_1;
@@ -93,8 +93,8 @@ void ADC_set() {
     // 101: 61.5 ADC clock cycles
     // 110: 181.5 ADC clock cycles
     // 111: 601.5 ADC clock cycles
-    ADC1->SMPR1 |= (0b000u << ADC_SMPR1_SMP1_Pos);
-    ADC2->SMPR1 |= (0b000u << ADC_SMPR1_SMP1_Pos);
+    ADC1->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
+    ADC2->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
 //    ADC3->SMPR1 |= (0b000u << 3u);
 //    ADC4->SMPR1 |= (0b000u << 3u);
 
@@ -167,8 +167,8 @@ void DMA_init(void) {
 //    DMA2_Channel5->CPAR = (uint32_t) &ADC34_COMMON->CDR;
 
     // Memory address register
-    DMA1_Channel1->CMAR = (uint32_t)(&dataPoints12);
-//    DMA2_Channel5->CMAR = (uint32_t)(&dataPoints34);
+    DMA1_Channel1->CMAR = (uint32_t) (&dataPoints12);
+//    DMA2_Channel5->CMAR = (uint32_t) (&dataPoints34);
 
     // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
     DMA1->IFCR |= 0xFFu;
@@ -177,32 +177,28 @@ void DMA_init(void) {
     NVIC_EnableIRQ(DMA1_Channel1_IRQn); // enable DMA1 CH1 interrupt
 }
 
+uint32_t elapsedTime = 0;
+
 void ADC_takeSamples(void) {
-
-    // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-    DMA1->IFCR |= (0b1111111111111111111111111111111u << 0u);
-//    DMA2->IFCR |= (0b1111111111111111111111111111111u << 0u);
-
     // Number of data to transfer
     DMA1_Channel1->CNDTR = MAX_SAMPLES;
 //    DMA2_Channel5->CNDTR = MAX_SAMPLES;
 
     delay_us(10); // does not work without this random delay
 
-//    elapsedTime = micros();
     // Enable DMA
     DMA1_Channel1->CCR |= (1u << 0u);
 //    DMA2_Channel5->CCR |= (1u << 0u);
+
+    elapsedTime = DWT_Get();
+    // ADC start conversion
+    ADC1->CR |= ADC_CR_ADSTART;
 
     while ((DMA1_Channel1->CNDTR > 0));
 //      || (DMA2_Channel5->CNDTR > 0)) {
 //    }
 
-//    elapsedTime = micros() - elapsedTime;
-
-    // Reset flags
-    DMA1->IFCR |= (0b1111111111111111111111111111111u << 0u);
-//    DMA2->IFCR |= (0b1111111111111111111111111111111u << 0u);
+    elapsedTime = DWT_Elapsed_Tick(elapsedTime) / DWT_IN_MICROSEC;
 
     // disable DMA channel
     DMA1_Channel1->CCR &= ~DMA_CCR_EN;
@@ -215,25 +211,9 @@ void ADC_takeSamples(void) {
     // wait till ADC stop work
     while ((ADC1->CR & ADC_CR_ADSTART));
 //    || (ADC3->CR & (1u << 2u)));
-
-    // DMA mode b10 - for 12-bit resolution
-    ADC12_COMMON->CCR |= (0b10u << ADC_CCR_MDMA_Pos);
-//    ADC34_COMMON->CCR |= (0b10u << 14u);
-
-    // ADC start conversion
-    ADC1->CR |= ADC_CR_ADSTART;
-//    ADC3->CR |= (1u << 2u);
 }
 
-//void loop() {
-//    ADC_takeSamples();
-//    Serial.print("Elapsed time: ");
-//    Serial.println(elapsedTime);
-//}
-
 void ADC_init() {
-//    Serial.begin(57600);
-
     // Enable clocks
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN; // GPIOA
     RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // GPIOB
@@ -244,34 +224,25 @@ void ADC_init() {
 //    GPIOB->MODER |= (0b11u << 2u); // PB1 for ADC3
 //    GPIOB->MODER |= (0b11u << 24u); // PB1 for ADC4
 
-//    initClock();
     DMA_init();
-    ADC_set();
-
-    // Start conversion
-    ADC1->CR |= ADC_CR_ADSTART;
-//    ADC3->CR |= (1u << 2u);
+    ADC_init2();
 }
 
 void DMA1_Channel1_IRQHandler() {
-    if( DMA1->ISR | DMA_ISR_TCIF1 ) {
-        // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-        DMA1->IFCR |= DMA_IFCR_CTCIF1;
+    if (DMA1->ISR & DMA_ISR_TCIF1) {
+//        DMA1->IFCR |= DMA_IFCR_CTCIF1;
         dmaT++;
     }
-    if( DMA1->ISR | DMA_ISR_HTIF1 ) {
-        // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-        DMA1->IFCR |= DMA_IFCR_CHTIF1;
+    if (DMA1->ISR & DMA_ISR_HTIF1) {
+//        DMA1->IFCR |= DMA_IFCR_CHTIF1;
         dmaH++;
     }
-    if( DMA1->ISR | DMA_ISR_TEIF1 ) {
-        // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-        DMA1->IFCR |= DMA_IFCR_CTEIF1;
+    if (DMA1->ISR & DMA_ISR_TEIF1) {
+//        DMA1->IFCR |= DMA_IFCR_CTEIF1;
         dmaE++;
     }
-    if( DMA1->ISR | DMA_ISR_GIF1 ) {
-        // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-        DMA1->IFCR |= DMA_IFCR_CGIF1;
+    if (DMA1->ISR & DMA_ISR_GIF1) {
         dmaG++;
     }
+    DMA1->IFCR |= DMA_IFCR_CGIF1;
 }
