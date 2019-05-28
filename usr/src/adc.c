@@ -123,12 +123,15 @@ void ADC_init2() {
 //    ADC34_COMMON->CCR |= (0b00110u << 0u);
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
-    ADC12_COMMON->CCR &= ~ADC_CCR_DMACFG;
+    ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
 //    ADC34_COMMON->CCR |= (0u << 13u);
 
     // DMA mode b10 - for 12-bit resolution
     ADC12_COMMON->CCR |= (0b10u << ADC_CCR_MDMA_Pos);
 //    ADC34_COMMON->CCR |= (0b10u << 14u);
+
+    // ADC start conversion
+    ADC1->CR |= ADC_CR_ADSTART;
 }
 
 void DMA_init(void) {
@@ -136,8 +139,8 @@ void DMA_init(void) {
     RCC->AHBENR |= RCC_AHBENR_DMA1EN; // (1u << 0u); // DMA1
 //    RCC->AHBENR |= (1u << 1u); // DMA2
 
-    // Transfer complete interrupt enable
-    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE;
+    // Transfer complete interrupt enable and Circular mode
+    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE | DMA_CCR_CIRC;
 //    DMA2_Channel5->CCR |= (1u << 1u);
 
     // Memory increment mode
@@ -174,6 +177,9 @@ void DMA_init(void) {
     DMA1->IFCR |= 0xFFu;
 //    DMA2->IFCR |= 0xFFu;
 
+    // Enable DMA
+    DMA1_Channel1->CCR |= DMA_CCR_EN;
+
     NVIC_EnableIRQ(DMA1_Channel1_IRQn); // enable DMA1 CH1 interrupt
 }
 
@@ -187,7 +193,7 @@ void ADC_takeSamples(void) {
     delay_us(10); // does not work without this random delay
 
     // Enable DMA
-    DMA1_Channel1->CCR |= (1u << 0u);
+    DMA1_Channel1->CCR |= DMA_CCR_EN;
 //    DMA2_Channel5->CCR |= (1u << 0u);
 
     elapsedTime = DWT_Get();
