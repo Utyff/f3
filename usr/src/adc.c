@@ -16,17 +16,6 @@ uint32_t dataPoints34[MAX_SAMPLES];
 
 
 void ADC_init2() {
-    // enable the ADC voltage regulator
-    ADC1->CR &= ~ADC_CR_ADVREGEN_1;
-    ADC2->CR &= ~ADC_CR_ADVREGEN_1;
-//    ADC3->CR &= ~(1u << 29u);
-//    ADC4->CR &= ~(1u << 29u);
-
-    ADC1->CR |= ADC_CR_ADVREGEN_0;
-    ADC2->CR |= ADC_CR_ADVREGEN_0;
-//    ADC3->CR |= (1u << 28u);
-//    ADC4->CR |= (1u << 28u);
-
     RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_DIV1; // Prescaler ADC12 - PLL clock divided by 1
 //    RCC->CFGR2 |= RCC_CFGR2_ADCPRE34_DIV1; // Prescaler ADC34 - PLL clock divided by 1
     RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
@@ -45,6 +34,17 @@ void ADC_init2() {
     ADC2->CR &= ~ADC_CR_ADEN;
 //    ADC3->CR &= ~ADC_CR_ADEN;
 //    ADC4->CR &= ~ADC_CR_ADEN;
+
+    // enable the ADC voltage regulator
+    ADC1->CR &= ~ADC_CR_ADVREGEN_1;
+    ADC2->CR &= ~ADC_CR_ADVREGEN_1;
+//    ADC3->CR &= ~(1u << 29u);
+//    ADC4->CR &= ~(1u << 29u);
+
+    ADC1->CR |= ADC_CR_ADVREGEN_0;
+    ADC2->CR |= ADC_CR_ADVREGEN_0;
+//    ADC3->CR |= (1u << 28u);
+//    ADC4->CR |= (1u << 28u);
 
     // start ADC calibration cycle
     ADC1->CR |= ADC_CR_ADCAL;
