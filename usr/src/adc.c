@@ -80,7 +80,7 @@ void ADC_init2() {
 
     // Select ADC Channels
     ADC1->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC1
-    ADC2->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC2
+    ADC2->SQR1 = (2u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC2
 //    ADC3->SQR1 = (1u << 6u);
 //    ADC4->SQR1 = (3u << 6u);
 
@@ -94,7 +94,7 @@ void ADC_init2() {
     // 110: 181.5 ADC clock cycles
     // 111: 601.5 ADC clock cycles
     ADC1->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
-    ADC2->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
+    ADC2->SMPR1 |= (0b010u << ADC_SMPR1_SMP2_Pos);
 //    ADC3->SMPR1 |= (0b000u << 3u);
 //    ADC4->SMPR1 |= (0b000u << 3u);
 
@@ -119,8 +119,13 @@ void ADC_init2() {
 //    ADC3->CFGR |= (1u << 13u); // Master ADC3 + ADC4
 
     // dual mode - Regular simultaneous mode only
+    // 00000: Independent mode
+    // 00110: Regular simultaneous mode only
+    // 00111: Interleaved mode only
     ADC12_COMMON->CCR |= (0b00110u << ADC_CCR_DUAL_Pos);
 //    ADC34_COMMON->CCR |= (0b00110u << 0u);
+
+    ADC12_COMMON->CCR |= (0b0010u << ADC_CCR_DELAY_Pos); // interleaved mode delay - 7 tics
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
     ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
@@ -226,9 +231,9 @@ void ADC_init() {
 
     // Set mode b11 (analog input) for ADC pins
     GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1
-//    GPIOA->MODER |= (0b11u << 8u); // PA4 for ADC2
+    GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2
 //    GPIOB->MODER |= (0b11u << 2u); // PB1 for ADC3
-//    GPIOB->MODER |= (0b11u << 24u); // PB1 for ADC4
+//    GPIOB->MODER |= (0b11u << 24u); // PB12 for ADC4
 
     DMA_init();
     ADC_init2();
