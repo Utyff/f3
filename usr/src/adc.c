@@ -64,6 +64,11 @@ void ADC_init2() {
     // wait for calibration to complete
 //    while (ADC4->CR & ADC_CR_ADCAL);
 
+    // Delay for interleaved mode. Set only when ADEN=0
+    // (SAMPLE_TIME + CONV. TIME) /2
+    // (4.5 + 12.5) /2 = 8 tics
+    ADC12_COMMON->CCR |= (0b0111u << ADC_CCR_DELAY_Pos);
+
     // enable the ADC
     ADC1->CR |= ADC_CR_ADEN;
     ADC2->CR |= ADC_CR_ADEN;
@@ -122,12 +127,8 @@ void ADC_init2() {
     // 00000: Independent mode
     // 00110: Regular simultaneous mode only
     // 00111: Interleaved mode only
-    ADC12_COMMON->CCR |= (0b00110u << ADC_CCR_DUAL_Pos);
+    ADC12_COMMON->CCR |= (0b00111u << ADC_CCR_DUAL_Pos);
 //    ADC34_COMMON->CCR |= (0b00110u << 0u);
-
-    // interleaved mode delay - 7 tics
-    // (SAMPLE_TIME + CONV. TIME) /2
-    ADC12_COMMON->CCR |= (0b0010u << ADC_CCR_DELAY_Pos);
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
     // 0 - stop when DMA_CCR_TCIE
