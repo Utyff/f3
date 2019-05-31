@@ -1,18 +1,15 @@
 #include <_main.h>
-#include "adc.h"
-#include "delay.h"
-
-// https://stackoverflow.com/questions/46289034/stm32f303-adc-with-dma-only-works-a-few-times
-// https://stackoverflow.com/questions/54024674/stm32f3-dual-adc-with-interleaved-mode
-
-uint16_t dmaG = 0;
-uint16_t dmaT = 0;
-uint16_t dmaH = 0;
-uint16_t dmaE = 0;
+#include <adc.h>
+#include <delay.h>
 
 #define MAX_SAMPLES 1024
 uint32_t dataPoints12[MAX_SAMPLES];
 uint32_t dataPoints34[MAX_SAMPLES];
+
+/**
+ * ADC1 channel 1 - PA0
+ * ADC2 channel 2 - PA5
+ */
 
 
 void ADC_init2() {
@@ -26,7 +23,8 @@ void ADC_init2() {
     // 01: HCLK/1 (Synchronous clock mode) AHB used
     // 10: HCLK/2
     // 11: HCLK/4
-    ADC12_COMMON->CCR |= (0b01u << ADC_CCR_CKMODE_Pos);
+#define ADC_CCR_CLK (0b01u << ADC_CCR_CKMODE_Pos)
+    ADC12_COMMON->CCR |= ADC_CCR_CLK;
 //    ADC34_COMMON->CCR |= (0b01u << ADC_CCR_CKMODE_Pos);
 
     // disable the ADC
@@ -80,11 +78,11 @@ void ADC_init2() {
 
     // Select ADC Channels
     ADC1->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC1
-    ADC2->SQR1 = (2u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC2
+    ADC2->SQR1 = (2u << ADC_SQR1_SQ1_Pos); // 2-d  channel for ADC2
 //    ADC3->SQR1 = (1u << 6u);
 //    ADC4->SQR1 = (3u << 6u);
 
-    // Set sampling time for regular group 1
+    // Set sampling time for channels
     // 000: 1.5 ADC clock cycles
     // 001: 2.5 ADC clock cycles
     // 010: 4.5 ADC clock cycles
@@ -93,13 +91,14 @@ void ADC_init2() {
     // 101: 61.5 ADC clock cycles
     // 110: 181.5 ADC clock cycles
     // 111: 601.5 ADC clock cycles
-    ADC1->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
-    ADC2->SMPR1 |= (0b010u << ADC_SMPR1_SMP2_Pos);
+#define SAMPLING_TIME  0b010u
+    ADC1->SMPR1 |= (SAMPLING_TIME << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
+    ADC2->SMPR1 |= (SAMPLING_TIME << ADC_SMPR1_SMP2_Pos); // ADC2 channel 2
 //    ADC3->SMPR1 |= (0b000u << 3u);
 //    ADC4->SMPR1 |= (0b000u << 3u);
 
-    // Regular channel sequence length
-    ADC1->SQR1 |= (0b0000u << ADC_SQR1_L_Pos); // One conversion in the regular sequence
+    // Regular channel sequence length - 1
+    ADC1->SQR1 |= (0b0000u << ADC_SQR1_L_Pos);
     ADC2->SQR1 |= (0b0000u << ADC_SQR1_L_Pos);
 //    ADC3->SQR1 |= (0b0000u << 0u);
 //    ADC4->SQR1 |= (0b0000u << 0u);
@@ -109,8 +108,9 @@ void ADC_init2() {
     // 01: 10-bit
     // 10: 8-bit
     // 11: 6-bit
-    ADC1->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
-    ADC2->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
+#define ADC_RESOLUTION (0b00u << ADC_CFGR_RES_Pos)
+    ADC1->CFGR |= ADC_RESOLUTION;
+    ADC2->CFGR |= ADC_RESOLUTION;
 //    ADC3->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
 //    ADC4->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
 
@@ -125,9 +125,12 @@ void ADC_init2() {
     ADC12_COMMON->CCR |= (0b00110u << ADC_CCR_DUAL_Pos);
 //    ADC34_COMMON->CCR |= (0b00110u << 0u);
 
-    ADC12_COMMON->CCR |= (0b0010u << ADC_CCR_DELAY_Pos); // interleaved mode delay - 7 tics
+    // interleaved mode delay - 7 tics
+    // (SAMPLE_TIME + CONV. TIME) /2
+    ADC12_COMMON->CCR |= (0b0010u << ADC_CCR_DELAY_Pos);
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
+    // 0 - stop when DMA_CCR_TCIE
     ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
 //    ADC34_COMMON->CCR |= (0u << 13u);
 
@@ -140,8 +143,8 @@ void ADC_init2() {
 }
 
 void DMA_init(void) {
-    // Enable clocks
-    RCC->AHBENR |= RCC_AHBENR_DMA1EN; // (1u << 0u); // DMA1
+    // Enable clocks DMA1
+    RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 //    RCC->AHBENR |= (1u << 1u); // DMA2
 
     // Transfer complete interrupt enable and Circular mode
@@ -179,7 +182,7 @@ void DMA_init(void) {
 //    DMA2_Channel5->CMAR = (uint32_t) (&dataPoints34);
 
     // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
-    DMA1->IFCR |= 0xFFu;
+    DMA1->IFCR |= DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
 //    DMA2->IFCR |= 0xFFu;
 
     // Enable DMA
@@ -188,56 +191,25 @@ void DMA_init(void) {
     NVIC_EnableIRQ(DMA1_Channel1_IRQn); // enable DMA1 CH1 interrupt
 }
 
-uint32_t elapsedTime = 0;
-
-void ADC_takeSamples(void) {
-    // Number of data to transfer
-    DMA1_Channel1->CNDTR = MAX_SAMPLES;
-//    DMA2_Channel5->CNDTR = MAX_SAMPLES;
-
-    delay_us(10); // does not work without this random delay
-
-    // Enable DMA
-    DMA1_Channel1->CCR |= DMA_CCR_EN;
-//    DMA2_Channel5->CCR |= (1u << 0u);
-
-    elapsedTime = DWT_Get();
-    // ADC start conversion
-    ADC1->CR |= ADC_CR_ADSTART;
-
-    while ((DMA1_Channel1->CNDTR > 0));
-//      || (DMA2_Channel5->CNDTR > 0)) {
-//    }
-
-    elapsedTime = DWT_Elapsed_Tick(elapsedTime) / DWT_IN_MICROSEC;
-
-    // disable DMA channel
-    DMA1_Channel1->CCR &= ~DMA_CCR_EN;
-//    DMA2_Channel5->CCR &= ~DMA_CCR_EN;
-
-    // ADC stop conversion
-    ADC1->CR |= ADC_CR_ADSTP;
-//    ADC3->CR |= (1u << 4u);
-
-    // wait till ADC stop work
-    while ((ADC1->CR & ADC_CR_ADSTART));
-//    || (ADC3->CR & (1u << 2u)));
-}
-
 void ADC_init() {
-    // Enable clocks
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN; // GPIOA
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // GPIOB
+    // Enable clocks GPIOA and  GPIOB
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
     // Set mode b11 (analog input) for ADC pins
-    GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1
-    GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2
-//    GPIOB->MODER |= (0b11u << 2u); // PB1 for ADC3
-//    GPIOB->MODER |= (0b11u << 24u); // PB12 for ADC4
+    GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1 ch1
+    GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2 ch2
+//    GPIOB->MODER |= (0b11u << 2u); // PB1 for ADC3 ch1
+//    GPIOB->MODER |= (0b11u << 24u); // PB12 for ADC4 ch3
 
     DMA_init();
     ADC_init2();
 }
+
+uint16_t dmaG = 0;
+uint16_t dmaT = 0;
+uint16_t dmaH = 0;
+uint16_t dmaE = 0;
 
 void DMA1_Channel1_IRQHandler() {
     if (DMA1->ISR & DMA_ISR_TCIF1) {
