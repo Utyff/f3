@@ -13,10 +13,21 @@ uint32_t dataPoints34[MAX_SAMPLES];
 
 
 void ADC_init2() {
-    RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_DIV1; // Prescaler ADC12 - PLL clock divided by 1
-//    RCC->CFGR2 |= RCC_CFGR2_ADCPRE34_DIV1; // Prescaler ADC34 - PLL clock divided by 1
     RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
 //    RCC->AHBENR |= RCC_AHBENR_ADC34EN; // turn on ADC34 clock
+
+    // disable the ADC. ADC conversation must be stopped.
+//    ADC1->CR |= ADC_CR_ADDIS;
+//    ADC2->CR |= ADC_CR_ADDIS;
+//    ADC3->CR |= ADC_CR_ADDIS;
+//    ADC4->CR |= ADC_CR_ADDIS;
+    // wait when ADC disable
+//    while (ADC1->CR & ADC_CR_ADEN);
+//    while (ADC2->CR & ADC_CR_ADEN);
+
+    // Set Prescaler ADC for Asynchronous clock mode
+    RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_DIV1; // Prescaler ADC12 - PLL clock divided by 1
+//    RCC->CFGR2 |= RCC_CFGR2_ADCPRE34_DIV1; // Prescaler ADC34 - PLL clock divided by 1
 
     // Set ADC clock
     // 00: (Asynchronous clock mode) PLL used
@@ -26,12 +37,6 @@ void ADC_init2() {
 #define ADC_CCR_CLK (0b01u << ADC_CCR_CKMODE_Pos)
     ADC12_COMMON->CCR |= ADC_CCR_CLK;
 //    ADC34_COMMON->CCR |= (0b01u << ADC_CCR_CKMODE_Pos);
-
-    // disable the ADC
-    ADC1->CR &= ~ADC_CR_ADEN;
-    ADC2->CR &= ~ADC_CR_ADEN;
-//    ADC3->CR &= ~ADC_CR_ADEN;
-//    ADC4->CR &= ~ADC_CR_ADEN;
 
     // enable the ADC voltage regulator
     ADC1->CR &= ~ADC_CR_ADVREGEN_1;
