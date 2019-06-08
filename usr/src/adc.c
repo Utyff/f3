@@ -34,7 +34,7 @@ uint8_t adcResolution = ADC_12BITS;
 // 0b11001: PLL clock divided by 64
 // 0b11010: PLL clock divided by 128
 // 0b11011: PLL clock divided by 256
-uint8_t rccDivider = 0b10000;
+uint8_t rccAdcDivider = 0b10000;
 
 // Delay for interleaved mode. Set only when ADEN=0
 // (SAMPLE_TIME + CONV. TIME) /2
@@ -42,8 +42,8 @@ uint8_t rccDivider = 0b10000;
 // 0b0000 - 1
 // 0b0001 - 2
 // 0b0010 - 3
-// 0b0011 - 4
-uint8_t delay = 0b1011;
+// 0b0011 - 4   MAX: 1011 - 12
+uint8_t adcDelay = 0b1011;
 
 //000: 1.5 ADC clock cycles
 //001: 2.5 ADC clock cycles
@@ -53,7 +53,7 @@ uint8_t delay = 0b1011;
 //101: 61.5 ADC clock cycles
 //110: 181.5 ADC clock cycles
 //111: 601.5 ADC clock cycles
-uint8_t sampleTime = 0b010;
+uint8_t sampleTime = 0b001;
 
 
 void DMA_init();
@@ -65,7 +65,7 @@ void ADC_init() {
 //    DMA_deinit();
     DMA_init();
 
-    if (firstInit == 0) {
+    if (firstInit == 0) {  // init GPIO, VR and calibration run only once
         firstInit = 1;
         // Enable clocks GPIOA and GPIOB
         RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -78,7 +78,7 @@ void ADC_init() {
         RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
 
         // Set Prescaler ADC for Asynchronous clock mode
-        RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_DIV1; // Prescaler ADC12 - PLL clock divided by 1
+        RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
 
         // Set ADC clock
         // 00: (Asynchronous clock mode) PLL
@@ -105,8 +105,11 @@ void ADC_init() {
         // wait for calibration to complete
         while (ADC2->CR & ADC_CR_ADCAL);
     }
+    // Set Prescaler ADC for Asynchronous clock mode
+    RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
+
     // Delay for interleaved mode. Set only when ADEN=0
-    ADC12_COMMON->CCR |= (delay << ADC_CCR_DELAY_Pos);
+    ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
 
     // enable the ADC
     ADC1->CR |= ADC_CR_ADEN;

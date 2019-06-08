@@ -4,4 +4,10 @@
 void ADC_init();
 void ADC_takeSamples();
 
+extern uint8_t dualMode;
+extern uint8_t adcResolution;
+extern uint8_t rccAdcDivider;
+extern uint8_t adcDelay;
+extern uint8_t sampleTime;
+
 #endif //F3_ADC_H

@@ -2,9 +2,10 @@
 #include "draw.h"
 #include "graph.h"
 
+#define GRID_STEP 16
 
 void drawFrame() {
-    u16 x, y, step = 16;
+    u16 x, y;
 
 //    LCD_Clear8(BLACK);
     eraseGraph();
@@ -12,8 +13,8 @@ void drawFrame() {
     u32 t0 = DWT_Get_Current_Tick();
 
     POINT_COLOR = DARKGRAY;
-    for (y = step; y < MAX_Y; y += step) {
-        for (x = step; x < MAX_X; x += step) {
+    for (y = GRID_STEP; y < MAX_Y; y += GRID_STEP) {
+        for (x = GRID_STEP; x < MAX_X; x += GRID_STEP) {
             LCD_DrawPoint(x, y);
         }
     }
