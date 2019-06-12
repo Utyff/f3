@@ -20,7 +20,7 @@ uint8_t firstInit = 0;
 #define ADC_8BITS  0b10u
 #define ADC_10BITS 0b01u
 #define ADC_12BITS 0b00u
-uint8_t adcResolution = ADC_12BITS;
+uint8_t adcResolution = ADC_8BITS;
 
 // 0b10000: PLL clock divided by 1  // RCC_CFGR2_ADCPRE12_DIV1
 // 0b10001: PLL clock divided by 2
@@ -148,8 +148,8 @@ void ADC_init() {
     // 0 - stop when DMA_CCR_TCIE
     ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
 
-    // COMMON DMA mode b10 - for 12-bit resolution
-    ADC12_COMMON->CCR |= (0b10u << ADC_CCR_MDMA_Pos);
+    // COMMON DMA mode b11 - for 8-bit resolution
+    ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
 
     // ADC start conversion
     ADC1->CR |= ADC_CR_ADSTART;
@@ -169,13 +169,13 @@ void DMA_init() {
     // 00: 8-bits
     // 01: 16-bits
     // 10: 32-bits
-    DMA1_Channel1->CCR |= (0b10u << DMA_CCR_PSIZE_Pos);
+    DMA1_Channel1->CCR |= (0b01u << DMA_CCR_PSIZE_Pos);
 
     // Memory size
     // 00: 8-bits
     // 01: 16-bits
     // 10: 32-bits
-    DMA1_Channel1->CCR |= (0b10u << DMA_CCR_MSIZE_Pos);
+    DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
     // Number of data to transfer
     DMA1_Channel1->CNDTR = MAX_SAMPLES;
