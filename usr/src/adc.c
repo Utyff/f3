@@ -1,9 +1,8 @@
 #include <_main.h>
 #include <adc.h>
 #include <delay.h>
+#include <DataBuffer.h>
 
-#define MAX_SAMPLES 1024
-uint32_t dataPoints12[MAX_SAMPLES];
 
 /**
  * ADC1 channel 1 - PA0
@@ -177,14 +176,14 @@ void DMA_init() {
     // 10: 32-bits
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
-    // Number of data to transfer
-    DMA1_Channel1->CNDTR = MAX_SAMPLES;
+    // Number of data to transfer. 2 samples in 1 transfer.
+    DMA1_Channel1->CNDTR = BUF_SIZE /2;
 
     // Peripheral address register
     DMA1_Channel1->CPAR = (uint32_t) &ADC12_COMMON->CDR;
 
     // Memory address register
-    DMA1_Channel1->CMAR = (uint32_t) (&dataPoints12);
+    DMA1_Channel1->CMAR = (uint32_t) (&samplesBuffer);
 
     // Reset interrupt flags
     DMA1->IFCR |= DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
@@ -201,11 +200,12 @@ uint16_t dmaH = 0;
 uint16_t dmaE = 0;
 
 void DMA1_Channel1_IRQHandler() {
-    if (DMA1->ISR & DMA_ISR_TCIF1) {
+    if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
+        samplesReady = 1;
 //        DMA1->IFCR |= DMA_IFCR_CTCIF1;
         dmaT++;
     }
-    if (DMA1->ISR & DMA_ISR_HTIF1) {
+    if (DMA1->ISR & DMA_ISR_HTIF1) { // half transfer
 //        DMA1->IFCR |= DMA_IFCR_CHTIF1;
         dmaH++;
     }
