@@ -61,14 +61,6 @@ void prints(const char *str) {
 int main(void) {
     // Configure the system clock
     SystemClock_Config();
-
-    // Initialize LED GPIO
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    // OUT mode
-    GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER13)) | (GPIO_MODER_MODER13_0);
-    GPIOC->MODER = (GPIOC->MODER & ~(GPIO_MODER_MODER15)) | (GPIO_MODER_MODER15_0);
-
     mainInitialize();
 
     USART1_init();

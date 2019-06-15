@@ -20,13 +20,12 @@ int16_t enc_step;
 void KEYS_Init() {
     ENC_init();
 
-    // enable GPIOC
+    // Init buttons enable GPIOC
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    // BTN1, PC14 IN mode - 00
-    GPIOC->MODER &= ~GPIO_MODER_MODER14;
-//    GPIOC->MODER &= ~0x3U << (BTN1_Pin*2);
-    // Pull up PC14
-    GPIOC->PUPDR = GPIO_PUPDR_PUPDR14_0;
+    // PC13,14,15 IN mode - 00
+    GPIOC->MODER &= ~(GPIO_MODER_MODER13 | GPIO_MODER_MODER14 | GPIO_MODER_MODER15);
+    // Pull up
+    GPIOC->PUPDR = GPIO_PUPDR_PUPDR13_0 | GPIO_PUPDR_PUPDR14_0 | GPIO_PUPDR_PUPDR15_0;
 }
 
 int16_t ENC_Get() {
@@ -35,10 +34,7 @@ int16_t ENC_Get() {
     int16_t step = (int16_t) (ENCODER_TIM->CNT - MID_ENCODER);
     if (step >= ENCODER_STEP || step <= -ENCODER_STEP) {
         result = step / (int16_t) ENCODER_STEP;
-
-        __disable_irq();
         ENCODER_TIM->CNT -= result * ENCODER_STEP;
-        __enable_irq();
     }
 
     return result;
@@ -48,15 +44,24 @@ int16_t ENC_Get() {
  * Check buttons and run actions
  */
 uint16_t new_state;
-int16_t enc_count=1000;
+int16_t enc_count = 1000;
+
 void KEYS_scan() {
-    new_state = (uint16_t) (0x1u & ~((BTN1_GPIO_Port->IDR & (1u << BTN1_Pin)) >> 14u)); // get BTN1
+    new_state = (uint16_t) ((~BTN1_GPIO_Port->IDR >> 13u) & 7u); // get buttons 1-3
     uint16_t action = (btns_state << 8u) | new_state; // action code = last btn state + new btn state
     btns_state = new_state;
     switch (action) {
         // BTN1 up
         case 0x0100:
             button1Count++;
+            break;
+        // BTN2 up
+        case 0x0200:
+            button2Count++;
+            break;
+        // BTN2 up
+        case 0x0400:
+            button3Count++;
             break;
         default:
             break;
@@ -74,16 +79,16 @@ void KEYS_scan() {
     int8_t mode = button1Count % 3;
     if (mode == 0) { // sample time 0-7
 //        ADC_step(enc_step);
-        if(sampleTime>0 && enc_step<0) sampleTime--;
-        if(sampleTime<7 && enc_step>0) sampleTime++;
+        if (sampleTime > 0 && enc_step < 0) sampleTime--;
+        if (sampleTime < 7 && enc_step > 0) sampleTime++;
     } else if (mode == 1) {
 //        GEN_step(enc_step);
-        if(adcDelay>0b0000 && enc_step<0) adcDelay--;
-        if(adcDelay<0b1011 && enc_step>0) adcDelay++;
+        if (adcDelay > 0b0000 && enc_step < 0) adcDelay--;
+        if (adcDelay < 0b1011 && enc_step > 0) adcDelay++;
     } else {
 //        DAC_NextGeneratorSignal();
-        if(rccAdcDivider>0b10000 && enc_step<0) rccAdcDivider--;
-        if(rccAdcDivider<0b11011 && enc_step>0) rccAdcDivider++;
+        if (rccAdcDivider > 0b10000 && enc_step < 0) rccAdcDivider--;
+        if (rccAdcDivider < 0b11011 && enc_step > 0) rccAdcDivider++;
     }
 
     ADC_Init(); // apply adc changes
@@ -93,7 +98,6 @@ void KEYS_scan() {
 // TIM8 GPIO Configuration
 // PA15 AF2  -> TIM8_CH1
 // PB8  AF10 -> TIM8_CH2
-// FIXME
 void ENC_init() {
     // GPIO on
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;

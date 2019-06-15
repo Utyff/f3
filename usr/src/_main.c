@@ -29,14 +29,6 @@ void mainCycle() {
     drawScreen();
     KEYS_scan();
 
-    if ((random() & 7) < 2) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
-#ifdef LED2_Pin
-//    if ((random() & 7) < 3) LED2_GPIO_Port->ODR ^= 1u << LED2_Pin;
-#endif
-#ifdef LED3_Pin
-    if ((random() & 7) < 3) HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-#endif
-
     POINT_COLOR = WHITE;
     BACK_COLOR = BLACK;
     LCD_ShowxNum(0,  227, TIM8->CNT, 4, 12, 0x0);
