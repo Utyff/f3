@@ -17,7 +17,7 @@ uint16_t btns_state = 0;
 static uint16_t debounceCnt = 0;
 int16_t enc_step;
 
-void KEYS_init() {
+void KEYS_Init() {
     ENC_init();
 
     // enable GPIOC
@@ -86,7 +86,7 @@ void KEYS_scan() {
         if(rccAdcDivider<0b11011 && enc_step>0) rccAdcDivider++;
     }
 
-    ADC_init(); // apply adc changes
+    ADC_Init(); // apply adc changes
 }
 
 // Init TIM8 as encoder

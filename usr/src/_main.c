@@ -5,7 +5,7 @@
 #include <draw.h>
 #include <keys.h>
 #include <DataBuffer.h>
-//#include <generator.h>
+#include <generator.h>
 #include <adc.h>
 
 
@@ -13,28 +13,17 @@ void CORECheck();
 
 void FPUCheck();
 
-extern int ii;
-extern float screenTime;
-
 
 void mainInitialize() {
     DWT_Init();
     LCD_Init();
-
-    //HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
-    ADC_init();
-
-    //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-//    GEN_setParams();
-
-//    HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_1);
-    KEYS_init();
+    ADC_Init();
+    KEYS_Init();
+    GEN_Init();
 
     CORECheck();
     FPUCheck();
 }
-
-uint8_t prevBnt1 = 0;
 
 void mainCycle() {
     drawScreen();
@@ -64,7 +53,6 @@ void mainCycle() {
 //    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
 
     delay_ms(50);
-//    ADC_takeSamples();
 }
 
 #ifdef DEBUG_TRACE_SWO

@@ -1,7 +1,8 @@
 #ifndef F3_ADC_H
 #define F3_ADC_H
 
-void ADC_init();
+void ADC_Init();
+
 void ADC_takeSamples();
 
 extern uint8_t dualMode;

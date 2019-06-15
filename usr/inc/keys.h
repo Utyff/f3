@@ -17,7 +17,7 @@ extern uint16_t new_state;
 extern int16_t enc_step;
 extern int16_t enc_count;
 
-void KEYS_init();
+void KEYS_Init();
 void KEYS_scan();
 void ENC_init();
 int16_t ENC_Get();

@@ -80,47 +80,56 @@ void GEN_step(int16_t step) {
     tim1Prescaler = GEN_Parameters[currentGenParam].TIM_Prescaler;
     tim1Period = GEN_Parameters[currentGenParam].TIM_Period * currentGenScale;
     tim1Pulse = tim1Period * 30 / 100;
-//    GEN_setParams();
+    GEN_setParams();
 
 //    sprintf(msg, "Timer param: %u, scale: %u, presc: %u, period: %u, freq: %u\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
     DBG_Trace(msg);
 }
 
-//void GEN_setFreq() {
-//    GEN_setParams();
-//}
+void GEN_setParams() {
+    // Set the Prescaler value
+    TIM1->PSC = tim1Prescaler; // 144MHz /144 = 1mHz      / 14400 = 10 KHz
+    // Set the Autoreload value
+    TIM1->ARR = tim1Period;  // 10 KHz / 5000 = 2Hz
+    // Set the Capture Compare Register value
+    TIM1->CCR1 = tim1Pulse;
+}
 
-/**
- *  made from MX_TIM1_Init()
- *
- */
-/*void GEN_setParams() {
-    TIM_OC_InitTypeDef sConfigOC = {0};
+// init TIM1 as pwm
+void GEN_Init() {
+    // set PA8 for TIM1 CH1
+    // Very high speed PA8
+    GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR8;
+    // AF6 for TIM1CH1 signals for PA8
+    GPIOA->AFR[1] = (GPIOA->AFR[1] & ~(GPIO_AFRH_AFRH0)) | (6u << (0 * 4u));
+    // Select AF mode (10) on PA8
+    GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER8)) | (GPIO_MODER_MODER8_1);
 
-    htim1.Instance = TIM1;
-    htim1.Init.Prescaler = tim1Prescaler;
-    htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim1.Init.Period = tim1Period;
-    htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim1.Init.RepetitionCounter = 0;
-    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-        Error_Handler();
+    // Initialize TIM1
+    RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+    RCC->CFGR3 |= RCC_CFGR3_TIM1SW_PLL; // set PLL_CLK*2 as source TIM1
+    // Set the Prescaler value
+    TIM1->PSC = 143; //tim1Prescaler; // 144MHz /144 = 1mHz      / 14400 = 10 KHz
+    // Set the Autoreload value
+    TIM1->ARR = 499; //tim1Period;  // 10 KHz / 5000 = 2Hz
+    TIM1->CR1 |= TIM_CR1_CEN;
+    TIM1->DIER |= TIM_DIER_UIE | TIM_DIER_CC1IE; // interrupt on update
 
-  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = tim1Pulse;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-    sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-        Error_Handler();
-
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-} //*/
+    // Configure the Channel 1 in PWM mode
+    // Disable the Channel 1: Reset the CC1E Bit
+    TIM1->CCER &= ~TIM_CCER_CC1E;
+    // Select the Output Compare Mode
+    TIM1->CCMR1 |= ((uint32_t) TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
+    // Set the Capture Compare Register value
+    TIM1->CCR1 = 400; //tim1Pulse;
+    // Set the Preload enable bit for channel1
+    TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
+    // Configure the Output Fast mode
+    TIM1->CCMR1 &= ~TIM_CCMR1_OC1FE;
+    // Enable the Capture compare channel
+    TIM1->CCER |= TIM_CCER_CC1E;
+    // Enable the main output
+    TIM1->BDTR |= TIM_BDTR_MOE;
+    // Enable the Peripheral
+    TIM1->CR1 |= TIM_CR1_CEN;
+}

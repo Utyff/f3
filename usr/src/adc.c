@@ -59,7 +59,7 @@ void DMA_init();
 void ADC_deinit();
 void DMA_deinit();
 
-void ADC_init() {
+void ADC_Init() {
 //    ADC_deinit();
 //    DMA_deinit();
     DMA_init();
