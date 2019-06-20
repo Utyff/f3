@@ -33,6 +33,8 @@ void mainInitialize();
 
 void mainCycle();
 
+void uartSend(const char *str);
+
 #define DEBUG_TRACE_UART
 
 #if defined(DEBUG_TRACE_SWO)
@@ -44,8 +46,8 @@ void SWO_Trace(uint8_t* msg);
 
 #include "string.h"
 
-//#define DBG_Trace(msg) HAL_UART_Transmit(&huart1, (uint8_t*)(msg), (uint16_t)strlen((char*)(msg)), 0xFFFF)
-#define DBG_Trace(msg)
+#define DBG_Trace(msg) uartSend((char*)(msg))
+//#define DBG_Trace(msg)
 
 #elif defined(DEBUG_TRACE_NONE)
 

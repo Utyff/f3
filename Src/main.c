@@ -43,9 +43,9 @@ void _strcpy(uint8_t *dst, const uint8_t *src) {
 }
 
 uint8_t send = 0;
-uint8_t string2send[200] = "";
+uint8_t string2send[300] = "";
 
-void prints(const char *str) {
+void uartSend(const char *str) {
     // wait till end current transmission
     while (send != 0);
 
@@ -61,10 +61,10 @@ void prints(const char *str) {
 int main(void) {
     // Configure the system clock
     SystemClock_Config();
-    mainInitialize();
-
     USART1_init();
-    prints("Hello !\n\r");
+    uartSend("\n\r\n\rHello !\n\r\n\r");
+
+    mainInitialize();
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
