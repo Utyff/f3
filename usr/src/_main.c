@@ -7,6 +7,7 @@
 #include <DataBuffer.h>
 #include <generator.h>
 #include <adc.h>
+#include <menu.h>
 
 
 void CORECheck();
@@ -28,21 +29,7 @@ void mainInitialize() {
 void mainCycle() {
     drawScreen();
     KEYS_scan();
-
-    POINT_COLOR = WHITE;
-    BACK_COLOR = BLACK;
-    LCD_ShowxNum(0,  227, TIM8->CNT, 4, 12, 0x0);
-    LCD_ShowxNum(30, 227, (u32) enc_count, 5, 12, 0x0);
-    LCD_ShowxNum(0,  214, (u32) button1Count, 4, 12, 0x0);
-    LCD_ShowChar(24, 214, 'b', 12, 0x0);
-    LCD_ShowxNum(44, 214, (u32) sampleTime, 3, 12, 0x0);
-    LCD_ShowChar(62, 214, 't', 12, 0x0);
-    LCD_ShowxNum(78, 214, (u32) adcDelay, 3, 12, 0x0);
-    LCD_ShowChar(96, 214, 'd', 12, 0x0);
-    LCD_ShowxNum(110, 214, (u32) rccAdcDivider, 3, 12, 0x0);
-    LCD_ShowChar(130, 214, 'r', 12, 0x0);
-//    LCD_ShowxNum(180, 214, (u32) tim1Freq/100, 5, 12, 0x0);
-//    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
+    drawMenu();
 
     delay_ms(50);
 }

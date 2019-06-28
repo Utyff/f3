@@ -16,6 +16,7 @@ uint8_t button3Count = 0;
 uint16_t btns_state = 0;
 static uint16_t debounceCnt = 0;
 int16_t enc_step;
+int16_t keyMode = KEY_MODE_ADC;
 
 void KEYS_Init() {
     ENC_init();
@@ -53,13 +54,14 @@ void KEYS_scan() {
     switch (action) {
         // BTN1 up
         case 0x0100:
+            if (++keyMode > KEY_MODE_MAX) keyMode = 0;
             button1Count++;
             break;
-        // BTN2 up
+            // BTN2 up
         case 0x0200:
             button2Count++;
             break;
-        // BTN2 up
+            // BTN3 up
         case 0x0400:
             button3Count++;
             break;
