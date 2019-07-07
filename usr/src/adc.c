@@ -56,12 +56,8 @@ uint8_t sampleTime = 0b001;
 
 
 void DMA_init();
-void ADC_deinit();
-void DMA_deinit();
 
 void ADC_Init() {
-//    ADC_deinit();
-//    DMA_deinit();
     DMA_init();
 
     if (firstInit == 0) {  // init GPIO, VR and calibration run only once
@@ -94,6 +90,10 @@ void ADC_Init() {
         ADC2->CR |= ADC_CR_ADVREGEN_0;
         delay_us(10); // voltage regulator startup time
 
+        // disable the ADC
+        ADC1->CR &= ~ADC_CR_ADEN;
+        ADC2->CR &= ~ADC_CR_ADEN;
+
         // start ADC calibration cycle
         ADC1->CR |= ADC_CR_ADCAL;
         // wait for calibration to complete
@@ -109,6 +109,12 @@ void ADC_Init() {
 
     // Delay for interleaved mode. Set only when ADEN=0
     ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
+
+    // dual mode - Regular simultaneous mode only. Set only when ADEN=0
+    // 00000: Independent mode
+    // 00110: Regular simultaneous mode only
+    // 00111: Interleaved mode only
+    ADC12_COMMON->CCR |= (0b00111u << ADC_CCR_DUAL_Pos);
 
     // enable the ADC
     ADC1->CR |= ADC_CR_ADEN;
@@ -137,29 +143,20 @@ void ADC_Init() {
     // Enable continuous conversion mode. Only on the masters
     ADC1->CFGR |= ADC_CFGR_CONT; // Master ADC1 + ADC2
 
-    // dual mode - Regular simultaneous mode only
-    // 00000: Independent mode
-    // 00110: Regular simultaneous mode only
-    // 00111: Interleaved mode only
-    ADC12_COMMON->CCR |= (0b00111u << ADC_CCR_DUAL_Pos);
-
     // DMA mode.  0 -> One Shot; 1 -> Circular
     // 0 - stop when DMA_CCR_TCIE
-    ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
+    ADC12_COMMON->CCR &= ~ADC_CCR_DMACFG;
 
     // COMMON DMA mode b11 - for 8-bit resolution
     ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
-
-    // ADC start conversion
-    ADC1->CR |= ADC_CR_ADSTART;
 }
 
 void DMA_init() {
     // Enable clocks DMA1
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
-    // Transfer complete interrupt enable and Circular mode
-    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE | DMA_CCR_CIRC;
+    // Transfer complete interrupt enable
+    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE;
 
     // Memory increment mode
     DMA1_Channel1->CCR |= DMA_CCR_MINC;
@@ -188,10 +185,33 @@ void DMA_init() {
     // Reset interrupt flags
     DMA1->IFCR |= DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
 
-    // Enable DMA
-    DMA1_Channel1->CCR |= DMA_CCR_EN;
-
     NVIC_EnableIRQ(DMA1_Channel1_IRQn); // enable DMA1 CH1 interrupt
+}
+
+void ADC_StartSamples() {
+    // if samples still collecting - do not start
+    if (samplesReady == 0) return;
+    samplesReady = 0;
+
+    // disable DMA channel
+    DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+
+    // ADC stop conversion
+    ADC1->CR |= ADC_CR_ADSTP;
+
+    // wait till ADC stop work
+    while ((ADC1->CR & ADC_CR_ADSTART));
+
+    // -- Number of data to transfer
+    DMA1_Channel1->CNDTR = BUF_SIZE /2;
+
+    delay_us(10); // does not work without this random delay
+
+    // Enable DMA
+    DMA1_Channel1->CCR |= DMA_CCR_EN; //(1u << 0u);
+
+    // start ADC conversion
+    ADC1->CR |= ADC_CR_ADSTART;
 }
 
 uint16_t dmaG = 0;

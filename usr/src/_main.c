@@ -30,6 +30,7 @@ void mainCycle() {
     drawScreen();
     KEYS_scan();
     drawMenu();
+    ADC_StartSamples();
 
     delay_ms(50);
 }
