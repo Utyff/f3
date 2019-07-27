@@ -1,4 +1,5 @@
 #include <_main.h>
+#include <stdio.h>
 #include "generator.h"
 
 /* F3
@@ -6,19 +7,6 @@
  * CLK  72 mHz
  * TIM1 CLK 144
  * PRE           72 - 1 => 2 MHz
- * COUNT PERIOD  100 - 1 => 20 KHz
- */
-/* F7
- * TIM1 Configuration
- * CLK  216 mHz
- * PRE           108 - 1 => 2 MHz
- * COUNT PERIOD  100 - 1 => 20 KHz
- */
-/* H7
- * TIM1 Configuration
- * CLK  - 400 mHz
- * AHB2 - 200 mHz
- * PRE           100 - 1 => 2 MHz
  * COUNT PERIOD  100 - 1 => 20 KHz
  */
 
@@ -39,13 +27,13 @@ const GEN_PARAM GEN_Parameters[GEN_Parameters_Size] = {
         {71, 199, 10000}
 };
 
-int currentGenParam = 4;
+int currentGenParam = 0;
 int currentGenScale = 1;
 
-// start params - 20000 Hz
+// start params - 100 000 Hz
 uint32_t tim1Prescaler = 71;
-uint32_t tim1Period = 99;
-uint32_t tim1Pulse = 30;
+uint32_t tim1Period = 19;
+uint32_t tim1Pulse = 6;
 uint32_t tim1Freq = 20000;
 
 void GEN_step(int16_t step) {
@@ -82,7 +70,7 @@ void GEN_step(int16_t step) {
     tim1Pulse = tim1Period * 30 / 100;
     GEN_setParams();
 
-//    sprintf(msg, "Timer param: %u, scale: %u, presc: %u, period: %u, freq: %u\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
+    sprintf(msg, "Timer param: %u, scale: %u, presc: %u, period: %u, freq: %u\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
     DBG_Trace(msg);
 }
 
@@ -109,11 +97,11 @@ void GEN_Init() {
     RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
     RCC->CFGR3 |= RCC_CFGR3_TIM1SW_PLL; // set PLL_CLK*2 as source TIM1
     // Set the Prescaler value
-    TIM1->PSC = 143; //tim1Prescaler; // 144MHz /144 = 1mHz      / 14400 = 10 KHz
+    TIM1->PSC = tim1Prescaler; // 144MHz /144 = 1mHz      / 14400 = 10 KHz
     // Set the Autoreload value
-    TIM1->ARR = 499; //tim1Period;  // 10 KHz / 5000 = 2Hz
-    TIM1->CR1 |= TIM_CR1_CEN;
-    TIM1->DIER |= TIM_DIER_UIE | TIM_DIER_CC1IE; // interrupt on update
+    TIM1->ARR = tim1Period;  // 10 KHz / 5000 = 2Hz
+//    TIM1->CR1 |= TIM_CR1_CEN;
+//    TIM1->DIER |= TIM_DIER_UIE | TIM_DIER_CC1IE; // interrupt on update
 
     // Configure the Channel 1 in PWM mode
     // Disable the Channel 1: Reset the CC1E Bit
@@ -121,13 +109,14 @@ void GEN_Init() {
     // Select the Output Compare Mode
     TIM1->CCMR1 |= ((uint32_t) TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
     // Set the Capture Compare Register value
-    TIM1->CCR1 = 400; //tim1Pulse;
+    TIM1->CCR1 = tim1Pulse;
     // Set the Preload enable bit for channel1
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
     // Configure the Output Fast mode
     TIM1->CCMR1 &= ~TIM_CCMR1_OC1FE;
     // Enable the Capture compare channel
     TIM1->CCER |= TIM_CCER_CC1E;
+
     // Enable the main output
     TIM1->BDTR |= TIM_BDTR_MOE;
     // Enable the Peripheral

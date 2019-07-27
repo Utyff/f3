@@ -55,10 +55,14 @@ uint8_t adcDelay = 0b1011;
 uint8_t sampleTime = 0b001;
 
 
-void DMA_init();
+void ADC_Disable();
+
+void DMA_Init();
+
 
 void ADC_Init() {
-    DMA_init();
+    ADC_Disable();
+    DMA_Init();
 
     if (firstInit == 0) {  // init GPIO, VR and calibration run only once
         firstInit = 1;
@@ -73,7 +77,7 @@ void ADC_Init() {
         RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
 
         // Set Prescaler ADC for Asynchronous clock mode
-        RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
+        RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
 
         // Set ADC clock
         // 00: (Asynchronous clock mode) PLL
@@ -81,6 +85,7 @@ void ADC_Init() {
         // 10: HCLK/2
         // 11: HCLK/4
         ADC12_COMMON->CCR &= ~ADC_CCR_CKMODE_Msk;
+        ADC12_COMMON->CCR |= ADC_CCR_CKMODE_0;
 
         // enable the ADC voltage regulator
         ADC1->CR &= ~ADC_CR_ADVREGEN_1;
@@ -89,10 +94,6 @@ void ADC_Init() {
         ADC1->CR |= ADC_CR_ADVREGEN_0;
         ADC2->CR |= ADC_CR_ADVREGEN_0;
         delay_us(10); // voltage regulator startup time
-
-        // disable the ADC
-        ADC1->CR &= ~ADC_CR_ADEN;
-        ADC2->CR &= ~ADC_CR_ADEN;
 
         // start ADC calibration cycle
         ADC1->CR |= ADC_CR_ADCAL;
@@ -105,7 +106,7 @@ void ADC_Init() {
         while (ADC2->CR & ADC_CR_ADCAL);
     }
     // Set Prescaler ADC for Asynchronous clock mode
-    RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
+    RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
 
     // Delay for interleaved mode. Set only when ADEN=0
     ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
@@ -149,14 +150,17 @@ void ADC_Init() {
 
     // COMMON DMA mode b11 - for 8-bit resolution
     ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
+
+    samplesReady = 1;
+    ADC_StartSamples();
 }
 
-void DMA_init() {
+void DMA_Init() {
     // Enable clocks DMA1
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
     // Transfer complete interrupt enable
-    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE;
+    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_TEIE; // | DMA_CCR_HTIE
 
     // Memory increment mode
     DMA1_Channel1->CCR |= DMA_CCR_MINC;
@@ -174,7 +178,7 @@ void DMA_init() {
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
     // Number of data to transfer. 2 samples in 1 transfer.
-    DMA1_Channel1->CNDTR = BUF_SIZE /2;
+    DMA1_Channel1->CNDTR = BUF_SIZE / 2;
 
     // Peripheral address register
     DMA1_Channel1->CPAR = (uint32_t) &ADC12_COMMON->CDR;
@@ -202,39 +206,52 @@ void ADC_StartSamples() {
     // wait till ADC stop work
     while ((ADC1->CR & ADC_CR_ADSTART));
 
-    // -- Number of data to transfer
-    DMA1_Channel1->CNDTR = BUF_SIZE /2;
+    // Number of data to transfer
+    DMA1_Channel1->CNDTR = BUF_SIZE / 2;
 
-    delay_us(10); // does not work without this random delay
+    delay_us(10); // does not work without this delay
 
     // Enable DMA
-    DMA1_Channel1->CCR |= DMA_CCR_EN; //(1u << 0u);
+    DMA1_Channel1->CCR |= DMA_CCR_EN;
 
     // start ADC conversion
     ADC1->CR |= ADC_CR_ADSTART;
+}
+
+void ADC_Disable() {
+    // ADC stop conversion
+    ADC1->CR |= ADC_CR_ADSTP;
+    // wait till ADC stop work
+    while ((ADC1->CR & ADC_CR_ADSTART));
+
+    // disable the ADC
+    ADC1->CR &= ~ADC_CR_ADEN;
+    ADC2->CR &= ~ADC_CR_ADEN;
 }
 
 uint16_t dmaG = 0;
 uint16_t dmaT = 0;
 uint16_t dmaH = 0;
 uint16_t dmaE = 0;
+uint16_t dma = 0;
 
 void DMA1_Channel1_IRQHandler() {
+    dma++;
     if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
         samplesReady = 1;
-//        DMA1->IFCR |= DMA_IFCR_CTCIF1;
+        DMA1->IFCR |= DMA_IFCR_CTCIF1;
         dmaT++;
     }
     if (DMA1->ISR & DMA_ISR_HTIF1) { // half transfer
-//        DMA1->IFCR |= DMA_IFCR_CHTIF1;
+        DMA1->IFCR |= DMA_IFCR_CHTIF1;
         dmaH++;
     }
     if (DMA1->ISR & DMA_ISR_TEIF1) {
-//        DMA1->IFCR |= DMA_IFCR_CTEIF1;
+        DMA1->IFCR |= DMA_IFCR_CTEIF1;
         dmaE++;
     }
     if (DMA1->ISR & DMA_ISR_GIF1) {
+        DMA1->IFCR |= DMA_IFCR_CGIF1;
         dmaG++;
     }
-    DMA1->IFCR |= DMA_IFCR_CGIF1;
 }

@@ -1,5 +1,4 @@
 #include <_main.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <delay.h>
 #include <draw.h>
@@ -30,7 +29,6 @@ void mainCycle() {
     drawScreen();
     KEYS_scan();
     drawMenu();
-    ADC_StartSamples();
 
     delay_ms(50);
 }
