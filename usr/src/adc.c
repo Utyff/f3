@@ -1,6 +1,7 @@
 #include <_main.h>
 #include <adc.h>
 #include <delay.h>
+#include <DataBuffer.h>
 
 
 /**
@@ -58,19 +59,15 @@ void ADC_Disable();
 
 void DMA_Init();
 
-#define MAX_SAMPLES 1024
-uint32_t dataPoints12[MAX_SAMPLES];
-
 
 void ADC_Init() {
     DMA_Init();
 
-    // Enable clocks
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN; // GPIOA
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // GPIOB
+    // Enable clocks GPIOA
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 
     // Set mode b11 (analog input) for ADC pins
-    GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1
+    GPIOA->MODER |= (0b11u << 0u);  // PA0 for ADC1 ch1
     GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2 ch2
 
     // enable the ADC voltage regulator
@@ -126,8 +123,8 @@ void ADC_Init() {
     // 101: 61.5 ADC clock cycles
     // 110: 181.5 ADC clock cycles
     // 111: 601.5 ADC clock cycles
-    ADC1->SMPR1 |= (0b010u << ADC_SMPR1_SMP1_Pos);
-    ADC2->SMPR1 |= (0b010u << ADC_SMPR1_SMP2_Pos);
+    ADC1->SMPR1 |= (sampleTime << ADC_SMPR1_SMP1_Pos);
+    ADC2->SMPR1 |= (sampleTime << ADC_SMPR1_SMP2_Pos);
 
     // Regular channel sequence length
     ADC1->SQR1 |= (0b0000u << ADC_SQR1_L_Pos); // One conversion in the regular sequence
@@ -138,8 +135,8 @@ void ADC_Init() {
     // 01: 10-bit
     // 10: 8-bit
     // 11: 6-bit
-    ADC1->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
-    ADC2->CFGR |= 0b00u << ADC_CFGR_RES_Pos;
+    ADC1->CFGR |= 0b10u << ADC_CFGR_RES_Pos;
+    ADC2->CFGR |= 0b10u << ADC_CFGR_RES_Pos;
 
     // Enable continuous conversion mode. Only on the masters
     ADC1->CFGR |= ADC_CFGR_CONT; // Master ADC1 + ADC2
@@ -153,12 +150,12 @@ void ADC_Init() {
     // DMA mode.  0 -> One Shot; 1 -> Circular
     ADC12_COMMON->CCR &= ~ADC_CCR_DMACFG;
 
-    // DMA mode b10 - for 12-bit resolution
-    ADC12_COMMON->CCR |= (0b10u << ADC_CCR_MDMA_Pos);
+    // COMMON DMA mode b11 - for 8-bit resolution
+    ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
 }
 
-void DMA_Init(void) {
-    // Enable clocks
+void DMA_Init() {
+    // Enable clocks DMA1
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
     // Transfer complete interrupt enable
@@ -171,22 +168,22 @@ void DMA_Init(void) {
     // 00: 8-bits
     // 01: 16-bits
     // 10: 32-bits
-    DMA1_Channel1->CCR |= (0b10u << DMA_CCR_PSIZE_Pos);
+    DMA1_Channel1->CCR |= (0b01u << DMA_CCR_PSIZE_Pos);
 
     // Memory size
     // 00: 8-bits
     // 01: 16-bits
     // 10: 32-bits
-    DMA1_Channel1->CCR |= (0b10u << DMA_CCR_MSIZE_Pos);
+    DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
     // Number of data to transfer. 2 samples in 1 transfer.
-    DMA1_Channel1->CNDTR = MAX_SAMPLES;
+    DMA1_Channel1->CNDTR = BUF_SIZE / 2;
 
     // Peripheral address register
     DMA1_Channel1->CPAR = (uint32_t) &ADC12_COMMON->CDR;
 
     // Memory address register
-    DMA1_Channel1->CMAR = (uint32_t) (&dataPoints12);
+    DMA1_Channel1->CMAR = (uint32_t) (&samplesBuffer);
 
     // Reset flags  DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1
     DMA1->IFCR |= 0xFFu;
@@ -198,7 +195,7 @@ uint32_t elapsedTime = 0;
 
 void ADC_StartSamples(void) {
     // Number of data to transfer. 2 samples in 1 transfer.
-    DMA1_Channel1->CNDTR = MAX_SAMPLES;
+    DMA1_Channel1->CNDTR = BUF_SIZE / 2;
 
     delay_us(10); // does not work without this random delay
 
@@ -232,11 +229,11 @@ uint16_t dma = 0;
 
 void DMA1_Channel1_IRQHandler() {
     dma++;
-    if (DMA1->ISR & DMA_ISR_TCIF1) {
+    if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
         DMA1->IFCR |= DMA_IFCR_CTCIF1;
         dmaT++;
     }
-    if (DMA1->ISR & DMA_ISR_HTIF1) {
+    if (DMA1->ISR & DMA_ISR_HTIF1) { // half transfer
         DMA1->IFCR |= DMA_IFCR_CHTIF1;
         dmaH++;
     }
