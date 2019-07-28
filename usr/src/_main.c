@@ -22,7 +22,7 @@ void mainInitialize() {
     LCD_Init();
 
     //HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
-    ADC_init();
+    ADC_Init();
 
     //HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 //    GEN_setParams();
@@ -63,7 +63,7 @@ void mainCycle() {
 //    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
 
     delay_ms(50);
-    ADC_takeSamples();
+    ADC_StartSamples();
 }
 
 #ifdef DEBUG_TRACE_SWO

@@ -1,19 +1,78 @@
 #include <_main.h>
-#include "adc.h"
-#include "delay.h"
+#include <adc.h>
+#include <delay.h>
 
 
-uint16_t dmaG = 0;
-uint16_t dmaT = 0;
-uint16_t dmaH = 0;
-uint16_t dmaE = 0;
-uint16_t dma = 0;
+/**
+ * ADC1 channel 1 - PA0
+ * ADC2 channel 2 - PA5
+ */
+
+#define ADC_SINGLE_MODE 0
+#define ADC_DUAL_MODE 1
+uint8_t dualMode = ADC_SINGLE_MODE;
+
+uint8_t firstInit = 0;
+
+#define ADC_6BITS  0b11u
+#define ADC_8BITS  0b10u
+#define ADC_10BITS 0b01u
+#define ADC_12BITS 0b00u
+uint8_t adcResolution = ADC_8BITS;
+
+// 0b10000: PLL clock divided by 1  // RCC_CFGR2_ADCPRE12_DIV1
+// 0b10001: PLL clock divided by 2
+// 0b10010: PLL clock divided by 4
+// 0b10011: PLL clock divided by 6
+// 0b10100: PLL clock divided by 8
+// 0b10101: PLL clock divided by 10
+// 0b10110: PLL clock divided by 12
+// 0b10111: PLL clock divided by 16
+// 0b11000: PLL clock divided by 32
+// 0b11001: PLL clock divided by 64
+// 0b11010: PLL clock divided by 128
+// 0b11011: PLL clock divided by 256
+uint8_t rccAdcDivider = 0b10000;
+
+// Delay for interleaved mode. Set only when ADEN=0
+// (SAMPLE_TIME + CONV. TIME) /2
+// (4.5 + 12.5) /2 = 8 tics
+// 0b0000 - 1
+// 0b0001 - 2
+// 0b0010 - 3
+// 0b0011 - 4   MAX: 1011 - 12
+uint8_t adcDelay = 0b1011;
+
+//000: 1.5 ADC clock cycles
+//001: 2.5 ADC clock cycles
+//010: 4.5 ADC clock cycles
+//011: 7.5 ADC clock cycles
+//100: 19.5 ADC clock cycles
+//101: 61.5 ADC clock cycles
+//110: 181.5 ADC clock cycles
+//111: 601.5 ADC clock cycles
+uint8_t sampleTime = 0b001;
+
+
+void ADC_Disable();
+
+void DMA_Init();
 
 #define MAX_SAMPLES 1024
 uint32_t dataPoints12[MAX_SAMPLES];
 
 
-void ADC_init2() {
+void ADC_Init() {
+    DMA_Init();
+
+    // Enable clocks
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN; // GPIOA
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // GPIOB
+
+    // Set mode b11 (analog input) for ADC pins
+    GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1
+    GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2 ch2
+
     // enable the ADC voltage regulator
     ADC1->CR &= ~ADC_CR_ADVREGEN_1;
     ADC2->CR &= ~ADC_CR_ADVREGEN_1;
@@ -98,7 +157,7 @@ void ADC_init2() {
     ADC12_COMMON->CCR |= (0b10u << ADC_CCR_MDMA_Pos);
 }
 
-void DMA_init(void) {
+void DMA_Init(void) {
     // Enable clocks
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
@@ -120,7 +179,7 @@ void DMA_init(void) {
     // 10: 32-bits
     DMA1_Channel1->CCR |= (0b10u << DMA_CCR_MSIZE_Pos);
 
-    // Number of data to transfer
+    // Number of data to transfer. 2 samples in 1 transfer.
     DMA1_Channel1->CNDTR = MAX_SAMPLES;
 
     // Peripheral address register
@@ -137,8 +196,8 @@ void DMA_init(void) {
 
 uint32_t elapsedTime = 0;
 
-void ADC_takeSamples(void) {
-    // Number of data to transfer
+void ADC_StartSamples(void) {
+    // Number of data to transfer. 2 samples in 1 transfer.
     DMA1_Channel1->CNDTR = MAX_SAMPLES;
 
     delay_us(10); // does not work without this random delay
@@ -164,18 +223,12 @@ void ADC_takeSamples(void) {
     while ((ADC1->CR & ADC_CR_ADSTART));
 }
 
-void ADC_init() {
-    // Enable clocks
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN; // GPIOA
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // GPIOB
 
-    // Set mode b11 (analog input) for ADC pins
-    GPIOA->MODER |= (0b11u << 0u); // PA0 for ADC1
-    GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2 ch2
-
-    DMA_init();
-    ADC_init2();
-}
+uint16_t dmaG = 0;
+uint16_t dmaT = 0;
+uint16_t dmaH = 0;
+uint16_t dmaE = 0;
+uint16_t dma = 0;
 
 void DMA1_Channel1_IRQHandler() {
     dma++;
