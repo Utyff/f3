@@ -1,5 +1,5 @@
-#ifndef _DATABUFFER_H
-#define _DATABUFFER_H
+#ifndef F3_DATABUFFER_H
+#define F3_DATABUFFER_H
 
 #include "lcd.h"
 
@@ -9,4 +9,4 @@ extern u8 samplesBuffer[BUF_SIZE];
 extern u8 firstHalf; // first or second half of buffer writing
 extern u8 samplesReady;
 
-#endif //_DATABUFFER_H
+#endif //F3_DATABUFFER_H

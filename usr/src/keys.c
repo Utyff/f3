@@ -1,7 +1,7 @@
 #include <_main.h>
 #include <keys.h>
 //#include <adc.h>
-#include <string.h>
+#include <stdio.h>
 #include <generator.h>
 
 #define DEBOUNCING_CNT 0
@@ -67,7 +67,7 @@ void KEYS_scan() {
     enc_count += enc_step;
     if (enc_step == 0) return;
     char buf[64];
-//    sprintf(buf, "step: %hi\n", enc_step);
+    sprintf(buf, "step: %hi\n", enc_step);
     DBG_Trace(buf);
 
     // choose type of encoder action
@@ -126,7 +126,7 @@ void ENC_init() {
     // Select the Capture Compare 1 and the Capture Compare 2 as input - TIM_ICSELECTION_DIRECTTI
     // TIM Input 1U, 2U, 3 or 4 is selected to be connected to IC1, IC2, IC3 or IC4, respectively
     MODIFY_REG(TIM8->CCMR1, TIM_CCMR1_CC1S | TIM_CCMR1_CC2S, TIM_CCMR1_CC1S_0 | (TIM_CCMR1_CC1S_0 << 8U));
-    // Set the the Capture Compare 1 and the Capture Compare 2 prescalers and filters
+    // Set the Capture Compare 1 and the Capture Compare 2 prescalers and filters
     TIM8->CCMR1 &= ~(TIM_CCMR1_IC1PSC | TIM_CCMR1_IC2PSC);
     MODIFY_REG(TIM8->CCMR1, (TIM_CCMR1_IC1F | TIM_CCMR1_IC2F), (6u << 4U) | (6u << 12U));
     // Polarity for TI1 and TI2 source - TIM_INPUTCHANNELPOLARITY_RISING

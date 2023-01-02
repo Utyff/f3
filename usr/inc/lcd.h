@@ -1,5 +1,5 @@
-#ifndef __LCD_H
-#define __LCD_H
+#ifndef F3_LCD_H
+#define F3_LCD_H
 
 #include "_main.h"
 
@@ -20,17 +20,6 @@
 
 #define MAX_X 400
 #define MAX_Y 240
-
-// LCD important parameter set
-typedef struct {
-    u16 width;     //LCD width
-    u16 height;    //LCD height
-    u16 id;        //LCD ID
-    u8 dir;        // horizontal screen or vertical screen control: 0, vertical screen; 1, horizontal screen.
-} _lcd_dev;
-
-// LCD parameters
-extern _lcd_dev lcddev;    // management LCD important parameters
 
 extern u16 POINT_COLOR; // Pen color
 extern u16 BACK_COLOR;  // Background color

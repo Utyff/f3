@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stm32f3xx.h>
 #include "main.h"
 #include <_main.h>
@@ -33,7 +34,7 @@ void TIM1_init() {
     TIM1->CCMR1 |= ((uint32_t) TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
     // Set the Capture Compare Register value
     TIM1->CCR1 = 4000;
-    // Set the Preload enable bit for channel1
+    // Set the Preload enable for channel1
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
     // Configure the Output Fast mode
     TIM1->CCMR1 &= ~TIM_CCMR1_OC1FE;
@@ -77,7 +78,7 @@ void USART1_init() {
     NVIC_EnableIRQ(USART1_IRQn);   // enable USART1 interrupt
 }
 
-void _strcpy(uint8_t *dst, const uint8_t *src) {
+void strcpy_(uint8_t *dst, const uint8_t *src) {
     int i = 0;
     do {
         dst[i] = src[i];
@@ -91,7 +92,7 @@ void prints(const char *str) {
     // wait till end current transmission
     while (send != 0);
 
-    _strcpy(string2send, (uint8_t *) str);
+    strcpy_(string2send, (uint8_t *) str);
     // start USART transmission. Will initiate TC if TXE
     USART1->TDR = string2send[send];
     send = 1;
@@ -104,8 +105,6 @@ int main(void) {
     // Configure the system clock
     SystemClock_Config();
 
-    mainInitialize();
-
     // Initialize LED GPIO
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
@@ -115,16 +114,16 @@ int main(void) {
 
     TIM1_init();
     USART1_init();
-    prints("Hello !\n\r");
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
+    char buf[120];
+    sprintf(buf, "Build %s %s\n", buildDate, buildTime);
+    DBG_Trace(buf);
+
+    mainInitialize();
 
     while (1) {
         mainCycle();
     }
-
-#pragma clang diagnostic pop
 }
 
 /**
@@ -155,7 +154,7 @@ uint32_t tim1count = 0;
 void TIM1_UP_TIM16_IRQHandler() {
     tim1count++;
     TIM1->SR = (uint16_t) ~TIM_SR_UIF;
-    GPIOC->ODR ^= GPIO_ODR_15;
+//    GPIOC->ODR ^= GPIO_ODR_15;
 }
 
 uint32_t tim2count = 0;

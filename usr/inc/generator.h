@@ -1,5 +1,5 @@
-#ifndef F7_FMC_GENERATOR_H
-#define F7_FMC_GENERATOR_H
+#ifndef F3_GENERATOR_H
+#define F3_GENERATOR_H
 
 extern uint32_t tim1Freq;
 
@@ -9,4 +9,4 @@ void GEN_setFreq();
 
 void GEN_setParams();
 
-#endif //F7_FMC_GENERATOR_H
+#endif //F3_GENERATOR_H

@@ -4,15 +4,12 @@
 #include "delay.h"
 
 /**
- * TFT LCD driver
- * Support driver IC models: ST7793
+ * TFT LCD driver
+ * Support driver IC models: ST7793
  */
 
-u16 POINT_COLOR = 0x0000; // Drawing pen color
-u16 BACK_COLOR = 0xFFFF;  // background color
-
-// Management LCD important parameters
-_lcd_dev lcddev;
+u16 POINT_COLOR = 0x0000; // Drawing pen color
+u16 BACK_COLOR = 0xFFFF;  // background color
 
 
 void LCD_Init_sequence();
@@ -24,9 +21,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void LCD_WriteRAM_Prepare(voi
 #pragma GCC diagnostic warning "-Woverflow"
 }
 
-// Set the cursor position
-//Xpos: abscissa
-//Ypos: ordinate
+// Set the cursor position
+// Xpos: abscissa
+// Ypos: ordinate
 void LCD_SetCursor(u16 x, u16 y) {
     if (x >= MAX_X || y >= MAX_Y)
         return;
@@ -38,10 +35,10 @@ void LCD_SetCursor(u16 x, u16 y) {
 #pragma GCC diagnostic warning "-Woverflow"
 }
 
-// Set the window, and automatically sets the upper left corner of the window to draw point coordinates (sx,sy).
-//sx,sy: window start coordinate (upper left corner)
-//width,height: width and height of the window, must be greater than 0!!
-// Form size:width*height.
+// Set the window, and automatically sets the upper left corner of the window to draw point coordinates (sx,sy).
+// sx,sy: window start coordinate (upper left corner)
+// width,height: width and height of the window, must be greater than 0!!
+// Form size:width*height.
 void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
     if (sx >= MAX_X || sy >= MAX_Y || ex >= MAX_X || ey >= MAX_Y)
         return;
@@ -63,27 +60,27 @@ void LCD_Set_Window(u16 sx, u16 sy, u16 ex, u16 ey) {
 #pragma GCC diagnostic warning "-Woverflow"
 }
 
-// Draw points
-//x,y: coordinates
-//POINT_COLOR: the color of this point
+// Draw points
+// x,y: coordinates
+// POINT_COLOR: the color of this point
 void LCD_DrawPoint(u16 x, u16 y) {
     if (x >= MAX_X || y >= MAX_Y)
         return;
 
-    LCD_SetCursor(x, y);       // Set the cursor position
-    LCD_WriteRAM_Prepare();    // Start writing GRAM
+    LCD_SetCursor(x, y);       // Set the cursor position
+    LCD_WriteRAM_Prepare();    // Start writing GRAM
     LCD_WR_DATA16(POINT_COLOR);
 }
 
-// Draw the point fast
-//x,y: coordinates
-//color: color
+// Draw the point fast
+// x,y: coordinates
+// color: color
 void LCD_Fast_DrawPoint(u16 x, u16 y, u16 color) {
     if (x >= MAX_X || y >= MAX_Y)
         return;
 
     LCD_SetCursor(x, y);
-    LCD_WriteRAM_Prepare();    // Start writing GRAM
+    LCD_WriteRAM_Prepare();    // Start writing GRAM
     LCD_WR_DATA16(color);
 }
 
@@ -114,32 +111,10 @@ void LCD_GPIOInit(void) {
 #endif
 }
 
-void LCD_SetParam();
-
 void LCD_Init(void) {
     LCD_GPIOInit();
-
     LCD_Init_sequence();
-
-    LCD_SetParam();
     LCD_Clear(BLACK);
-}
-
-
-void LCD_SetParam(void) {
-#if USE_HORIZONTAL == 1
-    lcddev.dir = 1;
-    lcddev.width = MAX_X;
-    lcddev.height = MAX_Y;
-//    LCD_WR_REG16(0x003);
-//    LCD_WR_DATA16(0x1034);
-#else
-    lcddev.dir=0;
-    lcddev.width=240;
-    lcddev.height=320;
-    LCD_WR_REG(0x36);
-    LCD_WR_DATA8(0xC9);
-#endif
 }
 
 
@@ -193,14 +168,14 @@ void LCD_Init_sequence() {
 #pragma GCC diagnostic warning "-Woverflow"
 }
 
-// Clear screen function
-//color: To clear the screen fill color
+// Clear screen function
+// color: To clear the screen fill color
 void LCD_Clear(u16 color) {
-    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
-    LCD_WriteRAM_Prepare();                 // start writing GRAM
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
+    LCD_WriteRAM_Prepare();                 // start writing GRAM
 
     LCD_RS_SET;
-    u32 totalPoints = lcddev.width * lcddev.height;  // get the total number of points
+    u32 totalPoints = MAX_X * MAX_Y;  // get the total number of points
 
 //    u32 t0 = DWT_Get_Current_Tick();
     for (u32 i = 0; i < totalPoints; i++) {
@@ -213,11 +188,11 @@ void LCD_Clear(u16 color) {
 }
 
 void LCD_Clear8(u8 color) {
-    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
-    LCD_WriteRAM_Prepare();                 // start writing GRAM
+    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1); // set the cursor position
+    LCD_WriteRAM_Prepare();                 // start writing GRAM
 
     LCD_RS_SET;
-    u32 totalPoints = (u32) (lcddev.width * lcddev.height / 8);  // get the total number of points. 2 points in cycle
+    u32 totalPoints = (u32) (MAX_X * MAX_Y / 8);  // get the total number of points. 2 points in cycle
 
     DATAOUT(color);
 //    u32 t0 = DWT_Get_Current_Tick();
@@ -249,9 +224,9 @@ void LCD_Clear8(u8 color) {
 //    LCD_ShowxNum(100, 227, t0 / DWT_IN_MICROSEC, 8, 12, 8); // LCD_Clear - 45935 us
 }
 
-// Fill a single color in the designated area
-//(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
-//color: To fill color
+// Fill a single color in the designated area
+//(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
+//color: To fill color
 void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color) {
     u16 tmp;
     if (sy > ey) {
@@ -261,60 +236,60 @@ void LCD_Fill(u16 sx, u16 sy, u16 ex, u16 ey, u16 color) {
     }
     u32 totalPoints = (ex - sx + (u16) 1) * (ey - sy + (u16) 1);
 
-    LCD_Set_Window(sx, sy, ex, ey);          // set the cursor position
-    LCD_WriteRAM_Prepare();                  // start writing GRAM
+    LCD_Set_Window(sx, sy, ex, ey);          // set the cursor position
+    LCD_WriteRAM_Prepare();                  // start writing GRAM
     LCD_RS_SET;
-    for (int j = 0; j < totalPoints; j++) {  // display colors
+    for (int j = 0; j < totalPoints; j++) {  // display colors
         LCD_WR_DATA16_SHORT(color);
     }
 }
 
-// In the designated area to fill the specified color block
-//(sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
-//bmp: pointer to bmp array
+// In the designated area to fill the specified color block
+// (sx,sy),(ex,ey): filled rectangle coordinates diagonal, area size:(ex-sx+1)*(ey-sy+1)
+// bmp: pointer to bmp array
 void LCD_drawBMP(u16 sx, u16 sy, u16 ex, u16 ey, const u16 *bmp) {
     u16 height, width;
     u16 i, j;
-    width = ex - sx + (u16) 1;            // get filled width
-    height = ey - sy + (u16) 1;           // height
+    width = ex - sx + (u16) 1;            // get filled width
+    height = ey - sy + (u16) 1;           // height
     for (i = 0; i < height; i++) {
-        LCD_SetCursor(sx, sy + i);    // set the cursor position
-        LCD_WriteRAM_Prepare();       // start writing GRAM
+        LCD_SetCursor(sx, sy + i);    // set the cursor position
+        LCD_WriteRAM_Prepare();       // start writing GRAM
         LCD_RS_SET;
-        for (j = 0; j < width; j++) { // write data
+        for (j = 0; j < width; j++) { // write data
             LCD_WR_DATA16_SHORT(bmp[i * width + j]);
         }
     }
 }
 
-// Draw a line
-//x1,y1: starting point coordinates
-//x2,y2: end coordinates
+// Draw a line
+// x1,y1: starting point coordinates
+// x2,y2: end coordinates
 void LCD_DrawLine(u16 x1, u16 y1, u16 x2, u16 y2) {
     u16 t;
     int xerr = 0, yerr = 0, delta_x, delta_y, distance;
     int incx, incy, uRow, uCol;
-    delta_x = x2 - x1; // calculate the coordinates increment
+    delta_x = x2 - x1; // calculate the coordinates increment
     delta_y = y2 - y1;
     uRow = x1;
     uCol = y1;
-    if (delta_x > 0)incx = 1; // set the single-step directions
-    else if (delta_x == 0)incx = 0;// vertical line
+    if (delta_x > 0)incx = 1; // set the single-step directions
+    else if (delta_x == 0)incx = 0;// vertical line
     else {
         incx = -1;
         delta_x = -delta_x;
     }
     if (delta_y > 0)incy = 1;
-    else if (delta_y == 0)incy = 0;// horizontal
+    else if (delta_y == 0)incy = 0;// horizontal
     else {
         incy = -1;
         delta_y = -delta_y;
     }
-    if (delta_x > delta_y)distance = delta_x; // Select the basic incremental axis
+    if (delta_x > delta_y)distance = delta_x; // Select the basic incremental axis
     else distance = delta_y;
-    for (t = 0; t <= distance + 1; t++)  // draw a line output
+    for (t = 0; t <= distance + 1; t++)  // draw a line output
     {
-        LCD_DrawPoint(uRow, uCol);       // draw points
+        LCD_DrawPoint(uRow, uCol);       // draw points
         xerr += delta_x;
         yerr += delta_y;
         if (xerr > distance) {
@@ -328,8 +303,8 @@ void LCD_DrawLine(u16 x1, u16 y1, u16 x2, u16 y2) {
     }
 }
 
-// Draw a rectangle
-//(x1,y1),(x2,y2): rectangle coordinates diagonal
+// Draw a rectangle
+// (x1,y1),(x2,y2): rectangle coordinates diagonal
 void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2) {
     LCD_DrawLine(x1, y1, x2, y1);
     LCD_DrawLine(x1, y1, x1, y2);
@@ -337,15 +312,15 @@ void LCD_DrawRectangle(u16 x1, u16 y1, u16 x2, u16 y2) {
     LCD_DrawLine(x2, y1, x2, y2);
 }
 
-// A circle the size of the appointed position Videos
-//(x,y): the center
-//r    : Radius
+// A circle the size of the appointed position Videos
+// (x,y): the center
+// r    : Radius
 void LCD_Draw_Circle(u16 x0, u16 y0, u8 r) {
     int a, b;
     int di;
     a = 0;
     b = r;
-    di = 3 - (r << 1);             // determine the next point position sign
+    di = 3 - (r << 1);             // determine the next point position sign
     while (a <= b) {
         LCD_DrawPoint(x0 + a, y0 - b);             //5
         LCD_DrawPoint(x0 + b, y0 - a);             //0
@@ -356,7 +331,7 @@ void LCD_Draw_Circle(u16 x0, u16 y0, u8 r) {
         LCD_DrawPoint(x0 - a, y0 - b);             //2
         LCD_DrawPoint(x0 - b, y0 - a);             //7
         a++;
-        // Use Bresenham algorithm Circle
+        // Use Bresenham algorithm Circle
         if (di < 0)di += 4 * a + 6;
         else {
             di += 10 + 4 * (a - b);
@@ -365,53 +340,53 @@ void LCD_Draw_Circle(u16 x0, u16 y0, u8 r) {
     }
 }
 
-// Display a character in the specified location
-//x,y: Start coordinates
-//num:characters to be displayed:" "--->"~"
-//size: Font size 12/16/24
-//mode: the superposition mode (1) or non-overlapping mode (0)
+// Display a character in the specified location
+// x,y: Start coordinates
+// num:characters to be displayed:" "--->"~"
+// size: Font size 12/16/24
+// mode: the superposition mode (1) or non-overlapping mode (0)
 void LCD_ShowChar(u16 x, u16 y, u8 num, u8 size, u8 mode) {
     u8 temp, t1, t;
     u16 y0 = y;
-    // get a font character set corresponding to the number of bytes occupied by a dot
+    // get a font character set corresponding to the number of bytes occupied by a dot
     u8 csize = (size / 8 + ((size % 8) ? 1 : 0)) * (size / 2);
-    // Setup Window
-    num = num - ' ';// values obtained after offset
+    // Setup Window
+    num = num - ' '; // values obtained after offset
     for (t = 0; t < csize; t++) {
-        if (size == 12)temp = asc2_1206[num][t];        // call 1206 font
-        else if (size == 16)temp = asc2_1608[num][t];    // call 1608 font
-        else if (size == 24)temp = asc2_2412[num][t];    // call 2412 font
-        else return;                                // no fonts
+        if (size == 12)temp = asc2_1206[num][t];        // call 1206 font
+        else if (size == 16)temp = asc2_1608[num][t];    // call 1608 font
+        else if (size == 24)temp = asc2_2412[num][t];    // call 2412 font
+        else return;                                // no fonts
         for (t1 = 0; t1 < 8; t1++) {
             if (temp & 0x80)LCD_Fast_DrawPoint(x, y, POINT_COLOR);
             else if (mode == 0)LCD_Fast_DrawPoint(x, y, BACK_COLOR);
             temp <<= 1;
             y++;
-            if (y >= lcddev.height)return;        // over the region
+            if (y >= MAX_Y)return;        // over the region
             if ((y - y0) == size) {
                 y = y0;
                 x++;
-                if (x >= lcddev.width)return;    // over the region
+                if (x >= MAX_X)return;    // over the region
                 break;
             }
         }
     }
 }
 
-// m^n function
-// Return value:m^n-th power.
+// m^n function
+// Return value: m^n-th power.
 u32 LCD_Pow(u8 m, u8 n) {
     u32 result = 1;
     while (n--) result *= m;
     return result;
 }
 
-// Show figures, the high is 0, no display
-//x,y : the starting point coordinates
-//len : Digits
-//size: Font Size
-//color: color
-//num: Numerical(0~4294967295);
+// Show figures, the high is 0, no display
+// x,y : the starting point coordinates
+// len : Digits
+// size: Font Size
+// color: color
+// num: Numerical(0~4294967295);
 void LCD_ShowNum(u16 x, u16 y, u32 num, u8 len, u8 size) {
     u8 t, temp;
     u8 enshow = 0;
@@ -427,15 +402,15 @@ void LCD_ShowNum(u16 x, u16 y, u32 num, u8 len, u8 size) {
     }
 }
 
-// Show figures, the high is 0, or show
-//x,y: the starting point coordinates
-//num: Numerical (0~999999999);
-//len: length (ie the number of digits to be displayed)
-//size: Font Size
-//mode:
-//[7]:0, no padding;1, filled with 0.
-//[6:1]: Reserved
-//[0]:0, non-superimposition display;1, superimposed display.
+// Show figures, the high is 0, or show
+// x,y: the starting point coordinates
+// num: Numerical (0~999999999);
+// len: length (ie the number of digits to be displayed)
+// size: Font Size
+// mode:
+// [7]:0, no padding;1, filled with 0.
+// [6:1]: Reserved
+// [0]:0, non-superimposition display; 1, superimposed display.
 void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode) {
     u8 t, temp;
     u8 enshow = 0;
@@ -452,16 +427,16 @@ void LCD_ShowxNum(u16 x, u16 y, u32 num, u8 len, u8 size, u8 mode) {
     }
 }
 
-// Display string
-//x,y: the starting point coordinates
-//width,height: size of the area
-//size: Font Size
-//*p: string starting address
+// Display string
+// x,y: the starting point coordinates
+// width,height: size of the area
+// size: Font Size
+// *p: string starting address
 void LCD_ShowString(u16 x, u16 y, u16 width, u16 height, u8 size, const char *p, u8 mode) {
     u16 x0 = x;
     width += x;
     height += y;
-    while ((*p <= '~') && (*p >= ' '))// judgment is not illegal characters!
+    while ((*p <= '~') && (*p >= ' ')) // judgment is not illegal characters!
     {
         if (x >= width) {
             x = x0;

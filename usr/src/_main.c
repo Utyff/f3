@@ -8,6 +8,8 @@
 //#include <generator.h>
 #include <adc.h>
 
+const char * const buildDate = __DATE__;
+const char * const buildTime = __TIME__;
 
 void CORECheck();
 
@@ -34,13 +36,11 @@ void mainInitialize() {
     FPUCheck();
 }
 
-uint8_t prevBnt1 = 0;
-
 void mainCycle() {
     drawScreen();
     KEYS_scan();
 
-    if ((random() & 7) < 2) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
+//    if ((random() & 7) < 2) LED1_GPIO_Port->ODR ^= 1u << LED1_Pin;
 #ifdef LED2_Pin
 //    if ((random() & 7) < 3) LED2_GPIO_Port->ODR ^= 1u << LED2_Pin;
 #endif
