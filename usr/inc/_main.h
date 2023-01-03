@@ -1,5 +1,5 @@
-#ifndef __MAIN2_H
-#define __MAIN2_H
+#ifndef F3__MAIN_H
+#define F3__MAIN_H
 
 #ifdef STM32F303xC
 #include <stm32f3xx.h>
@@ -28,6 +28,8 @@ typedef __IO uint32_t vu32;
 typedef __IO uint16_t vu16;
 typedef __IO uint8_t vu8;
 
+extern const char * const buildDate;
+extern const char * const buildTime;
 
 void mainInitialize();
 
@@ -57,4 +59,4 @@ void SWO_Trace(uint8_t* msg);
 #error Define DUBUG_TRACE destination
 #endif
 
-#endif //__MAIN2_H
+#endif //F3__MAIN_H

@@ -35,7 +35,10 @@ int16_t ENC_Get() {
     int16_t step = (int16_t) (ENCODER_TIM->CNT - MID_ENCODER);
     if (step >= ENCODER_STEP || step <= -ENCODER_STEP) {
         result = step / (int16_t) ENCODER_STEP;
+
+        __disable_irq();
         ENCODER_TIM->CNT -= result * ENCODER_STEP;
+        __enable_irq();
     }
 
     return result;
@@ -140,7 +143,7 @@ void ENC_init() {
     // Select the Capture Compare 1 and the Capture Compare 2 as input - TIM_ICSELECTION_DIRECTTI
     // TIM Input 1U, 2U, 3 or 4 is selected to be connected to IC1, IC2, IC3 or IC4, respectively
     MODIFY_REG(TIM8->CCMR1, TIM_CCMR1_CC1S | TIM_CCMR1_CC2S, TIM_CCMR1_CC1S_0 | (TIM_CCMR1_CC1S_0 << 8U));
-    // Set the the Capture Compare 1 and the Capture Compare 2 prescalers and filters
+    // Set the Capture Compare 1 and the Capture Compare 2 prescalers and filters
     TIM8->CCMR1 &= ~(TIM_CCMR1_IC1PSC | TIM_CCMR1_IC2PSC);
     MODIFY_REG(TIM8->CCMR1, (TIM_CCMR1_IC1F | TIM_CCMR1_IC2F), (6u << 4U) | (6u << 12U));
     // Polarity for TI1 and TI2 source - TIM_INPUTCHANNELPOLARITY_RISING

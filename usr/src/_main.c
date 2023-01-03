@@ -1,5 +1,4 @@
 #include <_main.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <delay.h>
 #include <draw.h>
@@ -9,6 +8,8 @@
 #include <adc.h>
 #include <menu.h>
 
+const char * const buildDate = __DATE__;
+const char * const buildTime = __TIME__;
 
 void CORECheck();
 

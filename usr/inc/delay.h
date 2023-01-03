@@ -1,5 +1,5 @@
-#ifndef DELAY_H_
-#define DELAY_H_
+#ifndef F3_DELAY_H
+#define F3_DELAY_H
 
 #include "dwt.h"
 
@@ -20,4 +20,4 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif // F3_DELAY_H

@@ -1,5 +1,5 @@
-#ifndef KEYS_H
-#define KEYS_H
+#ifndef F3_KEYS_H
+#define F3_KEYS_H
 
 #include "_main.h"
 
@@ -27,4 +27,4 @@ void KEYS_scan();
 void ENC_init();
 int16_t ENC_Get();
 
-#endif //KEYS_H
+#endif //F3_KEYS_H

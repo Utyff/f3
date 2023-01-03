@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stm32f3xx.h>
 #include "main.h"
 #include <_main.h>
@@ -35,7 +36,7 @@ void USART1_init() {
     NVIC_EnableIRQ(USART1_IRQn);   // enable USART1 interrupt
 }
 
-void _strcpy(uint8_t *dst, const uint8_t *src) {
+void strcpy_(uint8_t *dst, const uint8_t *src) {
     int i = 0;
     do {
         dst[i] = src[i];
@@ -43,13 +44,13 @@ void _strcpy(uint8_t *dst, const uint8_t *src) {
 }
 
 uint8_t send = 0;
-uint8_t string2send[300] = "";
+uint8_t string2send[200] = "";
 
 void uartSend(const char *str) {
     // wait till end current transmission
     while (send != 0);
 
-    _strcpy(string2send, (uint8_t *) str);
+    strcpy_(string2send, (uint8_t *) str);
     // start USART transmission. Will initiate TC if TXE
     USART1->TDR = string2send[send];
     send = 1;
@@ -62,18 +63,16 @@ int main(void) {
     // Configure the system clock
     SystemClock_Config();
     USART1_init();
-    uartSend("\n\r\n\rHello !\n\r\n\r");
+
+    char buf[120];
+    sprintf(buf, "\n\nBuild: %s %s\n", buildDate, buildTime);
+    DBG_Trace(buf);
 
     mainInitialize();
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
 
     while (1) {
         mainCycle();
     }
-
-#pragma clang diagnostic pop
 }
 
 /**

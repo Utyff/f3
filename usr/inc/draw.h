@@ -1,7 +1,7 @@
-#ifndef F7_FMC_DRAW_H
-#define F7_FMC_DRAW_H
+#ifndef F3_DRAW_H
+#define F3_DRAW_H
 
 void drawFrame();
 void drawScreen();
 
-#endif //F7_FMC_DRAW_H
+#endif //F3_DRAW_H

@@ -1,5 +1,5 @@
-#ifndef GENERATOR_H
-#define GENERATOR_H
+#ifndef F3_GENERATOR_H
+#define F3_GENERATOR_H
 
 extern uint32_t tim1Prescaler;
 extern uint32_t tim1Period;
@@ -16,4 +16,4 @@ void GEN_setFreq();
 
 void GEN_setParams();
 
-#endif //GENERATOR_H
+#endif //F3_GENERATOR_H

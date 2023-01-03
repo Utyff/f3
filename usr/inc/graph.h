@@ -1,5 +1,5 @@
-#ifndef __GRAPH_H
-#define __GRAPH_H
+#ifndef F3_GRAPH_H
+#define F3_GRAPH_H
 
 #include "_main.h"
 #include "lcd.h"
@@ -19,4 +19,4 @@ void eraseGraph();
 }
 #endif
 
-#endif /* __GRAPH_H */
+#endif /* F3_GRAPH_H */

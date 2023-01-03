@@ -1,5 +1,5 @@
-#ifndef __DWT_H
-#define __DWT_H
+#ifndef F3_DWT_H
+#define F3_DWT_H
 
 #include "_main.h"
 
@@ -36,4 +36,4 @@ __STATIC_INLINE void DWT_Delay_tics(uint32_t tics) { // DWT tics
 }
 #endif
 
-#endif /* __DWT_H */
+#endif /* F3_DWT_H */
