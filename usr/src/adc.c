@@ -6,14 +6,12 @@
 
 /**
  * ADC1 channel 1 - PA0
- * ADC2 channel 2 - PA5
+ * ADC2 channel 1 - PA4
  */
 
 #define ADC_SINGLE_MODE 0
 #define ADC_DUAL_MODE 1
 uint8_t dualMode = ADC_SINGLE_MODE;
-
-uint8_t firstInit = 0;
 
 #define ADC_6BITS  0b11u
 #define ADC_8BITS  0b10u
@@ -33,16 +31,17 @@ uint8_t adcResolution = ADC_8BITS;
 // 0b11001: PLL clock divided by 64
 // 0b11010: PLL clock divided by 128
 // 0b11011: PLL clock divided by 256
-uint8_t rccAdcDivider = 0b10000;
+uint8_t rccAdcDivider = 0b10001;
 
 // Delay for interleaved mode. Set only when ADEN=0
 // (SAMPLE_TIME + CONV. TIME) /2
 // (4.5 + 12.5) /2 = 8 tics
+// (1.5 + 8.5) /2 = 5 tics
 // 0b0000 - 1
 // 0b0001 - 2
 // 0b0010 - 3
 // 0b0011 - 4   MAX: 1011 - 12
-uint8_t adcDelay = 0b1011;
+uint8_t adcDelay = 0b0011;
 
 //000: 1.5 ADC clock cycles
 //001: 2.5 ADC clock cycles
@@ -52,61 +51,57 @@ uint8_t adcDelay = 0b1011;
 //101: 61.5 ADC clock cycles
 //110: 181.5 ADC clock cycles
 //111: 601.5 ADC clock cycles
-uint8_t sampleTime = 0b001;
+uint8_t sampleTime = 0b000;
 
 
 void DMA_init();
-void ADC_deinit();
-void DMA_deinit();
 
 void ADC_Init() {
-//    ADC_deinit();
-//    DMA_deinit();
     DMA_init();
 
-    if (firstInit == 0) {  // init GPIO, VR and calibration run only once
-        firstInit = 1;
-        // Enable clocks GPIOA and GPIOB
-        RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-        RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+    // init GPIO, VR and calibration run only once
+    // Enable clocks GPIOA and GPIOB
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
-        // Set mode b11 (analog input) for ADC pins
-        GPIOA->MODER |= (0b11u << 0u);  // PA0 for ADC1 ch1
-        GPIOA->MODER |= (0b11u << 10u); // PA5 for ADC2 ch2
+    // Set mode b11 (analog input) for ADC pins
+    GPIOA->MODER |= (0b11u << 0u);      // PA0 for ADC1 ch1
+    GPIOA->MODER |= (0b11u << (4 * 2)); // PA4 for ADC2 ch1
 
-        RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
+    RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
 
-        // Set Prescaler ADC for Asynchronous clock mode
-        RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
-
-        // Set ADC clock
-        // 00: (Asynchronous clock mode) PLL
-        // 01: HCLK/1 (Synchronous clock mode) AHB
-        // 10: HCLK/2
-        // 11: HCLK/4
-        ADC12_COMMON->CCR &= ~ADC_CCR_CKMODE_Msk;
-
-        // enable the ADC voltage regulator
-        ADC1->CR &= ~ADC_CR_ADVREGEN_1;
-        ADC2->CR &= ~ADC_CR_ADVREGEN_1;
-
-        ADC1->CR |= ADC_CR_ADVREGEN_0;
-        ADC2->CR |= ADC_CR_ADVREGEN_0;
-        delay_us(10); // voltage regulator startup time
-
-        // start ADC calibration cycle
-        ADC1->CR |= ADC_CR_ADCAL;
-        // wait for calibration to complete
-        while (ADC1->CR & ADC_CR_ADCAL);
-
-        // start ADC calibration cycle
-        ADC2->CR |= ADC_CR_ADCAL;
-        // wait for calibration to complete
-        while (ADC2->CR & ADC_CR_ADCAL);
-    }
     // Set Prescaler ADC for Asynchronous clock mode
-    RCC->CFGR2 = MODIFY_REG(RCC->CFGR2, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos, RCC_CFGR2_ADCPRE12_Msk);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
 
+    // Set ADC clock
+    // 00: (Asynchronous clock mode) PLL
+    // 01: HCLK/1 (Synchronous clock mode) AHB
+    // 10: HCLK/2
+    // 11: HCLK/4
+    ADC12_COMMON->CCR &= ~ADC_CCR_CKMODE_Msk; // set 00
+
+    // enable the ADC voltage regulator
+    ADC1->CR &= ~ADC_CR_ADVREGEN_1;
+    ADC2->CR &= ~ADC_CR_ADVREGEN_1;
+
+    ADC1->CR |= ADC_CR_ADVREGEN_0;
+    ADC2->CR |= ADC_CR_ADVREGEN_0;
+    delay_us(10); // voltage regulator startup time
+
+    // start ADC calibration cycle
+    ADC1->CR |= ADC_CR_ADCAL;
+    // wait for calibration to complete
+    while (ADC1->CR & ADC_CR_ADCAL);
+
+    // start ADC calibration cycle
+    ADC2->CR |= ADC_CR_ADCAL;
+    // wait for calibration to complete
+    while (ADC2->CR & ADC_CR_ADCAL);
+
+    ADC_start();
+}
+
+void ADC_start() {
     // Delay for interleaved mode. Set only when ADEN=0
     ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
 
@@ -120,21 +115,24 @@ void ADC_Init() {
 
     // Select ADC Channels
     ADC1->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC1
-    ADC2->SQR1 = (2u << ADC_SQR1_SQ1_Pos); // 2-d  channel for ADC2
-
-    // Set sampling time for channels
-    MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP1_Msk, sampleTime << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
-    MODIFY_REG(ADC2->SMPR1, ADC_SMPR1_SMP2_Msk, sampleTime << ADC_SMPR1_SMP2_Pos); // ADC2 channel 2
+    ADC2->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC2
 
     // Regular channel sequence length - 1
     ADC1->SQR1 &= ~ADC_SQR1_L_Msk;
     ADC2->SQR1 &= ~ADC_SQR1_L_Msk;
 
+    // Set Prescaler ADC for Asynchronous clock mode
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
+
+    // Set sampling time for channels
+    MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP1_Msk, sampleTime << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
+    MODIFY_REG(ADC2->SMPR1, ADC_SMPR1_SMP1_Msk, sampleTime << ADC_SMPR1_SMP1_Pos); // ADC2 channel 1
+
     // set data resolution
     MODIFY_REG(ADC1->CFGR, ADC_CFGR_RES_Msk, adcResolution << ADC_CFGR_RES_Pos);
     MODIFY_REG(ADC2->CFGR, ADC_CFGR_RES_Msk, adcResolution << ADC_CFGR_RES_Pos);
 
-    // Enable continuous conversion mode. Only on the masters
+    // Enable continuous conversion mode. Only on the master
     ADC1->CFGR |= ADC_CFGR_CONT; // Master ADC1 + ADC2
 
     // dual mode - Regular simultaneous mode only
@@ -177,7 +175,7 @@ void DMA_init() {
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
     // Number of data to transfer. 2 samples in 1 transfer.
-    DMA1_Channel1->CNDTR = BUF_SIZE /2;
+    DMA1_Channel1->CNDTR = BUF_SIZE / 2;
 
     // Peripheral address register
     DMA1_Channel1->CPAR = (uint32_t) &ADC12_COMMON->CDR;
@@ -198,12 +196,17 @@ uint16_t dmaG = 0;
 uint16_t dmaT = 0;
 uint16_t dmaH = 0;
 uint16_t dmaE = 0;
+uint32_t adcCircleStart;
+uint32_t adcCircleTicks;
 
 void DMA1_Channel1_IRQHandler() {
     if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
         samplesReady = 1;
 //        DMA1->IFCR |= DMA_IFCR_CTCIF1;
         dmaT++;
+        uint32_t ticks = DWT_Get();
+        adcCircleTicks = ticks - adcCircleStart;
+        adcCircleStart = ticks;
     }
     if (DMA1->ISR & DMA_ISR_HTIF1) { // half transfer
 //        DMA1->IFCR |= DMA_IFCR_CHTIF1;

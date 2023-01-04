@@ -6,7 +6,6 @@
 
 
 extern float scaleX;
-extern uint8_t graph[];
 
 #ifdef __cplusplus
 extern "C" {

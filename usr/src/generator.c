@@ -122,7 +122,7 @@ void GEN_Init() {
     TIM1->CCMR1 |= ((uint32_t) TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
     // Set the Capture Compare Register value
     TIM1->CCR1 = 400; //tim1Pulse;
-    // Set the Preload enable bit for channel1
+    // Set the Preload enable for channel1
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
     // Configure the Output Fast mode
     TIM1->CCMR1 &= ~TIM_CCMR1_OC1FE;

@@ -19,12 +19,12 @@ LCD_D7 - PB7
 #define DATA_PORT GPIOB // GPIO Port for data pins
 
 //#define LCD_RST_PIN     0
-#define LCD_CS_PIN      1u // Chip select
+//#define LCD_CS_PIN      1u // Chip select. Connected to GND
 #define LCD_RS_PIN      2u // Registers - Data
 #define LCD_WR_PIN      3u // Write
-#define LCD_RD_PIN      4u // Read
+//#define LCD_RD_PIN      4u // Read. Connected to +3v
 
-#ifdef  LCD_RST_Pin        // Reset
+#ifdef  LCD_RST_Pin        // Reset. Connected to MCU Reset
 #define LCD_RST_SET  CTL_PORT->BSRR=1<<LCD_RST_PIN
 #define LCD_RST_CLR  CTL_PORT->BRR=1<<LCD_RST_PIN
 #else

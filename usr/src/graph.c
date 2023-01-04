@@ -3,13 +3,14 @@
 #include <DataBuffer.h>
 //#include <adc.h>
 
+#define SECTION_CCMRAM __attribute__((section(".ccmram"))) /* CCMRAM */
 
 /**
  * Make and draw oscillogram
  */
 
-uint8_t graph[MAX_X];
-float scaleX = 1;  // no more then 1
+static uint8_t graph[MAX_X];
+float scaleX = 1;  // no more than 1
 float scaleY = 0.94f;
 u8 trgLvl = 12;
 

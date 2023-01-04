@@ -3,7 +3,8 @@
 
 void ADC_Init();
 
-void ADC_takeSamples();
+void ADC_start();
+
 
 extern uint8_t dualMode;
 extern uint8_t adcResolution;

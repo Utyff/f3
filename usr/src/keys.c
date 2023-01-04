@@ -96,7 +96,7 @@ void KEYS_scan() {
         if (rccAdcDivider < 0b11011 && enc_step > 0) rccAdcDivider++;
     }
 
-    ADC_Init(); // apply adc changes
+    ADC_start(); // apply adc changes
 }
 
 // Init TIM8 as encoder

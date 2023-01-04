@@ -98,8 +98,7 @@ void LCD_GPIOInit(void) {
     GPIOB->MODER = (GPIOB->MODER & ~0b1111111111111111u) | 0b0101010101010101u;
 
     // deactivate WR and RD signals
-    GPIO_SetBits(CTL_PORT, 1u << LCD_RS_PIN | 1u << LCD_WR_PIN | 1u << LCD_RD_PIN);
-    LCD_CS_CLR; // Chip-select always active
+    GPIO_SetBits(CTL_PORT, 1u << LCD_RS_PIN | 1u << LCD_WR_PIN);
 
     DWT_Delay_us(5);
 
