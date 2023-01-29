@@ -3,7 +3,7 @@
 
 void ADC_Init();
 
-void ADC_start();
+void ADC_start() __attribute__((section (".ccmram")));
 
 
 extern uint8_t dualMode;

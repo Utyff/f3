@@ -33,7 +33,7 @@ extern const char * const buildTime;
 
 void mainInitialize();
 
-void mainCycle();
+void mainCycle() __attribute__((section (".ccmram")));
 
 void uartSend(const char *str);
 

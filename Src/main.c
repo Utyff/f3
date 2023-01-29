@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stm32f3xx.h>
-#include "main.h"
 #include <_main.h>
-#include <delay.h>
 
 
 void SystemClock_Config(void);
@@ -19,7 +17,7 @@ void USART1_init() {
     // Select AF mode (10) on PA9 PA10
     GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER9 | GPIO_MODER_MODER10)) | GPIO_MODER_MODER9_1 | GPIO_MODER_MODER10_1;
 
-    // Initialize TIM1
+    // Initialize UART1 clock
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
     RCC->CFGR3 &= ~RCC_CFGR3_USART1SW; // PCLK clock source for USART1
 
@@ -70,9 +68,12 @@ int main(void) {
 
     mainInitialize();
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
     while (1) {
         mainCycle();
     }
+#pragma clang diagnostic pop
 }
 
 /**

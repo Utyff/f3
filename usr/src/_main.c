@@ -8,8 +8,8 @@
 #include <adc.h>
 #include <menu.h>
 
-const char * const buildDate = __DATE__;
-const char * const buildTime = __TIME__;
+const char *const buildDate = __DATE__;
+const char *const buildTime = __TIME__;
 
 void CORECheck();
 
@@ -78,7 +78,7 @@ void CORECheck(void) {
     uint32_t cpuid = SCB->CPUID;
     uint32_t var, pat;
 
-    sprintf(buf, "CPUID %08X DEVID %03X\n", cpuid, DBGMCU->IDCODE & 0xFFF);
+    sprintf(buf, "\n\nCPUID %08X DEVID %03X DEVREV %03X\n", cpuid, DBGMCU->IDCODE & 0xFFF, DBGMCU->IDCODE >> 16);
     DBG_Trace(buf);
 
     pat = (cpuid & 0x0000000F);

@@ -1,8 +1,8 @@
 #include <_main.h>
 #include <keys.h>
 #include <adc.h>
-#include <string.h>
 #include <generator.h>
+#include <stdio.h>
 
 #define DEBOUNCING_CNT 0
 #define MAX_ENCODER    255 // max encoder value
@@ -77,11 +77,11 @@ void KEYS_scan() {
     enc_count += enc_step;
     if (enc_step == 0) return;
     char buf[64];
-//    sprintf(buf, "step: %hi\n", enc_step);
+    sprintf(buf, "step: %hi\n", enc_step);
     DBG_Trace(buf);
 
     // choose encoder action
-    int8_t mode = button1Count % 3;
+    uint8_t mode = button1Count % 3;
     if (mode == 0) { // sample time 0-7
 //        ADC_step(enc_step);
         if (sampleTime > 0 && enc_step < 0) sampleTime--;
@@ -96,7 +96,7 @@ void KEYS_scan() {
         if (rccAdcDivider < 0b11011 && enc_step > 0) rccAdcDivider++;
     }
 
-    ADC_start(); // apply adc changes
+//    ADC_start(); // apply adc changes
 }
 
 // Init TIM8 as encoder

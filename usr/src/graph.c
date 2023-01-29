@@ -37,7 +37,7 @@ int triggerStart1ch(u8 const *samples) {
 }
 
 
-uint32_t BuildGraphTick;
+uint32_t buildGraphTick;
 
 /**
  * Build graph for 1 channels samples array
@@ -51,13 +51,12 @@ void buildGraph1ch() {
     if (samplesReady == 0) return;
 
     u8 *samples = samplesBuffer;
-//    if (firstHalf != 0) samples += BUF_SIZE / 2;
 
     x = 0;
     j = -1;
     i = triggerStart1ch(samples);
     for (; i < BUF_SIZE; i++) {
-        register uint8_t val = (uint8_t) (samples[i] * scaleY);
+        register uint8_t val = (uint8_t) ((float) samples[i] * scaleY);
         if ((int) x != j) {
             j = (int) x;
             if (j >= MAX_X) break;
@@ -67,15 +66,11 @@ void buildGraph1ch() {
         }
         x += scaleX;
     }
-    BuildGraphTick = DWT_Elapsed_Tick(t0);
-
-    // start next samples
+    buildGraphTick = DWT_Elapsed_Tick(t0);
     samplesReady = 0;
-//    ADC_setParams();
-//    HAL_ADC_Start_DMA(&hadc1, (uint32_t *) samplesBuffer, BUF_SIZE);
 }
 
-uint32_t DrawGraphTick;
+uint32_t drawGraphTick;
 
 void drawGraph() {
     u8 prev;
@@ -92,10 +87,10 @@ void drawGraph() {
     }
     LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
 
-    DrawGraphTick = DWT_Elapsed_Tick(t0);
-//  LCD_ShowxNum(150,227, DrawGraphTick/168,  10,12, 8);
-//  LCD_ShowxNum(190,227, BuildGraphTick/168, 10,12, 8);
-} //*/
+    drawGraphTick = DWT_Elapsed_Tick(t0);
+//  LCD_ShowxNum(150,227, drawGraphTick/168,  10,12, 8);
+//  LCD_ShowxNum(190,227, buildGraphTick/168, 10,12, 8);
+}
 
 void eraseGraph() {
     u8 prev;

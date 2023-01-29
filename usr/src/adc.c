@@ -31,17 +31,16 @@ uint8_t adcResolution = ADC_8BITS;
 // 0b11001: PLL clock divided by 64
 // 0b11010: PLL clock divided by 128
 // 0b11011: PLL clock divided by 256
-uint8_t rccAdcDivider = 0b10001;
+uint8_t rccAdcDivider = 0b10010;
 
 // Delay for interleaved mode. Set only when ADEN=0
-// (SAMPLE_TIME + CONV. TIME) /2
-// (4.5 + 12.5) /2 = 8 tics
-// (1.5 + 8.5) /2 = 5 tics
+// circle time = SAMPLE_TIME + CONV. TIME = 1.5 + 8.5 = 10 tics
+// Delay = circle time /2 - SAMPLE_TIME = 10 / 2 - 1.5 = 3.5 tics
 // 0b0000 - 1
 // 0b0001 - 2
 // 0b0010 - 3
 // 0b0011 - 4   MAX: 1011 - 12
-uint8_t adcDelay = 0b0011;
+uint8_t adcDelay = 0b0010;
 
 //000: 1.5 ADC clock cycles
 //001: 2.5 ADC clock cycles
@@ -53,6 +52,8 @@ uint8_t adcDelay = 0b0011;
 //111: 601.5 ADC clock cycles
 uint8_t sampleTime = 0b000;
 
+uint32_t adcCircleStart;
+uint32_t adcCircleTicks;
 
 void DMA_init();
 
@@ -100,6 +101,13 @@ void ADC_Init() {
 
     ADC_start();
 }
+
+uint32_t adcCount = 0;
+uint32_t ISR[4] = {0,0,0,0};
+uint32_t ISR1[4] = {0,0,0,0};
+uint32_t ISR2[4] = {0,0,0,0};
+uint32_t IFCR[4] = {0,0,0,0};
+uint32_t CCR1[4] = {0,0,0,0};
 
 void ADC_start() {
     // Delay for interleaved mode. Set only when ADEN=0
@@ -173,6 +181,9 @@ void DMA_init() {
     // 01: 16-bits
     // 10: 32-bits
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
+
+    // Channel Priority level 11 - Very high
+    DMA1_Channel1->CCR |= DMA_CCR_PL_Msk;
 
     // Number of data to transfer. 2 samples in 1 transfer.
     DMA1_Channel1->CNDTR = BUF_SIZE / 2;
