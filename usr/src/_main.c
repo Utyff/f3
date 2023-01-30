@@ -28,11 +28,19 @@ void mainInitialize() {
 }
 
 void mainCycle() {
-    drawScreen();
-    KEYS_scan();
-    drawMenu();
 
-    delay_ms(50);
+    // starting conversions if it does not run
+    if (!(ADC1->CR & ADC_CR_ADSTART)) {
+        ADC_start();
+    }
+
+    KEYS_scan();
+
+    if (samplesReady) {
+        drawScreen();
+        drawMenu();
+    }
+//    delay_ms(50);
 }
 
 #ifdef DEBUG_TRACE_SWO
@@ -78,7 +86,7 @@ void CORECheck(void) {
     uint32_t cpuid = SCB->CPUID;
     uint32_t var, pat;
 
-    sprintf(buf, "\n\nCPUID %08X DEVID %03X DEVREV %03X\n", cpuid, DBGMCU->IDCODE & 0xFFF, DBGMCU->IDCODE >> 16);
+    sprintf(buf, "\nCPUID %08X DEVID %03X DEVREV %03X\n", cpuid, DBGMCU->IDCODE & 0xFFF, DBGMCU->IDCODE >> 16);
     DBG_Trace(buf);
 
     pat = (cpuid & 0x0000000F);

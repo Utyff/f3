@@ -62,10 +62,10 @@ int main(void) {
     SystemClock_Config();
     USART1_init();
 
-    char buf[120];
-    sprintf(buf, "\n\nBuild: %s %s\n", buildDate, buildTime);
-    DBG_Trace(buf);
-
+    {   char buf[120];
+        sprintf(buf, "\n\nBuild: %s %s\n", buildDate, buildTime);
+        DBG_Trace(buf);
+    }
     mainInitialize();
 
 #pragma clang diagnostic push

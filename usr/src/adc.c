@@ -55,10 +55,9 @@ uint8_t sampleTime = 0b000;
 uint32_t adcCircleStart;
 uint32_t adcCircleTicks;
 
-void DMA_init();
+void DMA_start();
 
 void ADC_Init() {
-    DMA_init();
 
     // init GPIO, VR and calibration run only once
     // Enable clocks GPIOA and GPIOB
@@ -99,17 +98,14 @@ void ADC_Init() {
     // wait for calibration to complete
     while (ADC2->CR & ADC_CR_ADCAL);
 
-    ADC_start();
 }
 
 uint32_t adcCount = 0;
-uint32_t ISR[4] = {0,0,0,0};
-uint32_t ISR1[4] = {0,0,0,0};
-uint32_t ISR2[4] = {0,0,0,0};
-uint32_t IFCR[4] = {0,0,0,0};
-uint32_t CCR1[4] = {0,0,0,0};
 
 void ADC_start() {
+
+    DMA_start();
+
     // Delay for interleaved mode. Set only when ADEN=0
     ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
 
@@ -151,21 +147,34 @@ void ADC_start() {
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
     // 0 - stop when DMA_CCR_TCIE
-    ADC12_COMMON->CCR |= ADC_CCR_DMACFG;
+    ADC12_COMMON->CCR &= ~ADC_CCR_DMACFG;
 
     // COMMON DMA mode b11 - for 8-bit resolution
     ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
 
+    samplesReady = 0;
+
+    adcCount++;
+    ADC1->ISR = ADC_ISR_EOS;
+    ADC2->ISR = ADC_ISR_EOS;
+
     // ADC start conversion
     ADC1->CR |= ADC_CR_ADSTART;
+
+    adcCircleStart = DWT_Get();
 }
 
-void DMA_init() {
+void DMA_start() {
     // Enable clocks DMA1
     RCC->AHBENR |= RCC_AHBENR_DMA1EN;
 
-    // Transfer complete interrupt enable and Circular mode
-    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_HTIE | DMA_CCR_TEIE | DMA_CCR_CIRC;
+    // Disable DMA
+    DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+
+    // Transfer complete, Transfer error interrupt enable
+    DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_TEIE;
+    // not circular mode
+    DMA1_Channel1->CCR &= ~DMA_CCR_CIRC;
 
     // Memory increment mode
     DMA1_Channel1->CCR |= DMA_CCR_MINC;
@@ -194,8 +203,8 @@ void DMA_init() {
     // Memory address register
     DMA1_Channel1->CMAR = (uint32_t) (&samplesBuffer);
 
-    // Reset interrupt flags
-    DMA1->IFCR |= DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
+    // clear interrupt flags
+    DMA1->IFCR = DMA_IFCR_CGIF1 | DMA_IFCR_CTCIF1 | DMA_IFCR_CHTIF1 | DMA_IFCR_CTEIF1;
 
     // Enable DMA
     DMA1_Channel1->CCR |= DMA_CCR_EN;
@@ -207,28 +216,27 @@ uint16_t dmaG = 0;
 uint16_t dmaT = 0;
 uint16_t dmaH = 0;
 uint16_t dmaE = 0;
-uint32_t adcCircleStart;
-uint32_t adcCircleTicks;
 
 void DMA1_Channel1_IRQHandler() {
-    if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
+    if (DMA1->ISR & DMA_ISR_TCIF1) {  // transfer complete
+        adcCircleTicks = DWT_Get() - adcCircleStart;
+        // ADC stop conversion
+        ADC1->CR |= ADC_CR_ADSTP;
         samplesReady = 1;
-//        DMA1->IFCR |= DMA_IFCR_CTCIF1;
+
         dmaT++;
-        uint32_t ticks = DWT_Get();
-        adcCircleTicks = ticks - adcCircleStart;
-        adcCircleStart = ticks;
+        DMA1->IFCR = DMA_IFCR_CTCIF1; // clear interrupt flag
     }
-    if (DMA1->ISR & DMA_ISR_HTIF1) { // half transfer
-//        DMA1->IFCR |= DMA_IFCR_CHTIF1;
+    if (DMA1->ISR & DMA_ISR_HTIF1) {  // half transfer
+        DMA1->IFCR = DMA_IFCR_CHTIF1;
         dmaH++;
     }
     if (DMA1->ISR & DMA_ISR_TEIF1) {
-//        DMA1->IFCR |= DMA_IFCR_CTEIF1;
+        DMA1->IFCR = DMA_IFCR_CTEIF1;
         dmaE++;
     }
     if (DMA1->ISR & DMA_ISR_GIF1) {
         dmaG++;
     }
-    DMA1->IFCR |= DMA_IFCR_CGIF1;
+    DMA1->IFCR = DMA_IFCR_CGIF1;
 }

@@ -48,8 +48,6 @@ void buildGraph1ch() {
     int i, j;
     float x;
 
-    if (samplesReady == 0) return;
-
     u8 *samples = samplesBuffer;
 
     x = 0;
@@ -67,7 +65,6 @@ void buildGraph1ch() {
         x += scaleX;
     }
     buildGraphTick = DWT_Elapsed_Tick(t0);
-    samplesReady = 0;
 }
 
 uint32_t drawGraphTick;
