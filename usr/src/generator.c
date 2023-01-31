@@ -109,9 +109,9 @@ void GEN_Init() {
     RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
     RCC->CFGR3 |= RCC_CFGR3_TIM1SW_PLL; // set PLL_CLK*2 as source TIM1
     // Set the Prescaler value
-    TIM1->PSC = 143; //tim1Prescaler; // 144MHz /144 = 1mHz      / 14400 = 10 KHz
+    TIM1->PSC = tim1Prescaler; // 143; //144MHz /144 = 1mHz      / 144 = 1 MHz
     // Set the Autoreload value
-    TIM1->ARR = 499; //tim1Period;  // 10 KHz / 5000 = 2Hz
+    TIM1->ARR = tim1Period;  // 499; // 1 MHz / 500 = 2Hz
     TIM1->CR1 |= TIM_CR1_CEN;
     TIM1->DIER |= TIM_DIER_UIE | TIM_DIER_CC1IE; // interrupt on update
 
@@ -121,7 +121,7 @@ void GEN_Init() {
     // Select the Output Compare Mode
     TIM1->CCMR1 |= ((uint32_t) TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2);
     // Set the Capture Compare Register value
-    TIM1->CCR1 = 400; //tim1Pulse;
+    TIM1->CCR1 = tim1Pulse; // 400
     // Set the Preload enable for channel1
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
     // Configure the Output Fast mode

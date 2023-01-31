@@ -81,22 +81,9 @@ void KEYS_scan() {
     DBG_Trace(buf);
 
     // choose encoder action
-    uint8_t mode = button1Count % 3;
-    if (mode == 0) { // sample time 0-7
-//        ADC_step(enc_step);
-        if (sampleTime > 0 && enc_step < 0) sampleTime--;
-        if (sampleTime < 7 && enc_step > 0) sampleTime++;
-    } else if (mode == 1) {
-//        GEN_step(enc_step);
-        if (adcDelay > 0b0000 && enc_step < 0) adcDelay--;
-        if (adcDelay < 0b1011 && enc_step > 0) adcDelay++;
-    } else {
-//        DAC_NextGeneratorSignal();
-        if (rccAdcDivider > 0b10000 && enc_step < 0) rccAdcDivider--;
-        if (rccAdcDivider < 0b11011 && enc_step > 0) rccAdcDivider++;
+    if (keyMode == 1) {
+        GEN_step(enc_step);
     }
-
-//    ADC_start(); // apply adc changes
 }
 
 // Init TIM8 as encoder

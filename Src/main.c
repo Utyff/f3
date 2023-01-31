@@ -97,6 +97,7 @@ void SystemClock_Config(void) {
     RCC->CFGR |= RCC_CFGR_SW_PLL;      // Select PLL as system clock
 
 //    RCC_HSICmd(DISABLE);//Disable HSI
+    SystemCoreClockUpdate();
 }
 
 uint16_t txCount = 0;
