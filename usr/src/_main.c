@@ -8,8 +8,8 @@
 #include <adc.h>
 #include <menu.h>
 
-const char *const buildDate = __DATE__;
-const char *const buildTime = __TIME__;
+const char buildDate[] = __DATE__;
+const char buildTime[] = __TIME__;
 
 void CORECheck();
 
@@ -40,7 +40,6 @@ void mainCycle() {
         drawScreen();
         drawMenu();
     }
-//    delay_ms(50);
 }
 
 #ifdef DEBUG_TRACE_SWO

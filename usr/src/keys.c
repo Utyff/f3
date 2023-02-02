@@ -1,10 +1,11 @@
 #include <_main.h>
+#include <dwt.h>
 #include <keys.h>
-#include <adc.h>
 #include <generator.h>
 #include <stdio.h>
 
-#define DEBOUNCING_CNT 0
+// 50 millisecond
+#define DEBOUNCING_TIMEOUT (50 * DWT_IN_MICROSEC * 1000)
 #define MAX_ENCODER    255 // max encoder value
 #define MID_ENCODER    (MAX_ENCODER/2+1)
 #define ENCODER_STEP   2   // counts per step
@@ -14,11 +15,12 @@ uint8_t button1Count = 0;
 uint8_t button2Count = 0;
 uint8_t button3Count = 0;
 uint16_t btns_state = 0;
-static uint16_t debounceCnt = 0;
+static uint32_t debounceStart;
 int16_t enc_step;
 int16_t keyMode = KEY_MODE_ADC;
 
 void KEYS_Init() {
+    debounceStart = DWT_Get();
     ENC_init();
 
     // Init buttons enable GPIOC
@@ -52,22 +54,30 @@ int16_t enc_count = 1000;
 
 void KEYS_scan() {
     new_state = (uint16_t) ((~BTN1_GPIO_Port->IDR >> 13u) & 7u); // get buttons 1-3
+    // debounce
+    if (new_state != btns_state) {
+        if ((DWT_Get() - debounceStart) < DEBOUNCING_TIMEOUT) {
+            return;
+        }
+        debounceStart = DWT_Get();
+    }
+
     uint16_t action = (btns_state << 8u) | new_state; // action code = last btn state + new btn state
     btns_state = new_state;
     switch (action) {
-        // BTN1 up
-        case 0x0100:
+        case 0x0100: // BTN1 up
             if (++keyMode > KEY_MODE_MAX) keyMode = 0;
             button1Count++;
             break;
-            // BTN2 up
-        case 0x0200:
+
+        case 0x0200: // BTN2 up
             button2Count++;
             break;
-            // BTN3 up
-        case 0x0400:
+
+        case 0x0400: // BTN3 up
             button3Count++;
             break;
+
         default:
             break;
     }
@@ -117,7 +127,7 @@ void ENC_init() {
     // Set the Prescaler value
     TIM8->PSC = 0;
     // Set the Autoreload value
-    TIM8->ARR = 255;  //
+    TIM8->ARR = 255;
     // Set the Repetition Counter value
     TIM8->RCR = 0;
     // Generate an update event to reload the Prescaler

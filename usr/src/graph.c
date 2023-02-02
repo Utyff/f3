@@ -1,9 +1,7 @@
 #include <graph.h>
 #include <dwt.h>
 #include <DataBuffer.h>
-//#include <adc.h>
 
-#define SECTION_CCMRAM __attribute__((section(".ccmram"))) /* CCMRAM */
 
 /**
  * Make and draw oscillogram

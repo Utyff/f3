@@ -28,7 +28,7 @@ void USART1_init() {
     USART1->CR1 |= USART_CR1_UE | USART_CR1_TE; // enable USART and USART transmit. USART_CR1_RE for receive
 //    USART1->CR1 |= USART_CR1_RXNEIE; // enable receive interrupt
 
-    USART1->ICR |= USART_ICR_TCCF; // clear TC flag
+    USART1->ICR = USART_ICR_TCCF;  // clear TC flag
     USART1->CR1 |= USART_CR1_TCIE; // enable TC interrupt
 
     NVIC_EnableIRQ(USART1_IRQn);   // enable USART1 interrupt
@@ -111,7 +111,7 @@ void USART1_IRQHandler(void) {
         txCount++;
         if (string2send[send] == 0) {
             send = 0;
-            USART1->ICR |= USART_ICR_TCCF; // Clear transfer complete flag
+            USART1->ICR = USART_ICR_TCCF; // Clear transfer complete flag
             return;
         } else {
             // fill TDR with a new char and clear transfer complete flag
