@@ -1,8 +1,6 @@
 #include "dwt.h"
 
 
-int SMALL_DELLAY;
-
 uint32_t DWT_GetDelta(uint32_t t0) {
     return DWT->CYCCNT - t0;
 }

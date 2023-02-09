@@ -8,28 +8,43 @@
  */
 
 static uint8_t graph[MAX_X];
+static int startGraph;
+static int endGraph;
 float scaleX = 1;  // no more than 1
-float scaleY = 0.94f;
-u8 trgLvl = 12;
+float scaleY = 0.64f;
+uint8_t trgLvl = 0x3f;
 
 /**
  * Looking for trigger event position in 1 channel samples array
  * @return if trigger found - index of start element. Other case - 0
  */
 int triggerStart1ch(u8 const *samples) {
-    int i;
+    int i1 = BUF_SIZE / 2;
+    int i2 = BUF_SIZE / 2 + 1;
+    uint8_t trg1Rdy = samples[i2] > trgLvl;
+    uint8_t trg2Rdy = samples[i1] < trgLvl;
 
-    u8 trgRdy = 0;
-
-    for (i = 0; i < BUF_SIZE; i++) {
-        if (trgRdy == 0) {
-            if (samples[i] < trgLvl)
-                trgRdy = 1;
-            continue;
+    while (i1 != 0) {
+        // looking left side from middle
+        if (trg1Rdy == 0) {
+            if (samples[i1] > trgLvl) {
+                trg1Rdy = 1;
+            }
+        } else if (samples[i1] < trgLvl) {
+            return i1;
         }
 
-        if (samples[i] > trgLvl)
-            return i;
+        // looking right side from middle
+        if (trg2Rdy == 0) {
+            if (samples[i2] < trgLvl) {
+                trg2Rdy = 1;
+            }
+        } else if (samples[i2] > trgLvl) {
+            return i2;
+        }
+
+        i1--;
+        i2++;
     }
     return 0;
 }
@@ -46,56 +61,41 @@ void buildGraph1ch() {
     int i, j;
     float x;
 
-    u8 *samples = samplesBuffer;
+    // graph my start not from x=0
+    i = triggerStart1ch(samplesBuffer) - (int) (GRAPH_SIZE_X * scaleX / 2);
+    if (i < 0) {
+        j = (int) (scaleX * (float) (0 - i));
+        i = 0;
+    } else {
+        j = 0;
+    }
+    startGraph = j;
+    x = (float) j;
+    j--;
 
-    x = 0;
-    j = -1;
-    i = triggerStart1ch(samples);
     for (; i < BUF_SIZE; i++) {
-        register uint8_t val = (uint8_t) ((float) samples[i] * scaleY);
+        register uint8_t val = (uint8_t) ((float) samplesBuffer[i] * scaleY);
         if ((int) x != j) {
             j = (int) x;
-            if (j >= MAX_X) break;
+            if (j >= GRAPH_SIZE_X) break;
             graph[j] = val;
         } else {
             graph[j] = (graph[j] + val) >> 1; // arithmetical mean
         }
         x += scaleX;
     }
+    endGraph = j;
     buildGraphTick = DWT_Elapsed_Tick(t0);
 }
 
-uint32_t drawGraphTick;
-
-void drawGraph() {
+void drawGraph(uint16_t color) {
     u8 prev;
 
-    buildGraph1ch();
-    uint32_t t0 = DWT_Get_Current_Tick();
-
-    POINT_COLOR = BLUE;
-    prev = graph[0];
-    for (u16 i = 1; i < MAX_X; i++) {
+    prev = graph[startGraph] + GRAPH_START_Y;
+    for (int i = startGraph + 1; i < endGraph; i++) {
         //LCD_DrawLine(i - (u16) 1, prev, i, graph[i]);
-        LCD_Fill(i, prev, i, graph[i], POINT_COLOR);
-        prev = graph[i];
-    }
-    LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
-
-    drawGraphTick = DWT_Elapsed_Tick(t0);
-//  LCD_ShowxNum(150,227, drawGraphTick/168,  10,12, 8);
-//  LCD_ShowxNum(190,227, buildGraphTick/168, 10,12, 8);
-}
-
-void eraseGraph() {
-    u8 prev;
-
-    POINT_COLOR = BLACK;
-    prev = graph[0];
-    for (u16 i = 1; i < MAX_X; i++) {
-        //LCD_DrawLine(i - (u16) 1, prev, i, graph[i]);
-        LCD_Fill(i, prev, i, graph[i], POINT_COLOR);
-        prev = graph[i];
+        LCD_Fill(i, prev, i, graph[i] + GRAPH_START_Y, color);
+        prev = graph[i] + GRAPH_START_Y;
     }
     LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
 }

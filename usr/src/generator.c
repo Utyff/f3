@@ -1,4 +1,5 @@
 #include <_main.h>
+#include <stdio.h>
 #include "generator.h"
 
 /* F3
@@ -6,19 +7,6 @@
  * CLK  72 mHz
  * TIM1 CLK 144
  * PRE           72 - 1 => 2 MHz
- * COUNT PERIOD  100 - 1 => 20 KHz
- */
-/* F7
- * TIM1 Configuration
- * CLK  216 mHz
- * PRE           108 - 1 => 2 MHz
- * COUNT PERIOD  100 - 1 => 20 KHz
- */
-/* H7
- * TIM1 Configuration
- * CLK  - 400 mHz
- * AHB2 - 200 mHz
- * PRE           100 - 1 => 2 MHz
  * COUNT PERIOD  100 - 1 => 20 KHz
  */
 
@@ -76,13 +64,13 @@ void GEN_step(int16_t step) {
         }
     }
 
-    tim1Freq = GEN_Parameters[currentGenParam].Frequency * currentGenScale;
+    tim1Freq = GEN_Parameters[currentGenParam].Frequency / currentGenScale;
     tim1Prescaler = GEN_Parameters[currentGenParam].TIM_Prescaler;
-    tim1Period = GEN_Parameters[currentGenParam].TIM_Period * currentGenScale;
+    tim1Period = (GEN_Parameters[currentGenParam].TIM_Period + 1) * currentGenScale - 1;
     tim1Pulse = tim1Period * 30 / 100;
     GEN_setParams();
 
-//    sprintf(msg, "Timer param: %u, scale: %u, presc: %u, period: %u, freq: %u\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
+    sprintf(msg, "Timer param: %u, scale: %u, presc: %lu, period: %lu, freq: %lu\n", currentGenParam, currentGenScale, tim1Prescaler, tim1Period, tim1Freq);
     DBG_Trace(msg);
 }
 

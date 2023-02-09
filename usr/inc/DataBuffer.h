@@ -6,7 +6,6 @@
 #define BUF_SIZE 4096
 extern u8 samplesBuffer[BUF_SIZE];
 
-extern u8 firstHalf; // first or second half of buffer writing
 extern u8 samplesReady;
 
 #endif //F3_DATABUFFER_H

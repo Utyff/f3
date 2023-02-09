@@ -2,34 +2,34 @@
 #include "draw.h"
 #include "graph.h"
 
-#define GRID_STEP 16
 
 void drawFrame() {
-    u16 x, y;
+    uint16_t x, y;
 
-//    LCD_Clear8(BLACK);
-    eraseGraph();
+    // erase graph
+    drawGraph(BLACK);
 
-    u32 t0 = DWT_Get_Current_Tick();
+    uint32_t drawTicks = DWT_Get_Current_Tick();
 
-    POINT_COLOR = DARKGRAY;
-    for (y = GRID_STEP; y < MAX_Y; y += GRID_STEP) {
-        for (x = GRID_STEP; x < MAX_X; x += GRID_STEP) {
+    // draw grid
+    POINT_COLOR = WHITE;
+    for (y = GRID_STEP + GRAPH_START_Y; y < (uint16_t) (GRAPH_START_Y + GRAHP_SIZE_Y); y += GRID_STEP) {
+        for (x = GRID_STEP; x < GRAPH_SIZE_X; x += GRID_STEP) {
             LCD_DrawPoint(x, y);
         }
     }
 
-    POINT_COLOR = GRAY;  // Drawing pen color
-    LCD_Fill(0, 128, MAX_X - 1, 128, POINT_COLOR);
-    LCD_Fill(160, 0, 160, MAX_Y - 1, POINT_COLOR);
+    // draw cross scale
+    LCD_Fill(0, GRAPH_START_Y + GRAHP_SIZE_Y / 2, GRAPH_SIZE_X - 1, GRAPH_START_Y + GRAHP_SIZE_Y / 2, GRAY);
+    LCD_Fill(160, 0, 160, MAX_Y - 1, GRAY);
 
     LCD_Set_Window(0, 0, MAX_X - 1, MAX_Y - 1);
 
-    // count time for one circle
-    u32 ticks = DWT_Elapsed_Tick(t0);
+    // draw time
+    drawTicks = DWT_Elapsed_Tick(drawTicks);
     POINT_COLOR = YELLOW;
     BACK_COLOR = BLACK;
-    LCD_ShowxNum(130, 227, ticks / DWT_IN_MICROSEC, 6, 12, 8);
+    LCD_ShowxNum(130, 227, drawTicks / DWT_IN_MICROSEC, 6, 12, 8);
 }
 
 void drawScreen() {
@@ -37,7 +37,8 @@ void drawScreen() {
 
     u32 t0 = DWT_Get_Current_Tick();
 
-    drawGraph();
+    buildGraph1ch();
+    drawGraph(BLUE);
 
     // count time for one circle
     u32 ticks = DWT_Elapsed_Tick(t0);

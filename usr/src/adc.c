@@ -9,10 +9,6 @@
  * ADC2 channel 1 - PA4
  */
 
-#define ADC_SINGLE_MODE 0
-#define ADC_DUAL_MODE 1
-uint8_t dualMode = ADC_SINGLE_MODE;
-
 #define ADC_6BITS  0b11u
 #define ADC_8BITS  0b10u
 #define ADC_10BITS 0b01u
@@ -227,16 +223,16 @@ void DMA1_Channel1_IRQHandler() {
         dmaT++;
         DMA1->IFCR = DMA_IFCR_CTCIF1; // clear interrupt flag
     }
-    if (DMA1->ISR & DMA_ISR_HTIF1) {  // half transfer
-        DMA1->IFCR = DMA_IFCR_CHTIF1;
-        dmaH++;
-    }
+//    if (DMA1->ISR & DMA_ISR_HTIF1) {  // half transfer
+//        DMA1->IFCR = DMA_IFCR_CHTIF1;
+//        dmaH++;
+//    }
     if (DMA1->ISR & DMA_ISR_TEIF1) {
         DMA1->IFCR = DMA_IFCR_CTEIF1;
         dmaE++;
     }
-    if (DMA1->ISR & DMA_ISR_GIF1) {
-        dmaG++;
-    }
+//    if (DMA1->ISR & DMA_ISR_GIF1) {
+//        dmaG++;
+//    }
     DMA1->IFCR = DMA_IFCR_CGIF1;
 }

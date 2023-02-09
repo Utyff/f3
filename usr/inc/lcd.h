@@ -18,8 +18,8 @@
 //#define LCD_WR_RAM_CMD 0x2c
 #define LCD_WR_RAM_CMD 0x202 // st7793
 
-#define MAX_X 400
-#define MAX_Y 240
+#define MAX_X 400u
+#define MAX_Y 240u
 
 extern u16 POINT_COLOR; // Pen color
 extern u16 BACK_COLOR;  // Background color
