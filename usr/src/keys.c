@@ -1,6 +1,7 @@
 #include <_main.h>
 #include <dwt.h>
 #include <keys.h>
+#include <adc.h>
 #include <generator.h>
 #include <stdio.h>
 
@@ -36,7 +37,7 @@ int16_t ENC_Get() {
 
     int16_t step = (int16_t) (ENCODER_TIM->CNT - MID_ENCODER);
     if (step >= ENCODER_STEP || step <= -ENCODER_STEP) {
-        result = step / (int16_t) ENCODER_STEP;
+        result = (int16_t) (step / ENCODER_STEP);
 
         __disable_irq();
         ENCODER_TIM->CNT -= result * ENCODER_STEP;
@@ -84,14 +85,17 @@ void KEYS_scan() {
 
     // if encoder has step - do it
     enc_step = ENC_Get();
-    enc_count += enc_step;
+    enc_count = (int16_t) (enc_count + enc_step);
     if (enc_step == 0) return;
     char buf[64];
     sprintf(buf, "step: %hi\n", enc_step);
     DBG_Trace(buf);
 
     // choose encoder action
-    if (keyMode == 1) {
+    if (keyMode == KEY_MODE_ADC) {
+        ADC_step(enc_step);
+    }
+    if (keyMode == KEY_MODE_GEN) {
         GEN_step(enc_step);
     }
 }

@@ -27,7 +27,7 @@ uint8_t adcResolution = ADC_8BITS;
 // 0b11001: PLL clock divided by 64
 // 0b11010: PLL clock divided by 128
 // 0b11011: PLL clock divided by 256
-uint8_t rccAdcDivider = 0b10010;
+//uint8_t rccDivider = 0b10010;
 
 // Delay for interleaved mode. Set only when ADEN=0
 // circle time = SAMPLE_TIME + CONV. TIME = 1.5 + 8.5 = 10 tics
@@ -36,7 +36,7 @@ uint8_t rccAdcDivider = 0b10010;
 // 0b0001 - 2
 // 0b0010 - 3
 // 0b0011 - 4   MAX: 1011 - 12
-uint8_t adcDelay = 0b0010;
+//uint8_t interleaveDelay = 0b0010;
 
 //000: 1.5 ADC clock cycles
 //001: 2.5 ADC clock cycles
@@ -46,10 +46,27 @@ uint8_t adcDelay = 0b0010;
 //101: 61.5 ADC clock cycles
 //110: 181.5 ADC clock cycles
 //111: 601.5 ADC clock cycles
-uint8_t sampleTime = 0b000;
+//uint8_t sampleTime = 0b000;
 
 uint32_t adcCircleStart;
 uint32_t adcCircleTicks;
+
+const ADC_PARAM ADC_Parameters[] = {
+        {0b10000, 0b0010, 0b000},
+        {0b10001, 0b0010, 0b000},
+        {0b10010, 0b0010, 0b000},
+        {0b10011, 0b0010, 0b000},
+        {0b10100, 0b0010, 0b000},
+        {0b10101, 0b0010, 0b000},
+        {0b10110, 0b0010, 0b000},
+        {0b10111, 0b0010, 0b000},
+        {0b11000, 0b0010, 0b000},
+        {0b11001, 0b0010, 0b000},
+        {0b11010, 0b0010, 0b000},
+        {0b11011, 0b0010, 0b000}
+};
+
+int currentADCParam = 2;
 
 void DMA_start();
 
@@ -67,7 +84,7 @@ void ADC_Init() {
     RCC->AHBENR |= RCC_AHBENR_ADC12EN; // turn on ADC12 clock
 
     // Set Prescaler ADC for Asynchronous clock mode
-    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, ADC_Parameters[currentADCParam].rccDivider << RCC_CFGR2_ADCPRE12_Pos);
 
     // Set ADC clock
     // 00: (Asynchronous clock mode) PLL
@@ -103,7 +120,7 @@ void ADC_start() {
     DMA_start();
 
     // Delay for interleaved mode. Set only when ADEN=0
-    ADC12_COMMON->CCR |= (adcDelay << ADC_CCR_DELAY_Pos);
+    ADC12_COMMON->CCR |= (ADC_Parameters[currentADCParam].interleaveDelay << ADC_CCR_DELAY_Pos);
 
     // enable the ADC
     ADC1->CR |= ADC_CR_ADEN;
@@ -122,11 +139,11 @@ void ADC_start() {
     ADC2->SQR1 &= ~ADC_SQR1_L_Msk;
 
     // Set Prescaler ADC for Asynchronous clock mode
-    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, rccAdcDivider << RCC_CFGR2_ADCPRE12_Pos);
+    MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, ADC_Parameters[currentADCParam].rccDivider << RCC_CFGR2_ADCPRE12_Pos);
 
     // Set sampling time for channels
-    MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP1_Msk, sampleTime << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
-    MODIFY_REG(ADC2->SMPR1, ADC_SMPR1_SMP1_Msk, sampleTime << ADC_SMPR1_SMP1_Pos); // ADC2 channel 1
+    MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP1_Msk, ADC_Parameters[currentADCParam].sampleTime << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
+    MODIFY_REG(ADC2->SMPR1, ADC_SMPR1_SMP1_Msk, ADC_Parameters[currentADCParam].sampleTime << ADC_SMPR1_SMP1_Pos); // ADC2 channel 1
 
     // set data resolution
     MODIFY_REG(ADC1->CFGR, ADC_CFGR_RES_Msk, adcResolution << ADC_CFGR_RES_Pos);
@@ -235,4 +252,20 @@ void DMA1_Channel1_IRQHandler() {
 //        dmaG++;
 //    }
     DMA1->IFCR = DMA_IFCR_CGIF1;
+}
+
+void ADC_step(int16_t step) {
+    if (step > 0) {
+        if (currentADCParam < (sizeof ADC_Parameters / sizeof ADC_Parameters[0]) - 1) {
+            currentADCParam++;
+        }
+    } else if (step < 0) {
+        if (currentADCParam > 0) {
+            currentADCParam--;
+        }
+    }
+
+    // ADC stop conversion
+    ADC1->CR |= ADC_CR_ADSTP;
+    samplesReady = 0;
 }
