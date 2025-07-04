@@ -39,7 +39,7 @@ void DWT_Delay_us(uint32_t us) { // microseconds
 }
 
 
-inline void DWT_Delay_ms(uint32_t ms) { // milliseconds
+void DWT_Delay_ms(uint32_t ms) { // milliseconds
     DWT_Delay_us(ms * 1000);
 }
 

@@ -10,11 +10,11 @@ static void drawMenuADC() {
     LCD_ShowString(0, 0, 100, 100, 12, "ADC", 0x0);
     POINT_COLOR = WHITE;
     LCD_ShowChar(30, 0, 'd', 12, 0x0);
-    LCD_ShowxNum(38, 0, (u32) ADC_Parameters[currentADCParam].rccDivider, 3, 12, 0x0);
+    LCD_ShowxNum(38, 0, ADC_Parameters[currentADCParam].rccDivider, 3, 12, 0x0);
     LCD_ShowChar(68, 0, 'D', 12, 0x0);
-    LCD_ShowxNum(76, 0, (u32) ADC_Parameters[currentADCParam].interleaveDelay, 3, 12, 0x0);
+    LCD_ShowxNum(76, 0, ADC_Parameters[currentADCParam].interleaveDelay, 3, 12, 0x0);
     LCD_ShowChar(106, 0, 's', 12, 0x0);
-    LCD_ShowxNum(114, 0, (u32) ADC_Parameters[currentADCParam].sampleTime, 3, 12, 0x0);
+    LCD_ShowxNum(114, 0, ADC_Parameters[currentADCParam].sampleTime, 3, 12, 0x0);
 }
 
 static void drawMenuGEN() {
@@ -22,13 +22,13 @@ static void drawMenuGEN() {
     LCD_ShowString(0, 0, 100, 100, 12, "GEN", 0x0);
     POINT_COLOR = WHITE;
     LCD_ShowChar(30, 0, 'p', 12, 0x0);
-    LCD_ShowxNum(38, 0, (u32) tim1Prescaler, 5, 12, 0x0);
+    LCD_ShowxNum(38, 0, tim1Prescaler, 5, 12, 0x0);
     LCD_ShowChar(73, 0, 'D', 12, 0x0);
-    LCD_ShowxNum(81, 0, (u32) tim1Period, 5, 12, 0x0);
+    LCD_ShowxNum(81, 0, tim1Period, 5, 12, 0x0);
     LCD_ShowChar(116, 0, 's', 12, 0x0);
-    LCD_ShowxNum(124, 0, (u32) tim1Pulse, 5, 12, 0x0);
+    LCD_ShowxNum(124, 0, tim1Pulse, 5, 12, 0x0);
     LCD_ShowChar(159, 0, 'f', 12, 0x0);
-    LCD_ShowxNum(167, 0, (u32) tim1Freq, 7, 12, 0x0);
+    LCD_ShowxNum(167, 0, tim1Freq, 7, 12, 0x0);
 }
 
 void drawMenu() {
@@ -57,6 +57,4 @@ void drawMenu() {
     LCD_ShowChar(96, 214, 'd', 12, 0x0);
     LCD_ShowxNum(110, 214, (u32) ADC_Parameters[currentADCParam].rccDivider, 3, 12, 0x0);
     LCD_ShowChar(130, 214, 'r', 12, 0x0);
-//    LCD_ShowxNum(180, 214, (u32) tim1Freq/100, 5, 12, 0x0);
-//    LCD_ShowxNum(180, 214, (u32) ADCElapsedTick / DWT_IN_MICROSEC, 5, 12, 0x0);
 }

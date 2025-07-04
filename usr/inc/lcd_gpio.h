@@ -52,7 +52,7 @@ LCD_D7 - PB7
 //}
 
 // write without control RS
-#define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; LCD_WR_SET; }
+#define LCD_WR_DATA8_SHORT(data) { DATAOUT(data); LCD_WR_CLR; __NOP(); LCD_WR_SET; }
 #define LCD_WR_DATA16_SHORT(data)  { LCD_WR_DATA8_SHORT((data) >> 8);  LCD_WR_DATA8_SHORT(data); }
 
 //#define LCD_WR_REG(data) { \
@@ -66,9 +66,11 @@ LCD_D7 - PB7
     LCD_RS_CLR; \
     DATAOUT(data >> 8u); \
     LCD_WR_CLR; \
+    __NOP(); \
     LCD_WR_SET; \
     DATAOUT(data); \
     LCD_WR_CLR; \
+    __NOP(); \
     LCD_WR_SET; \
     LCD_RS_SET; \
 }
@@ -83,9 +85,11 @@ LCD_D7 - PB7
 #define LCD_WR_DATA16(data) { \
     DATAOUT(data >> 8u); \
     LCD_WR_CLR; \
+    __NOP(); \
     LCD_WR_SET; \
     DATAOUT(data); \
     LCD_WR_CLR; \
+    __NOP(); \
     LCD_WR_SET; \
 }
 

@@ -34,6 +34,7 @@ void mainCycle() {
         ADC_start();
     }
 
+    delay_ms(50);
     KEYS_scan();
 
     if (samplesReady) {

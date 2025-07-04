@@ -80,13 +80,13 @@ int main(void) {
   * @brief System Clock Configuration
   */
 void SystemClock_Config(void) {
-    // External oscillator (HSE) = 24MHz
+    // External oscillator (HSE) = 8MHz
     // SYS_CLK = 72MHz
     // APB1 = 36MHz
     RCC->CR |= RCC_CR_HSEON;           // Enable HSE
     while ((RCC->CR & RCC_CR_HSERDY) == 0);
 
-    RCC->CFGR |= RCC_CFGR_PLLMUL3;     // PLL MUL = x3, SYS_CLK=72MHz (x9 for 8MHz)
+    RCC->CFGR |= RCC_CFGR_PLLMUL9;     // PLL MUL = x9, SYS_CLK=72MHz (x3 for 24MHz)
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;  // APB1 Prescaler = 2
     RCC->CFGR |= RCC_CFGR_PLLSRC;      // PLL source = HSE
 
@@ -101,6 +101,8 @@ void SystemClock_Config(void) {
 }
 
 uint16_t txCount = 0;
+
+void USART1_IRQHandler() __attribute__((section (".ccmram")));
 
 void USART1_IRQHandler(void) {
 //    if (USART1->ISR & USART_CR1_RXNEIE) { // RXNEIE - data received

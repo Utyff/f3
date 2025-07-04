@@ -52,30 +52,34 @@ uint32_t adcCircleStart;
 uint32_t adcCircleTicks;
 
 const ADC_PARAM ADC_Parameters[] = {
+        {0b10000, 0b0001, 0b000},
         {0b10000, 0b0010, 0b000},
-        {0b10001, 0b0010, 0b000},
-        {0b10010, 0b0010, 0b000},
-        {0b10011, 0b0010, 0b000},
-        {0b10100, 0b0010, 0b000},
-        {0b10101, 0b0010, 0b000},
-        {0b10110, 0b0010, 0b000},
-        {0b10111, 0b0010, 0b000},
-        {0b11000, 0b0010, 0b000},
-        {0b11001, 0b0010, 0b000},
-        {0b11010, 0b0010, 0b000},
-        {0b11011, 0b0010, 0b000}
+        {0b10000, 0b0011, 0b000},
+        {0b10000, 0b0100, 0b000},
+        {0b10000, 0b0101, 0b000},
+        {0b10000, 0b0110, 0b000},
+        {0b10000, 0b0111, 0b000},
+        {0b10000, 0b1000, 0b000},
+        {0b10000, 0b1001, 0b000},
+        {0b10000, 0b1010, 0b000},
+        {0b10000, 0b1011, 0b000},
+        {0b10000, 0b1011, 0b000}
 };
 
-int currentADCParam = 2;
+int currentADCParam = 10;
+
+void ADC_start() __attribute__((section (".ccmram")));
 
 void DMA_start();
+
+void DMA1_Channel1_IRQHandler() __attribute__((section (".ccmram")));
+
 
 void ADC_Init() {
 
     // init GPIO, VR and calibration run only once
-    // Enable clocks GPIOA and GPIOB
+    // Enable clocks GPIOA
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 
     // Set mode b11 (analog input) for ADC pins
     GPIOA->MODER |= (0b11u << 0u);      // PA0 for ADC1 ch1
@@ -91,7 +95,7 @@ void ADC_Init() {
     // 01: HCLK/1 (Synchronous clock mode) AHB
     // 10: HCLK/2
     // 11: HCLK/4
-    ADC12_COMMON->CCR &= ~ADC_CCR_CKMODE_Msk; // set 00
+    MODIFY_REG(ADC12_COMMON->CCR, ADC_CCR_CKMODE_Msk, 00 << ADC_CCR_CKMODE_Pos);
 
     // enable the ADC voltage regulator
     ADC1->CR &= ~ADC_CR_ADVREGEN_1;
@@ -110,22 +114,18 @@ void ADC_Init() {
     ADC2->CR |= ADC_CR_ADCAL;
     // wait for calibration to complete
     while (ADC2->CR & ADC_CR_ADCAL);
-
 }
 
 uint32_t adcCount = 0;
 
 void ADC_start() {
-
     DMA_start();
-
     // Delay for interleaved mode. Set only when ADEN=0
     ADC12_COMMON->CCR |= (ADC_Parameters[currentADCParam].interleaveDelay << ADC_CCR_DELAY_Pos);
 
     // enable the ADC
     ADC1->CR |= ADC_CR_ADEN;
     ADC2->CR |= ADC_CR_ADEN;
-
     // wait till ADC start
     while (!(ADC1->ISR & ADC_ISR_ADRDY));
     while (!(ADC2->ISR & ADC_ISR_ADRDY));
@@ -133,13 +133,14 @@ void ADC_start() {
     // Select ADC Channels
     ADC1->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC1
     ADC2->SQR1 = (1u << ADC_SQR1_SQ1_Pos); // 1-st channel for ADC2
-
     // Regular channel sequence length - 1
     ADC1->SQR1 &= ~ADC_SQR1_L_Msk;
     ADC2->SQR1 &= ~ADC_SQR1_L_Msk;
 
     // Set Prescaler ADC for Asynchronous clock mode
     MODIFY_REG(RCC->CFGR2, RCC_CFGR2_ADCPRE12_Msk, ADC_Parameters[currentADCParam].rccDivider << RCC_CFGR2_ADCPRE12_Pos);
+    // Set ADC clock
+    MODIFY_REG(ADC12_COMMON->CCR, ADC_CCR_CKMODE_Msk, 00 << ADC_CCR_CKMODE_Pos);
 
     // Set sampling time for channels
     MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP1_Msk, ADC_Parameters[currentADCParam].sampleTime << ADC_SMPR1_SMP1_Pos); // ADC1 channel 1
@@ -152,11 +153,11 @@ void ADC_start() {
     // Enable continuous conversion mode. Only on the master
     ADC1->CFGR |= ADC_CFGR_CONT; // Master ADC1 + ADC2
 
-    // dual mode - Regular simultaneous mode only
+    // dual mode
     // 00000: Independent mode
-    // 00110: Regular simultaneous mode only
-    // 00111: Interleaved mode only
-    ADC12_COMMON->CCR |= (0b00111u << ADC_CCR_DUAL_Pos);
+    // 00110: Regular simultaneous mode
+    // 00111: Interleaved mode
+    MODIFY_REG(ADC12_COMMON->CCR, ADC_CCR_DUAL_Msk, 0b00111u << ADC_CCR_DUAL_Pos);
 
     // DMA mode.  0 -> One Shot; 1 -> Circular
     // 0 - stop when DMA_CCR_TCIE
@@ -165,16 +166,20 @@ void ADC_start() {
     // COMMON DMA mode b11 - for 8-bit resolution
     ADC12_COMMON->CCR |= (0b11u << ADC_CCR_MDMA_Pos);
 
-    samplesReady = 0;
-
-    adcCount++;
     ADC1->ISR = ADC_ISR_EOS;
     ADC2->ISR = ADC_ISR_EOS;
+
+    samplesReady = 0;
+    adcCount++;
+    adcCircleStart = DWT_Get();
 
     // ADC start conversion
     ADC1->CR |= ADC_CR_ADSTART;
 
-    adcCircleStart = DWT_Get();
+    // when ADC run at high speed - stop CPU
+//    if (currentADCParam < 2) {
+        while (!samplesReady);
+//    }
 }
 
 void DMA_start() {
@@ -184,9 +189,9 @@ void DMA_start() {
     // Disable DMA
     DMA1_Channel1->CCR &= ~DMA_CCR_EN;
 
-    // Transfer complete, Transfer error interrupt enable
+    // enable interrupts - Transfer complete and error
     DMA1_Channel1->CCR |= DMA_CCR_TCIE | DMA_CCR_TEIE;
-    // not circular mode
+    // disable Circular mode
     DMA1_Channel1->CCR &= ~DMA_CCR_CIRC;
 
     // Memory increment mode
@@ -197,11 +202,7 @@ void DMA_start() {
     // 01: 16-bits
     // 10: 32-bits
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_PSIZE_Pos);
-
     // Memory size
-    // 00: 8-bits
-    // 01: 16-bits
-    // 10: 32-bits
     DMA1_Channel1->CCR |= (0b01u << DMA_CCR_MSIZE_Pos);
 
     // Channel Priority level 11 - Very high
@@ -225,13 +226,11 @@ void DMA_start() {
     NVIC_EnableIRQ(DMA1_Channel1_IRQn); // enable DMA1 CH1 interrupt
 }
 
-uint16_t dmaG = 0;
 uint16_t dmaT = 0;
-uint16_t dmaH = 0;
 uint16_t dmaE = 0;
 
 void DMA1_Channel1_IRQHandler() {
-    if (DMA1->ISR & DMA_ISR_TCIF1) {  // transfer complete
+    if (DMA1->ISR & DMA_ISR_TCIF1) { // transfer complete
         adcCircleTicks = DWT_Get() - adcCircleStart;
         // ADC stop conversion
         ADC1->CR |= ADC_CR_ADSTP;
@@ -240,17 +239,10 @@ void DMA1_Channel1_IRQHandler() {
         dmaT++;
         DMA1->IFCR = DMA_IFCR_CTCIF1; // clear interrupt flag
     }
-//    if (DMA1->ISR & DMA_ISR_HTIF1) {  // half transfer
-//        DMA1->IFCR = DMA_IFCR_CHTIF1;
-//        dmaH++;
-//    }
     if (DMA1->ISR & DMA_ISR_TEIF1) {
         DMA1->IFCR = DMA_IFCR_CTEIF1;
         dmaE++;
     }
-//    if (DMA1->ISR & DMA_ISR_GIF1) {
-//        dmaG++;
-//    }
     DMA1->IFCR = DMA_IFCR_CGIF1;
 }
 
