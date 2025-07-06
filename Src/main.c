@@ -5,67 +5,12 @@
 
 void SystemClock_Config(void);
 
-#define UART_DIV_SAMPLING16(__PCLK__, __BAUD__)  (((__PCLK__) + ((__BAUD__)/2U)) / (__BAUD__))
-
-void USART1_init() {
-    // set PA9 PA10 for USART1
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    // high speed PA9 PA10
-    GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9 | GPIO_OSPEEDER_OSPEEDR10;
-    // AF7 for USART1 signals for PA9 PA10
-    GPIOA->AFR[1] = (GPIOA->AFR[1] & ~(GPIO_AFRH_AFRH1 | GPIO_AFRH_AFRH2)) | (7u << (1 * 4u)) | (7u << (2 * 4u));
-    // Select AF mode (10) on PA9 PA10
-    GPIOA->MODER = (GPIOA->MODER & ~(GPIO_MODER_MODER9 | GPIO_MODER_MODER10)) | GPIO_MODER_MODER9_1 | GPIO_MODER_MODER10_1;
-
-    // Initialize UART1 clock
-    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
-    RCC->CFGR3 &= ~RCC_CFGR3_USART1SW; // PCLK clock source for USART1
-
-    // disable USART1
-    USART1->CR1 &= ~USART_CR1_UE;
-    // set baud rate
-    USART1->BRR = UART_DIV_SAMPLING16(72000000, 115200);
-    USART1->CR1 |= USART_CR1_UE | USART_CR1_TE; // enable USART and USART transmit. USART_CR1_RE for receive
-//    USART1->CR1 |= USART_CR1_RXNEIE; // enable receive interrupt
-
-    USART1->ICR = USART_ICR_TCCF;  // clear TC flag
-    USART1->CR1 |= USART_CR1_TCIE; // enable TC interrupt
-
-    NVIC_EnableIRQ(USART1_IRQn);   // enable USART1 interrupt
-}
-
-void strcpy_(uint8_t *dst, const uint8_t *src) {
-    int i = 0;
-    do {
-        dst[i] = src[i];
-    } while (src[i++] != 0);
-}
-
-uint8_t send = 0;
-uint8_t string2send[200] = "";
-
-void uartSend(const char *str) {
-    // wait till end current transmission
-    while (send != 0);
-
-    strcpy_(string2send, (uint8_t *) str);
-    // start USART transmission. Will initiate TC if TXE
-    USART1->TDR = string2send[send];
-    send = 1;
-}
-
 /**
   * @brief  The application entry point.
   */
 int main(void) {
     // Configure the system clock
     SystemClock_Config();
-    USART1_init();
-
-    {   char buf[120];
-        sprintf(buf, "\n\nBuild: %s %s\n", buildDate, buildTime);
-        DBG_Trace(buf);
-    }
     mainInitialize();
 
 #pragma clang diagnostic push
@@ -100,27 +45,6 @@ void SystemClock_Config(void) {
     SystemCoreClockUpdate();
 }
 
-uint16_t txCount = 0;
-
-void USART1_IRQHandler() __attribute__((section (".ccmram")));
-
-void USART1_IRQHandler(void) {
-//    if (USART1->ISR & USART_CR1_RXNEIE) { // RXNEIE - data received
-//        tt = USART1->RDR;
-//    }
-
-    if (USART1->ISR & USART_ISR_TC) {
-        txCount++;
-        if (string2send[send] == 0) {
-            send = 0;
-            USART1->ICR = USART_ICR_TCCF; // Clear transfer complete flag
-            return;
-        } else {
-            // fill TDR with a new char and clear transfer complete flag
-            USART1->TDR = string2send[send++];
-        }
-    }
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

@@ -1,7 +1,7 @@
 #ifndef F3_DATABUFFER_H
 #define F3_DATABUFFER_H
 
-#include "lcd.h"
+#include "_main.h"
 
 #define BUF_SIZE 4096
 extern u8 samplesBuffer[BUF_SIZE];
