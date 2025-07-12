@@ -1,6 +1,5 @@
 #include <_main.h>
 #include <delay.h>
-#include <DataBuffer.h>
 #include <adc.h>
 
 
@@ -13,9 +12,9 @@ void mainInitialize() {
 void mainCycle() {
 
     // starting conversions if it does not run
-    if (!(ADC1->CR & ADC_CR_ADSTART)) {
-        ADC_start();
-    }
+//    if (!(ADC1->CR & ADC_CR_ADSTART)) {
+//        ADC_start();
+//    }
 
     delay_ms(50);
 }

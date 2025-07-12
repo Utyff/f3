@@ -245,19 +245,3 @@ void DMA1_Channel1_IRQHandler() {
     }
     DMA1->IFCR = DMA_IFCR_CGIF1;
 }
-
-void ADC_step(int16_t step) {
-    if (step > 0) {
-        if (currentADCParam < (sizeof ADC_Parameters / sizeof ADC_Parameters[0]) - 1) {
-            currentADCParam++;
-        }
-    } else if (step < 0) {
-        if (currentADCParam > 0) {
-            currentADCParam--;
-        }
-    }
-
-    // ADC stop conversion
-    ADC1->CR |= ADC_CR_ADSTP;
-    samplesReady = 0;
-}
