@@ -1,5 +1,6 @@
-#include <_main.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <_main.h>
 #include <delay.h>
 #include <draw.h>
 #include <keys.h>
